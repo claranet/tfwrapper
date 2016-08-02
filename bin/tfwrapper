@@ -73,7 +73,6 @@ def bootstrap(args):
             state_bucket = "s3.terraform.root-state.{}.{}".format(region,
                                                                   account)
             state_file = "{}/global/terraform.state".format(account)
-            terraform remote config -backend=s3 -backend-config="bucket={}" -backend-config="key=/{}/global/terraform.state"
             subprocess.run(["terraform", "remote", "config", "-backend=s3",
                             '-backend-config="bucket={}"'.format(state_bucket),
                             'backend-config="key={}"'.format(state_file),])
