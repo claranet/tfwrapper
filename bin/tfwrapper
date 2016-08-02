@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Python wrapper for Terraform."""
+
+import argparse
+import os
+import random
+import string
+import subprocess
+import boto3
+import yaml
+
+
+def load_config(confdir, account=None, environment=None, region=None,
+                stack=None):
+    """Load configuration from YAML file."""
+    if account:
+        print('TODO')
+    else:
+        f = open(confdir + '/global.yml', 'r')
+        config = yaml.load(f)
+        f.close()
+
+    return config
+
+
+def set_aws_env(sts_client, role_arn):
+    """Configure Terraform env."""
+    random_id = ''.join(random.choice(string.ascii_letters) for x in range(10))
+    session_name = 'terraform-{}'.format(random_id)
+
+    response = sts_client.assume_role(
+        RoleArn=role_arn,
+        RoleSessionName=session_name
+    )
+
+    os.environ['AWS_ACCESS_KEY_ID'] = response['Credentials']['AccessKeyId']
+    os.environ['AWS_SECRET_ACCESS_KEY'] = response['Credentials']['SecretAccessKey']
+    os.environ['AWS_SECURITY_TOKEN'] = response['Credentials']['SessionToken']
+    os.environ['AWS_SESSION_TOKEN'] = response['Credentials']['SessionToken']
+
+
+def terraform_get(args):
+    """Terraform get wrapper function."""
+    subprocess.run(["terraform", "get"])
+
+
+def main():
+    """Main function."""
+    # argparse
+    parser = argparse.ArgumentParser(description='Terraform wrapper. ')
+    parser.add_argument('-c', '--confdir', help='configuration directory.',
+                        default='conf')
+    parser.add_argument('-a', '--account', help='target account.',
+                        default='global')
+    parser.add_argument('-e', '--environment', help='target environment.',
+                        default=None)
+    parser.add_argument('-r', '--region', help='target region.',
+                        default=None)
+    parser.add_argument('-s', '--stack', help='target region.',
+                        default=None)
+
+    subparsers = parser.add_subparsers(help='subcommands')
+
+    parser_get = subparsers.add_parser('get', help='terraform get')
+    parser_get.set_defaults(func=terraform_get)
+
+    parser_plan = subparsers.add_parser('plan', help='terraform plan')
+    #parser_plan.set_defaults(func=terraform_plan)
+
+    parser_apply = subparsers.add_parser('apply', help='terraform apply')
+    #parser_apply.set_defaults(func=terraform_apply)
+
+    args = parser.parse_args()
+
+    # load global config
+    config = load_config(args.confdir)
+
+    # Open session and get clients
+    session = boto3.Session(profile_name=config['profile'],
+                            region_name=config['region'])
+    sts_client = session.client('sts')
+    role_arn = 'arn:aws:iam::{}:role/{}'.format(config['account'],
+                                                config['role'])
+
+    # set environment variables
+    set_aws_env(sts_client, role_arn)
+
+    # call subcommand
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()
