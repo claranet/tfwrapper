@@ -75,7 +75,7 @@ def bootstrap(args):
             state_file = "{}/global/terraform.state".format(account)
             subprocess.run(["terraform", "remote", "config", "-backend=s3",
                             '-backend-config="bucket={}"'.format(state_bucket),
-                            'backend-config="key={}"'.format(state_file),])
+                            '-backend-config="key={}"'.format(state_file),])
 
 def terraform_get(args):
     """Terraform get wrapper function."""
