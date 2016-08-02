@@ -47,8 +47,10 @@ def set_terraform_vars(vars):
 def bootstrap(args):
     """Bootstrap project."""
     config = load_config(args.confdir)
-    account = config['aws']['general']['account']
-    region = config['aws']['general']['region']
+    state_account = config['aws']['general']['account']
+    state_region = config['aws']['general']['region']
+    state_bucket = "s3.terraform.root-state.{}.{}".format(state_region,
+                                                          state_account)
 
     for account in config['terraform']['accounts']:
         # global state bootstrap
@@ -70,12 +72,12 @@ def bootstrap(args):
                 f.write('# {} complete me !\n'.format(account))
 
             # bootstrap remote state
-            state_bucket = "s3.terraform.root-state.{}.{}".format(region,
-                                                                  account)
             state_file = "{}/global/terraform.state".format(account)
-            subprocess.run(["terraform", "remote", "config", "-backend=s3",
-                            '-backend-config="bucket={}"'.format(state_bucket),
-                            '-backend-config="key={}"'.format(state_file),])
+            subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
+                            '-backend-config', 'bucket={}'.format(state_bucket),
+                            '-backend-config', 'key={}'.format(state_file),
+                            '-backend-config', 'region={}'.format(state_region)],
+                           cwd='{}/_global'.format(account))
 
 def terraform_get(args):
     """Terraform get wrapper function."""
