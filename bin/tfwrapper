@@ -49,6 +49,14 @@ def terraform_get(args):
     """Terraform get wrapper function."""
     subprocess.run(["terraform", "get"])
 
+def terraform_plan(args):
+    """Terraform get wrapper function."""
+    subprocess.run(["terraform", "plan"])
+
+def terraform_apply(args):
+    """Terraform get wrapper function."""
+    subprocess.run(["terraform", "apply"])
+
 
 def main():
     """Main function."""
@@ -71,10 +79,10 @@ def main():
     parser_get.set_defaults(func=terraform_get)
 
     parser_plan = subparsers.add_parser('plan', help='terraform plan')
-    #parser_plan.set_defaults(func=terraform_plan)
+    parser_plan.set_defaults(func=terraform_plan)
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
-    #parser_apply.set_defaults(func=terraform_apply)
+    parser_apply.set_defaults(func=terraform_apply)
 
     args = parser.parse_args()
 
