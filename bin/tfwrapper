@@ -16,9 +16,8 @@ def load_config(confdir, account=None, environment=None, region=None,
     if account:
         print('TODO')
     else:
-        f = open(confdir + '/global.yml', 'r')
-        config = yaml.load(f)
-        f.close()
+        with open(confdir + '/global.yml', 'r') as f:
+            config = yaml.load(f)
 
     return config
 
@@ -45,16 +44,52 @@ def set_terraform_vars(vars):
         os.environ['TF_VAR_{}'.format(var)] = value
 
 
+def bootstrap(args):
+    """Bootstrap project."""
+    config = load_config(args.confdir)
+    account = config['aws']['general']['account']
+    region = config['aws']['general']['region']
+
+    for account in config['terraform']['accounts']:
+        # global state bootstrap
+        if not os.path.exists('conf/{}-global.yml'):
+            # bootstrap files
+            os.makedirs('{}/_global'.format(account))
+
+            with open('{}/_global/main.tf'.format(account), 'w') as f:
+                f.write('# {} main terraform file.\n'.format(account))
+
+            with open('{}/_global/README.md'.format(account), 'w') as f:
+                f.write('Complete me !\n')
+
+            with open('{}/_global/.gitignore'.format(account), 'w') as f:
+                f.write('terraform.tfstate.backup\nterraform.tfstate.backup\n'
+                        '.terraform/modules\n')
+
+            with open('{}/_global/README.md'.format(account), 'w') as f:
+                f.write('# {} complete me !\n'.format(account))
+
+            # bootstrap remote state
+            state_bucket = "s3.terraform.root-state.{}.{}".format(region,
+                                                                  account)
+            state_file = "{}/global/terraform.state".format(account)
+            terraform remote config -backend=s3 -backend-config="bucket={}" -backend-config="key=/{}/global/terraform.state"
+            subprocess.run(["terraform", "remote", "config", "-backend=s3",
+                            '-backend-config="bucket={}"'.format(state_bucket),
+                            'backend-config="key={}"'.format(state_file),])
+
 def terraform_get(args):
     """Terraform get wrapper function."""
     subprocess.run(["terraform", "get"])
 
+
 def terraform_plan(args):
-    """Terraform get wrapper function."""
+    """Terraform plan wrapper function."""
     subprocess.run(["terraform", "plan"])
 
+
 def terraform_apply(args):
-    """Terraform get wrapper function."""
+    """Terraform apply wrapper function."""
     subprocess.run(["terraform", "apply"])
 
 
@@ -83,6 +118,9 @@ def main():
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
+
+    parser_apply = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
+    parser_apply.set_defaults(func=bootstrap)
 
     args = parser.parse_args()
 
