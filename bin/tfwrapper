@@ -24,7 +24,7 @@ def load_config(confdir, account=None, environment=None, region=None,
 
 
 def set_aws_env(sts_client, role_arn):
-    """Configure Terraform env."""
+    """Configure AWS env."""
     random_id = ''.join(random.choice(string.ascii_letters) for x in range(10))
     session_name = 'terraform-{}'.format(random_id)
 
@@ -37,6 +37,12 @@ def set_aws_env(sts_client, role_arn):
     os.environ['AWS_SECRET_ACCESS_KEY'] = response['Credentials']['SecretAccessKey']
     os.environ['AWS_SECURITY_TOKEN'] = response['Credentials']['SessionToken']
     os.environ['AWS_SESSION_TOKEN'] = response['Credentials']['SessionToken']
+
+
+def set_terraform_vars(vars):
+    """Configure Terraform env."""
+    for var, value in vars.items():
+        os.environ['TF_VAR_{}'.format(var)] = value
 
 
 def terraform_get(args):
@@ -76,14 +82,15 @@ def main():
     config = load_config(args.confdir)
 
     # Open session and get clients
-    session = boto3.Session(profile_name=config['profile'],
-                            region_name=config['region'])
+    session = boto3.Session(profile_name=config['aws']['credentials']['profile'],
+                            region_name=config['aws']['general']['region'])
     sts_client = session.client('sts')
-    role_arn = 'arn:aws:iam::{}:role/{}'.format(config['account'],
-                                                config['role'])
+    role_arn = 'arn:aws:iam::{}:role/{}'.format(config['aws']['general']['account'],
+                                                config['aws']['credentials']['role'])
 
     # set environment variables
     set_aws_env(sts_client, role_arn)
+    set_terraform_vars(config['terraform']['vars'])
 
     # call subcommand
     if hasattr(args, 'func'):
