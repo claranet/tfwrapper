@@ -13,10 +13,14 @@ import yaml
 def load_config(confdir, account=None, environment=None, region=None,
                 stack=None):
     """Load configuration from YAML file."""
-    if account:
-        print('TODO')
+    if account == 'root':
+        with open(confdir + '/root.yml', 'r') as f:
+            config = yaml.load(f)
+    elif environment == 'global':
+        with open('{}/{}_global_{}.yml'.format(confdir, account, stack), 'r') as f:
+            config = yaml.load(f)
     else:
-        with open(confdir + '/global.yml', 'r') as f:
+        with open('{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack), 'r') as f:
             config = yaml.load(f)
 
     return config
@@ -46,38 +50,36 @@ def set_terraform_vars(vars):
 
 def bootstrap(args):
     """Bootstrap project."""
-    config = load_config(args.confdir)
-    state_account = config['aws']['general']['account']
-    state_region = config['aws']['general']['region']
+    root_config = load_config(args.confdir)
+    account = args.account
+    environment = args.environment
+    region = args.region
+    stack = args.stack
+    state_account = root_config['aws']['general']['account']
+    state_region = root_config['aws']['general']['region']
     state_bucket = "s3.terraform.root-state.{}.{}".format(state_region,
                                                           state_account)
 
-    for account in config['terraform']['accounts']:
-        # global state bootstrap
-        if not os.path.exists('conf/{}-global.yml'):
-            # bootstrap files
-            os.makedirs('{}/_global'.format(account))
+    if not os.path.isdir(account) and not account == 'root':
+        if environment == 'global':
+            # bootstrap global environment files
+            os.makedirs('{}/_global/{}'.format(account, stack))
 
-            with open('{}/_global/main.tf'.format(account), 'w') as f:
+            with open('{}/_global/{}/main.tf'.format(account, stack), 'w') as f:
                 f.write('# {} main terraform file.\n'.format(account))
 
-            with open('{}/_global/README.md'.format(account), 'w') as f:
-                f.write('Complete me !\n')
-
-            with open('{}/_global/.gitignore'.format(account), 'w') as f:
-                f.write('terraform.tfstate.backup\nterraform.tfstate.backup\n'
-                        '.terraform/modules\n')
-
-            with open('{}/_global/README.md'.format(account), 'w') as f:
-                f.write('# {} complete me !\n'.format(account))
-
             # bootstrap remote state
-            state_file = "{}/global/terraform.state".format(account)
+            state_file = "{}/global/{}/terraform.state".format(account, stack)
             subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
                             '-backend-config', 'bucket={}'.format(state_bucket),
                             '-backend-config', 'key={}'.format(state_file),
                             '-backend-config', 'region={}'.format(state_region)],
                            cwd='{}/_global'.format(account))
+        else:
+            #TODO
+    else:
+        print('Nothing to bootstrap')
+
 
 def terraform_get(args):
     """Terraform get wrapper function."""
@@ -101,13 +103,13 @@ def main():
     parser.add_argument('-c', '--confdir', help='configuration directory.',
                         default='conf')
     parser.add_argument('-a', '--account', help='target account.',
-                        default='global')
+                        default='root')
     parser.add_argument('-e', '--environment', help='target environment.',
-                        default=None)
+                        default='dev')
     parser.add_argument('-r', '--region', help='target region.',
-                        default=None)
+                        default='eu-west-1')
     parser.add_argument('-s', '--stack', help='target region.',
-                        default=None)
+                        default='default')
 
     subparsers = parser.add_subparsers(help='subcommands')
 
@@ -125,8 +127,8 @@ def main():
 
     args = parser.parse_args()
 
-    # load global config
-    config = load_config(args.confdir)
+    # load config
+    config = load_config(args.confdir, args.account, args.environement, args.region, args.stack)
 
     # Open session and get clients
     session = boto3.Session(profile_name=config['aws']['credentials']['profile'],
