@@ -172,9 +172,10 @@ def main():
     set_aws_env(sts_client, role_arn)
 
     terraform_vars = config['terraform']['vars']
-    terraform_vars['account'] = args.account
+    terraform_vars['account_alias'] = args.account
     terraform_vars['environment'] = args.environment
-    terraform_vars['region'] = args.region
+    if not hasattr(terraform_vars, 'aws_region'):
+        terraform_vars['aws_region'] = args.region
     terraform_vars['stack'] = args.stack
     set_terraform_vars(terraform_vars)
 
