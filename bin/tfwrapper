@@ -74,9 +74,20 @@ def bootstrap(args):
                             '-backend-config', 'bucket={}'.format(state_bucket),
                             '-backend-config', 'key={}'.format(state_file),
                             '-backend-config', 'region={}'.format(state_region)],
-                           cwd='{}/_global'.format(account))
+                           cwd='{}/_global/{}'.format(account, stack))
         else:
-            #TODO
+            os.makedirs('{}/{}/{}/{}'.format(account, environment, region, stack))
+
+            with open('{}/{}/{}/{}/main.tf'.format(account, environment, region, stack), 'w') as f:
+                f.write('# {} main terraform file.\n'.format(account))
+
+            # bootstrap remote state
+            state_file = "{}/{}/{}/{}/terraform.state".format(account, environment, region, stack)
+            subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
+                            '-backend-config', 'bucket={}'.format(state_bucket),
+                            '-backend-config', 'key={}'.format(state_file),
+                            '-backend-config', 'region={}'.format(state_region)],
+                           cwd='{}/{}/{}/{}'.format(account, environment, region, stack))
     else:
         print('Nothing to bootstrap')
 
