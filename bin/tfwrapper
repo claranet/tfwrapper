@@ -133,8 +133,8 @@ def main():
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
 
-    parser_apply = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
-    parser_apply.set_defaults(func=bootstrap)
+    parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
+    parser_bootstrap.set_defaults(func=bootstrap)
 
     args = parser.parse_args()
 
