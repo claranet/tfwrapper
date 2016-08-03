@@ -65,29 +65,37 @@ def bootstrap(args):
             # bootstrap global environment files
             os.makedirs('{}/_global/{}'.format(account, stack))
 
-            with open('{}/_global/{}/main.tf'.format(account, stack), 'w') as f:
-                f.write('# {} main terraform file.\n'.format(account))
+            tf_main = '{}/_global/{}/main.tf'.format(account, stack)
+            if not os.path.isfile(tf_main):
+                with open(tf_main, 'w') as f:
+                    f.write('# {} main terraform file.\n'.format(account))
 
             # bootstrap remote state
             state_file = "{}/global/{}/terraform.state".format(account, stack)
-            subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
-                            '-backend-config', 'bucket={}'.format(state_bucket),
-                            '-backend-config', 'key={}'.format(state_file),
-                            '-backend-config', 'region={}'.format(state_region)],
-                           cwd='{}/_global/{}'.format(account, stack))
+            local_state_file = "{}/_global/{}/terraform.tfstate".format(account, stack)
+            if not os.path.isfile(state_file):
+                subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
+                                '-backend-config', 'bucket={}'.format(state_bucket),
+                                '-backend-config', 'key={}'.format(state_file),
+                                '-backend-config', 'region={}'.format(state_region)],
+                               cwd='{}/_global/{}'.format(account, stack))
         else:
             os.makedirs('{}/{}/{}/{}'.format(account, environment, region, stack))
 
-            with open('{}/{}/{}/{}/main.tf'.format(account, environment, region, stack), 'w') as f:
-                f.write('# {} main terraform file.\n'.format(account))
+            tf_main = '{}/{}/{}/{}/main.tf'.format(account, environment, region, stack)
+            if not os.path.isfile(tf_main):
+                with open(tf_main, 'w') as f:
+                    f.write('# {} main terraform file.\n'.format(account))
 
             # bootstrap remote state
             state_file = "{}/{}/{}/{}/terraform.state".format(account, environment, region, stack)
-            subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
-                            '-backend-config', 'bucket={}'.format(state_bucket),
-                            '-backend-config', 'key={}'.format(state_file),
-                            '-backend-config', 'region={}'.format(state_region)],
-                           cwd='{}/{}/{}/{}'.format(account, environment, region, stack))
+            local_state_file = "{}/{}/{}/{}/terraform.tfstate".format(account, environment, region, stack)
+            if not os.path.isfile(state_file):
+                subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
+                                '-backend-config', 'bucket={}'.format(state_bucket),
+                                '-backend-config', 'key={}'.format(state_file),
+                                '-backend-config', 'region={}'.format(state_region)],
+                               cwd='{}/{}/{}/{}'.format(account, environment, region, stack))
     else:
         print('Nothing to bootstrap')
 
