@@ -94,18 +94,38 @@ def bootstrap(args):
 
 def terraform_get(args):
     """Terraform get wrapper function."""
-    subprocess.run(["terraform", "get"])
+    if args.account == 'root':
+        subprocess.run(["terraform", "get"])
+    elif args.environment == 'global':
+        subprocess.run(["terraform", "get"],
+                       cwd='{}/_global/{}'.format(args.account, args.stack))
+    else:
+        subprocess.run(["terraform", "get"],
+                       cwd='{}/{}/{}/{}'.format(args.account, args.environment, args.region, args.stack))
 
 
 def terraform_plan(args):
     """Terraform plan wrapper function."""
-    subprocess.run(["terraform", "plan"])
+    if args.account == 'root':
+        subprocess.run(["terraform", "plan"])
+    elif args.environment == 'global':
+        subprocess.run(["terraform", "plan"],
+                       cwd='{}/_global/{}'.format(args.account, args.stack))
+    else:
+        subprocess.run(["terraform", "plan"],
+                       cwd='{}/{}/{}/{}'.format(args.account, args.environment, args.region, args.stack))
 
 
 def terraform_apply(args):
     """Terraform apply wrapper function."""
-    subprocess.run(["terraform", "apply"])
-
+    if args.account == 'root':
+        subprocess.run(["terraform", "apply"])
+    elif args.environment == 'global':
+        subprocess.run(["terraform", "apply"],
+                       cwd='{}/_global/{}'.format(args.account, args.stack))
+    else:
+        subprocess.run(["terraform", "apply"],
+                       cwd='{}/{}/{}/{}'.format(args.account, args.environment, args.region, args.stack))
 
 def main():
     """Main function."""
