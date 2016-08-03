@@ -63,7 +63,9 @@ def bootstrap(args):
     if not account == 'root':
         if environment == 'global':
             # bootstrap global environment files
-            os.makedirs('{}/_global/{}'.format(account, stack))
+            tf_dir = '{}/_global/{}'.format(account, stack)
+            if not os.path.isdir(tf_dir):
+                os.makedirs(tf_dir)
 
             tf_main = '{}/_global/{}/main.tf'.format(account, stack)
             if not os.path.isfile(tf_main):
@@ -80,7 +82,9 @@ def bootstrap(args):
                                 '-backend-config', 'region={}'.format(state_region)],
                                cwd='{}/_global/{}'.format(account, stack))
         else:
-            os.makedirs('{}/{}/{}/{}'.format(account, environment, region, stack))
+            tf_dir = '{}/{}/{}/{}'.format(account, environment, region, stack)
+            if not os.path.isdir(tf_dir):
+                os.makedirs(tf_dir)
 
             tf_main = '{}/{}/{}/{}/main.tf'.format(account, environment, region, stack)
             if not os.path.isfile(tf_main):
