@@ -150,7 +150,13 @@ def main():
 
     # set environment variables
     set_aws_env(sts_client, role_arn)
-    set_terraform_vars(config['terraform']['vars'])
+
+    terraform_vars = config['terraform']['vars']
+    terraform_vars['account'] = args.account
+    terraform_vars['environment'] = args.environment
+    terraform_vars['region'] = args.region
+    terraform_vars['stack'] = args.stack
+    set_terraform_vars(terraform_vars)
 
     # call subcommand
     if hasattr(args, 'func'):
