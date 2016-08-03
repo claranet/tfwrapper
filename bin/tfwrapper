@@ -139,7 +139,7 @@ def main():
     args = parser.parse_args()
 
     # load config
-    config = load_config(args.confdir, args.account, args.environement, args.region, args.stack)
+    config = load_config(args.confdir, args.account, args.environment, args.region, args.stack)
 
     # Open session and get clients
     session = boto3.Session(profile_name=config['aws']['credentials']['profile'],
