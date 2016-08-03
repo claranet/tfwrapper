@@ -3,10 +3,13 @@
 
 import argparse
 import os
+import pickle
 import random
 import shutil
 import string
 import subprocess
+import time
+
 import boto3
 import yaml
 
@@ -166,8 +169,24 @@ def main():
     config = load_config(args.confdir, args.account, args.environment, args.region, args.stack)
 
     # Open session and get clients
-    session = boto3.Session(profile_name=config['aws']['credentials']['profile'],
-                            region_name=config['aws']['general']['region'])
+    session_cache_file = '.run/session_cache_{}.pickle'.format(args.account)
+
+    if (os.path.isfile(session_cache_file) and
+        time.time() - os.stat(session_cache_file).st_mtime < 3600):
+        with open(session_cache_file, 'rb') as f:
+            session_cache = pickle.load(f)
+        session = boto3.Session(aws_access_key_id=session_cache['credentials'].access_key,
+                                aws_secret_access_key=session_cache['credentials'].secret_key,
+                                aws_session_token=session_cache['credentials'].token,
+                                region_name=session_cache['region'])
+    else:
+        session = boto3.Session(profile_name=config['aws']['credentials']['profile'],
+                                region_name=config['aws']['general']['region'])
+        session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
+                         'region': session.region_name}
+        with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT, mode=0o600), 'wb') as f:
+            pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
+
     sts_client = session.client('sts')
     role_arn = 'arn:aws:iam::{}:role/{}'.format(config['aws']['general']['account'],
                                                 config['aws']['credentials']['role'])
