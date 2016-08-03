@@ -10,7 +10,7 @@ import boto3
 import yaml
 
 
-def load_config(confdir, account=None, environment=None, region=None,
+def load_config(confdir, account='root', environment=None, region=None,
                 stack=None):
     """Load configuration from YAML file."""
     if account == 'root':
