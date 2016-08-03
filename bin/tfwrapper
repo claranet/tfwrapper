@@ -4,6 +4,7 @@
 import argparse
 import os
 import random
+import shutil
 import string
 import subprocess
 import boto3
@@ -65,12 +66,8 @@ def bootstrap(args):
             # bootstrap global environment files
             tf_dir = '{}/_global/{}'.format(account, stack)
             if not os.path.isdir(tf_dir):
-                os.makedirs(tf_dir)
+                shutil.copytree('templates/global', tf_dir)
 
-            tf_main = '{}/_global/{}/main.tf'.format(account, stack)
-            if not os.path.isfile(tf_main):
-                with open(tf_main, 'w') as f:
-                    f.write('# {} main terraform file.\n'.format(account))
 
             # bootstrap remote state
             state_file = "{}/global/{}/terraform.state".format(account, stack)
@@ -84,12 +81,7 @@ def bootstrap(args):
         else:
             tf_dir = '{}/{}/{}/{}'.format(account, environment, region, stack)
             if not os.path.isdir(tf_dir):
-                os.makedirs(tf_dir)
-
-            tf_main = '{}/{}/{}/{}/main.tf'.format(account, environment, region, stack)
-            if not os.path.isfile(tf_main):
-                with open(tf_main, 'w') as f:
-                    f.write('# {} main terraform file.\n'.format(account))
+                shutil.copytree('templates/basic', tf_dir)
 
             # bootstrap remote state
             state_file = "{}/{}/{}/{}/terraform.state".format(account, environment, region, stack)
