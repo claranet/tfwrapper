@@ -198,7 +198,6 @@ def main():
                         default='default')
 
     subparsers = parser.add_subparsers(help='subcommands')
-    for subcommand in
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
