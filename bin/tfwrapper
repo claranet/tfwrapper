@@ -51,6 +51,14 @@ def set_terraform_vars(vars):
     for var, value in vars.items():
         os.environ['TF_VAR_{}'.format(var)] = value
 
+def check_remote_state(args):
+    # bootstrap remote state if not already done
+    if args.account != 'root' and args.environment == 'global':
+        if not os.path.isfile('{}/_global/{}/.terraform/terraform.tfstate'.format(args.account, args.stack)):
+            bootstrap(args)
+    elif args.account != 'root':
+        if not os.path.isfile('{}/{}/{}/{}/.terraform/terraform.tfstate'.format(args.account, args.environment, args.region, args.stack)):
+            bootstrap(args)
 
 def bootstrap(args):
     """Bootstrap project."""
@@ -119,6 +127,7 @@ def run_terraform(action, args):
 
 def terraform_apply(args):
     """Terraform apply wrapper function."""
+    check_remote_state(args)
     run_terraform('apply', args)
 
 
@@ -154,6 +163,7 @@ def terraform_output(args):
 
 def terraform_plan(args):
     """Terraform plan wrapper function."""
+    check_remote_state(args)
     run_terraform('plan', args)
 
 
