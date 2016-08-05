@@ -104,8 +104,8 @@ def run_terraform(action, args):
 
     # support for custom parameters
     command = ["terraform", action]
-    if hasattr(args, 'tf_params'):
-        command.append(tf_params)
+    if args.tf_params is not None:
+        command += args.tf_params.split(' ')
 
     if args.account == 'root':
         subprocess.run(command)
@@ -201,55 +201,55 @@ def main():
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
-    parser_apply.add_argument('tf_params', nargs='*')
+    parser_apply.add_argument('--tf_params', nargs='?')
 
     parser_destroy = subparsers.add_parser('destroy', help='terraform destroy')
     parser_destroy.set_defaults(func=terraform_destroy)
-    parser_destroy.add_argument('tf_params', nargs='*')
+    parser_destroy.add_argument('--tf_params', nargs='?')
 
     parser_fmt = subparsers.add_parser('fmt', help='terraform fmt')
     parser_fmt.set_defaults(func=terraform_fmt)
-    parser_fmt.add_argument('tf_params', nargs='*')
+    parser_fmt.add_argument('--tf_params', nargs='?')
 
     parser_get = subparsers.add_parser('get', help='terraform get')
     parser_get.set_defaults(func=terraform_get)
-    parser_get.add_argument('tf_params', nargs='*')
+    parser_get.add_argument('--tf_params', nargs='?')
 
     parser_graph = subparsers.add_parser('graph', help='terraform graph')
     parser_graph.set_defaults(func=terraform_graph)
-    parser_graph.add_argument('tf_params', nargs='*')
+    parser_graph.add_argument('--tf_params', nargs='?')
 
     parser_import = subparsers.add_parser('import', help='terraform import')
     parser_import.set_defaults(func=terraform_import)
-    parser_import.add_argument('tf_params', nargs='*')
+    parser_import.add_argument('--tf_params', nargs='?')
 
     parser_output = subparsers.add_parser('output', help='terraform output')
     parser_output.set_defaults(func=terraform_output)
-    parser_output.add_argument('tf_params', nargs='*')
+    parser_output.add_argument('--tf_params', nargs='?')
 
     parser_plan = subparsers.add_parser('plan', help='terraform plan')
     parser_plan.set_defaults(func=terraform_plan)
-    parser_plan.add_argument('tf_params', nargs='*')
+    parser_plan.add_argument('--tf_params', nargs='?')
 
     parser_refresh = subparsers.add_parser('refresh', help='terraform refresh')
     parser_refresh.set_defaults(func=terraform_refresh)
-    parser_refresh.add_argument('tf_params', nargs='*')
+    parser_refresh.add_argument('--tf_params', nargs='?')
 
     parser_show = subparsers.add_parser('show', help='terraform show')
     parser_show.set_defaults(func=terraform_show)
-    parser_show.add_argument('tf_params', nargs='*')
+    parser_show.add_argument('--tf_params', nargs='?')
 
     parser_taint = subparsers.add_parser('taint', help='terraform taint')
     parser_taint.set_defaults(func=terraform_taint)
-    parser_taint.add_argument('tf_params', nargs='*')
+    parser_taint.add_argument('--tf_params', nargs='?')
 
     parser_untaint = subparsers.add_parser('taint', help='terraform untaint')
     parser_untaint.set_defaults(func=terraform_untaint)
-    parser_untaint.add_argument('tf_params', nargs='*')
+    parser_untaint.add_argument('--tf_params', nargs='?')
 
     parser_validate = subparsers.add_parser('validate', help='terraform validate')
     parser_validate.set_defaults(func=terraform_validate)
-    parser_validate.add_argument('tf_params', nargs='*')
+    parser_validate.add_argument('--tf_params', nargs='?')
 
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
     parser_bootstrap.set_defaults(func=bootstrap)
