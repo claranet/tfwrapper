@@ -253,7 +253,7 @@ def main():
     parser_taint.set_defaults(func=terraform_taint)
     parser_taint.add_argument('--tf_params', nargs='?')
 
-    parser_untaint = subparsers.add_parser('taint', help='terraform untaint')
+    parser_untaint = subparsers.add_parser('untaint', help='terraform untaint')
     parser_untaint.set_defaults(func=terraform_untaint)
     parser_untaint.add_argument('--tf_params', nargs='?')
 
