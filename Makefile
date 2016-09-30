@@ -1,4 +1,4 @@
-SHELL := $(shell env | grep SHELL | cut -d '=' -f '2' )
+SHELL := $(shell env | grep SHELL= | cut -d '=' -f '2' )
 
 makefile_path := $(realpath $(lastword $(MAKEFILE_LIST)))
 makefile_dir := $(patsubst %/,%,$(dir $(makefile_path)))
