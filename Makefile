@@ -11,7 +11,7 @@ pip := $(virtualenv_bin)/pip
 setup:
 ifneq ($(shell test -d $(makefile_dir)/.virtualenv; echo $$?),0)
 	@echo 'Setting up virtualenv.'
-	@virtualenv -p python3 $(makefile_dir)/.virtualenv
+	@virtualenv -p python3.5 $(makefile_dir)/.virtualenv
 	@$(pip) install -r $(makefile_dir)/requirements.txt
 endif
 
