@@ -87,7 +87,8 @@ def bootstrap(args):
                 subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
                                 '-backend-config', 'bucket={}'.format(state_bucket),
                                 '-backend-config', 'key={}'.format(state_file),
-                                '-backend-config', 'region={}'.format(state_region)],
+                                '-backend-config', 'region={}'.format(state_region),
+                                '-backend-config', 'acl=bucket-owner-full-control'],
                                cwd='{}/_global/{}'.format(account, stack))
         else:
             tf_dir = '{}/{}/{}/{}'.format(account, environment, region, stack)
@@ -101,7 +102,8 @@ def bootstrap(args):
                 subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
                                 '-backend-config', 'bucket={}'.format(state_bucket),
                                 '-backend-config', 'key={}'.format(state_file),
-                                '-backend-config', 'region={}'.format(state_region)],
+                                '-backend-config', 'region={}'.format(state_region),
+                                '-backend-config', 'acl=bucket-owner-full-control'],
                                cwd='{}/{}/{}/{}'.format(account, environment, region, stack))
     else:
         print('Nothing to bootstrap')
