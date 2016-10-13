@@ -179,6 +179,11 @@ def terraform_show(args):
     run_terraform('show', args)
 
 
+def terraform_state(args):
+    """Terraform state wrapper function."""
+    run_terraform('state', args)
+
+
 def terraform_taint(args):
     """Terraform taint wrapper function."""
     run_terraform('taint', args)
@@ -250,6 +255,10 @@ def main():
     parser_show = subparsers.add_parser('show', help='terraform show')
     parser_show.set_defaults(func=terraform_show)
     parser_show.add_argument('--tf_params', nargs='?')
+
+    parser_state = subparsers.add_parser('state', help='terraform state')
+    parser_state.set_defaults(func=terraform_state)
+    parser_state.add_argument('--tf_params', nargs='?')
 
     parser_taint = subparsers.add_parser('taint', help='terraform taint')
     parser_taint.set_defaults(func=terraform_taint)
