@@ -109,13 +109,15 @@ def bootstrap(args):
         print('Nothing to bootstrap')
 
 
-def run_terraform(action, args):
+def run_terraform(action, args, unknownargs):
     """Run Terraform command."""
 
     # support for custom parameters
     command = ["terraform", action]
     if args.tf_params is not None:
         command += args.tf_params.split(' ')
+    if unknownargs is not None:
+        command += unknownargs
 
     if args.account == 'root':
         subprocess.run(command)
@@ -127,76 +129,76 @@ def run_terraform(action, args):
                        cwd='{}/{}/{}/{}'.format(args.account, args.environment, args.region, args.stack))
 
 
-def terraform_apply(args):
+def terraform_apply(args, unknownargs):
     """Terraform apply wrapper function."""
     check_remote_state(args)
-    run_terraform('apply', args)
+    run_terraform('apply', args, unknownargs)
 
 
-def terraform_destroy(args):
+def terraform_destroy(args, unknownargs):
     """Terraform destroy wrapper function."""
-    run_terraform('destroy', args)
+    run_terraform('destroy', args, unknownargs)
 
 
-def terraform_fmt(args):
+def terraform_fmt(args, unknownargs):
     """Terraform fmt wrapper function."""
-    run_terraform('fmt', args)
+    run_terraform('fmt', args, unknownargs)
 
 
-def terraform_get(args):
+def terraform_get(args, unknownargs):
     """Terraform get wrapper function."""
-    run_terraform('get', args)
+    run_terraform('get', args, unknownargs)
 
 
-def terraform_graph(args):
+def terraform_graph(args, unknownargs):
     """Terraform graph wrapper function."""
-    run_terraform('graph', args)
+    run_terraform('graph', args, unknownargs)
 
 
-def terraform_import(args):
+def terraform_import(args, unknownargs):
     """Terraform import wrapper function."""
-    run_terraform('import', args)
+    run_terraform('import', args, unknownargs)
 
 
-def terraform_output(args):
+def terraform_output(args, unknownargs):
     """Terraform output wrapper function."""
-    run_terraform('output', args)
+    run_terraform('output', args, unknownargs)
 
 
-def terraform_plan(args):
+def terraform_plan(args, unknownargs):
     """Terraform plan wrapper function."""
     check_remote_state(args)
-    run_terraform('plan', args)
+    run_terraform('plan', args, unknownargs)
 
 
-def terraform_refresh(args):
+def terraform_refresh(args, unknownargs):
     """Terraform refresh wrapper function."""
-    run_terraform('refresh', args)
+    run_terraform('refresh', args, unknownargs)
 
 
-def terraform_show(args):
+def terraform_show(args, unknownargs):
     """Terraform show wrapper function."""
-    run_terraform('show', args)
+    run_terraform('show', args, unknownargs)
 
 
-def terraform_state(args):
+def terraform_state(args, unknownargs):
     """Terraform state wrapper function."""
-    run_terraform('state', args)
+    run_terraform('state', args, unknownargs)
 
 
-def terraform_taint(args):
+def terraform_taint(args, unknownargs):
     """Terraform taint wrapper function."""
-    run_terraform('taint', args)
+    run_terraform('taint', args, unknownargs)
 
 
-def terraform_untaint(args):
+def terraform_untaint(args, unknownargs):
     """Terraform untaint wrapper function."""
-    run_terraform('untaint', args)
+    run_terraform('untaint', args, unknownargs)
 
 
-def terraform_validate(args):
+def terraform_validate(args, unknownargs):
     """Terraform validate wrapper function."""
-    run_terraform('validate', args)
+    run_terraform('validate', args, unknownargs)
 
 
 def main():
@@ -275,7 +277,7 @@ def main():
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
     parser_bootstrap.set_defaults(func=bootstrap)
 
-    args = parser.parse_args()
+    args, unknownargs = parser.parse_known_args()
 
     # load config
     config = load_config(args.confdir, args.account, args.environment, args.region, args.stack)
@@ -315,7 +317,7 @@ def main():
 
     # call subcommand
     if hasattr(args, 'func'):
-        args.func(args)
+        args.func(args, unknownargs)
     else:
         parser.print_help()
 
