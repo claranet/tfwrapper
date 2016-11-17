@@ -317,7 +317,10 @@ def main():
 
     # call subcommand
     if hasattr(args, 'func'):
-        args.func(args, unknownargs)
+        if args.func.__name__.startswith('terraform_'):
+            args.func(args, unknownargs)
+        else:
+            args.func(args)
     else:
         parser.print_help()
 
