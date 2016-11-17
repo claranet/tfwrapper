@@ -109,15 +109,15 @@ def bootstrap(args):
         print('Nothing to bootstrap')
 
 
-def run_terraform(action, args, unknownargs):
+def run_terraform(action, args):
     """Run Terraform command."""
 
     # support for custom parameters
     command = ["terraform", action]
     if args.tf_params is not None:
-        command += args.tf_params.split(' ')
-    if unknownargs is not None:
-        command += unknownargs
+        if args.tf_params and args.tf_params[0] == '--':
+                args.tf_params = args.tf_params[1:]
+        command += args.tf_params
 
     if args.account == 'root':
         subprocess.run(command)
@@ -129,80 +129,83 @@ def run_terraform(action, args, unknownargs):
                        cwd='{}/{}/{}/{}'.format(args.account, args.environment, args.region, args.stack))
 
 
-def terraform_apply(args, unknownargs):
+def terraform_apply(args):
     """Terraform apply wrapper function."""
     check_remote_state(args)
-    run_terraform('apply', args, unknownargs)
+    run_terraform('apply', args)
 
 
-def terraform_destroy(args, unknownargs):
+def terraform_destroy(args):
     """Terraform destroy wrapper function."""
-    run_terraform('destroy', args, unknownargs)
+    run_terraform('destroy', args)
 
 
-def terraform_fmt(args, unknownargs):
+def terraform_fmt(args):
     """Terraform fmt wrapper function."""
-    run_terraform('fmt', args, unknownargs)
+    run_terraform('fmt', args)
 
 
-def terraform_get(args, unknownargs):
+def terraform_get(args):
     """Terraform get wrapper function."""
-    run_terraform('get', args, unknownargs)
+    run_terraform('get', args)
 
 
-def terraform_graph(args, unknownargs):
+def terraform_graph(args):
     """Terraform graph wrapper function."""
-    run_terraform('graph', args, unknownargs)
+    run_terraform('graph', args)
 
 
-def terraform_import(args, unknownargs):
+def terraform_import(args):
     """Terraform import wrapper function."""
-    run_terraform('import', args, unknownargs)
+    run_terraform('import', args)
 
 
-def terraform_output(args, unknownargs):
+def terraform_output(args):
     """Terraform output wrapper function."""
-    run_terraform('output', args, unknownargs)
+    run_terraform('output', args)
 
 
-def terraform_plan(args, unknownargs):
+def terraform_plan(args):
     """Terraform plan wrapper function."""
     check_remote_state(args)
-    run_terraform('plan', args, unknownargs)
+    run_terraform('plan', args)
 
 
-def terraform_refresh(args, unknownargs):
+def terraform_refresh(args):
     """Terraform refresh wrapper function."""
-    run_terraform('refresh', args, unknownargs)
+    run_terraform('refresh', args)
 
 
-def terraform_show(args, unknownargs):
+def terraform_show(args):
     """Terraform show wrapper function."""
-    run_terraform('show', args, unknownargs)
+    run_terraform('show', args)
 
 
-def terraform_state(args, unknownargs):
+def terraform_state(args):
     """Terraform state wrapper function."""
-    run_terraform('state', args, unknownargs)
+    run_terraform('state', args)
 
 
-def terraform_taint(args, unknownargs):
+def terraform_taint(args):
     """Terraform taint wrapper function."""
-    run_terraform('taint', args, unknownargs)
+    run_terraform('taint', args)
 
 
-def terraform_untaint(args, unknownargs):
+def terraform_untaint(args):
     """Terraform untaint wrapper function."""
-    run_terraform('untaint', args, unknownargs)
+    run_terraform('untaint', args)
 
 
-def terraform_validate(args, unknownargs):
+def terraform_validate(args):
     """Terraform validate wrapper function."""
-    run_terraform('validate', args, unknownargs)
+    run_terraform('validate', args)
 
 
 def main():
     """Main function."""
+    # terraforms params doc
+    tf_params_help='Any Terraform parameters after a "--" delimiter'
+
     # argparse
     parser = argparse.ArgumentParser(description='Terraform wrapper. ')
     parser.add_argument('-c', '--confdir', help='configuration directory.',
@@ -220,64 +223,64 @@ def main():
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
-    parser_apply.add_argument('--tf_params', nargs='?')
+    parser_apply.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_destroy = subparsers.add_parser('destroy', help='terraform destroy')
     parser_destroy.set_defaults(func=terraform_destroy)
-    parser_destroy.add_argument('--tf_params', nargs='?')
+    parser_destroy.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_fmt = subparsers.add_parser('fmt', help='terraform fmt')
     parser_fmt.set_defaults(func=terraform_fmt)
-    parser_fmt.add_argument('--tf_params', nargs='?')
+    parser_fmt.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_get = subparsers.add_parser('get', help='terraform get')
     parser_get.set_defaults(func=terraform_get)
-    parser_get.add_argument('--tf_params', nargs='?')
+    parser_get.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_graph = subparsers.add_parser('graph', help='terraform graph')
     parser_graph.set_defaults(func=terraform_graph)
-    parser_graph.add_argument('--tf_params', nargs='?')
+    parser_graph.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_import = subparsers.add_parser('import', help='terraform import')
     parser_import.set_defaults(func=terraform_import)
-    parser_import.add_argument('--tf_params', nargs='?')
+    parser_import.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_output = subparsers.add_parser('output', help='terraform output')
     parser_output.set_defaults(func=terraform_output)
-    parser_output.add_argument('--tf_params', nargs='?')
+    parser_output.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_plan = subparsers.add_parser('plan', help='terraform plan')
     parser_plan.set_defaults(func=terraform_plan)
-    parser_plan.add_argument('--tf_params', nargs='?')
+    parser_plan.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_refresh = subparsers.add_parser('refresh', help='terraform refresh')
     parser_refresh.set_defaults(func=terraform_refresh)
-    parser_refresh.add_argument('--tf_params', nargs='?')
+    parser_refresh.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_show = subparsers.add_parser('show', help='terraform show')
     parser_show.set_defaults(func=terraform_show)
-    parser_show.add_argument('--tf_params', nargs='?')
+    parser_show.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_state = subparsers.add_parser('state', help='terraform state')
     parser_state.set_defaults(func=terraform_state)
-    parser_state.add_argument('--tf_params', nargs='?')
+    parser_state.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_taint = subparsers.add_parser('taint', help='terraform taint')
     parser_taint.set_defaults(func=terraform_taint)
-    parser_taint.add_argument('--tf_params', nargs='?')
+    parser_taint.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_untaint = subparsers.add_parser('untaint', help='terraform untaint')
     parser_untaint.set_defaults(func=terraform_untaint)
-    parser_untaint.add_argument('--tf_params', nargs='?')
+    parser_untaint.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_validate = subparsers.add_parser('validate', help='terraform validate')
     parser_validate.set_defaults(func=terraform_validate)
-    parser_validate.add_argument('--tf_params', nargs='?')
+    parser_validate.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
     parser_bootstrap.set_defaults(func=bootstrap)
 
-    args, unknownargs = parser.parse_known_args()
+    args = parser.parse_args()
 
     # load config
     config = load_config(args.confdir, args.account, args.environment, args.region, args.stack)
@@ -317,10 +320,7 @@ def main():
 
     # call subcommand
     if hasattr(args, 'func'):
-        if args.func.__name__.startswith('terraform_'):
-            args.func(args, unknownargs)
-        else:
-            args.func(args)
+        args.func(args)
     else:
         parser.print_help()
 
