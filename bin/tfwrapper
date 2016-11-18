@@ -9,25 +9,60 @@ import shutil
 import string
 import subprocess
 import time
+from copy import deepcopy
 
 import boto3
 import yaml
 
 
-def load_config(confdir, account='root', environment=None, region=None,
-                stack=None):
+def load_wrapper_config(args):
+    """Load wrapper config from args. Validate args and autodetect current stack."""
+    # convert args to dict
+    wrapper_config = deepcopy(vars(args))
+
+    # detect confdir and rootdir locations
+    parents_count = 0
+    while parents_count < 5:
+        if os.path.isdir('../' * parents_count + wrapper_config['confdir']):
+            wrapper_config['confdir'] = '../' * parents_count + wrapper_config['confdir']
+            break
+        parents_count += 1
+
+    wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
+
+    # detect parent dirs
+    if wrapper_config['rootdir'] == os.path.abspath(''):
+        wrapper_config['account'] = 'root'
+    else:
+        count_up = 0
+        count_down = parents_count
+        parents_list = ['account', 'environment', 'region', 'stack']
+        while count_down > 0:
+            if wrapper_config[parents_list[count_up]] is None:
+                wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath('./' + '../' * (count_down - 1)))
+            count_down -= 1
+            count_up += 1
+
+        # support both _global (fs) and global (param)
+        if wrapper_config['environment'] == '_global':
+            wrapper_config['environment'] = 'global'
+
+    return wrapper_config
+
+
+def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
     if account == 'root':
         with open(confdir + '/root.yml', 'r') as f:
-            config = yaml.load(f)
+            stack_config = yaml.load(f)
     elif environment == 'global':
         with open('{}/{}_global_{}.yml'.format(confdir, account, stack), 'r') as f:
-            config = yaml.load(f)
+            stack_config = yaml.load(f)
     else:
         with open('{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack), 'r') as f:
-            config = yaml.load(f)
+            stack_config = yaml.load(f)
 
-    return config
+    return stack_config
 
 
 def set_aws_env(sts_client, role_arn):
@@ -49,175 +84,199 @@ def set_aws_env(sts_client, role_arn):
 def set_terraform_vars(vars):
     """Configure Terraform env."""
     for var, value in vars.items():
-        os.environ['TF_VAR_{}'.format(var)] = value
+        if value is not None:
+            os.environ['TF_VAR_{}'.format(var)] = value
 
-def check_remote_state(args):
+
+def check_remote_state(wrapper_config):
+    rootdir = wrapper_config['rootdir']
+
+    account = wrapper_config['account']
+    environment = wrapper_config['environment']
+    region = wrapper_config['region']
+    stack = wrapper_config['stack']
+
     # bootstrap remote state if not already done
-    if args.account != 'root' and args.environment == 'global':
-        if not os.path.isfile('{}/_global/{}/.terraform/terraform.tfstate'.format(args.account, args.stack)):
-            bootstrap(args)
-    elif args.account != 'root':
-        if not os.path.isfile('{}/{}/{}/{}/.terraform/terraform.tfstate'.format(args.account, args.environment, args.region, args.stack)):
-            bootstrap(args)
+    if account != 'root' and environment == 'global':
+        if not os.path.isfile('{}/{}/_global/{}/.terraform/terraform.tfstate'.format(rootdir, account, stack)):
+            bootstrap(wrapper_config)
+    elif account != 'root':
+        if not os.path.isfile('{}/{}/{}/{}/{}/.terraform/terraform.tfstate'.format(rootdir, account, environment, region, stack)):
+            bootstrap(wrapper_config)
 
-def bootstrap(args):
+
+def bootstrap(wrapper_config):
     """Bootstrap project."""
-    root_config = load_config(args.confdir)
-    account = args.account
-    environment = args.environment
-    region = args.region
-    stack = args.stack
-    state_account = root_config['aws']['general']['account']
-    state_region = root_config['aws']['general']['region']
+    rootdir = wrapper_config['rootdir']
+
+    account = wrapper_config['account']
+    environment = wrapper_config['environment']
+    region = wrapper_config['region']
+    stack = wrapper_config['stack']
+
+    root_stack_config = load_stack_config(wrapper_config['confdir'], 'root', None, None, None)
+    state_account = root_stack_config['aws']['general']['account']
+    state_region = root_stack_config['aws']['general']['region']
     state_bucket = "s3.terraform.root-state.{}.{}".format(state_region,
                                                           state_account)
 
     if not account == 'root':
         if environment == 'global':
             # bootstrap global environment files
-            tf_dir = '{}/_global/{}'.format(account, stack)
+            tf_dir = '{}/{}/_global/{}'.format(rootdir, account, stack)
             if not os.path.isdir(tf_dir):
                 shutil.copytree('templates/global', tf_dir)
 
 
             # bootstrap remote state
             state_file = "{}/global/{}/terraform.state".format(account, stack)
-            local_state_file = "{}/_global/{}/terraform.tfstate".format(account, stack)
-            if not os.path.isfile(state_file):
+            local_state_file = "{}/{}/_global/{}/.terraform/terraform.tfstate".format(rootdir, account, stack)
+            if not os.path.isfile(local_state_file):
                 subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
                                 '-backend-config', 'bucket={}'.format(state_bucket),
                                 '-backend-config', 'key={}'.format(state_file),
                                 '-backend-config', 'region={}'.format(state_region),
                                 '-backend-config', 'acl=bucket-owner-full-control'],
-                               cwd='{}/_global/{}'.format(account, stack))
+                               cwd='{}/{}/_global/{}'.format(rootdir, account, stack))
         else:
-            tf_dir = '{}/{}/{}/{}'.format(account, environment, region, stack)
+            tf_dir = '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
             if not os.path.isdir(tf_dir):
                 shutil.copytree('templates/basic', tf_dir)
 
             # bootstrap remote state
             state_file = "{}/{}/{}/{}/terraform.state".format(account, environment, region, stack)
-            local_state_file = "{}/{}/{}/{}/terraform.tfstate".format(account, environment, region, stack)
-            if not os.path.isfile(state_file):
+            local_state_file = "{}/{}/{}/{}/{}/.terraform/terraform.tfstate".format(rootdir, account, environment, region, stack)
+            if not os.path.isfile(local_state_file):
                 subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
                                 '-backend-config', 'bucket={}'.format(state_bucket),
                                 '-backend-config', 'key={}'.format(state_file),
                                 '-backend-config', 'region={}'.format(state_region),
                                 '-backend-config', 'acl=bucket-owner-full-control'],
-                               cwd='{}/{}/{}/{}'.format(account, environment, region, stack))
+                               cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
     else:
         print('Nothing to bootstrap')
 
 
-def run_terraform(action, args):
+def run_terraform(action, wrapper_config):
     """Run Terraform command."""
+    rootdir = wrapper_config['rootdir']
+
+    tf_params = wrapper_config['tf_params']
+    account = wrapper_config['account']
+    environment = wrapper_config['environment']
+    region = wrapper_config['region']
+    stack = wrapper_config['stack']
 
     # support for custom parameters
     command = ["terraform", action]
-    if args.tf_params is not None:
-        if args.tf_params and args.tf_params[0] == '--':
-                args.tf_params = args.tf_params[1:]
-        command += args.tf_params
+    if tf_params is not None:
+        if tf_params and tf_params[0] == '--':
+                tf_params = tf_params[1:]
+        command += tf_params
 
-    if args.account == 'root':
-        subprocess.run(command)
-    elif args.environment == 'global':
+    if account == 'root':
+        subprocess.run(command, cwd=rootdir)
+    elif environment == 'global':
         subprocess.run(command,
-                       cwd='{}/_global/{}'.format(args.account, args.stack))
+                       cwd='{}/{}/_global/{}'.format(rootdir, account, stack))
     else:
         subprocess.run(command,
-                       cwd='{}/{}/{}/{}'.format(args.account, args.environment, args.region, args.stack))
+                       cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
 
 
-def terraform_apply(args):
+def terraform_apply(wrapper_config):
     """Terraform apply wrapper function."""
-    check_remote_state(args)
-    run_terraform('apply', args)
+    check_remote_state(wrapper_config)
+    run_terraform('apply', wrapper_config)
 
 
-def terraform_destroy(args):
+def terraform_destroy(wrapper_config):
     """Terraform destroy wrapper function."""
-    run_terraform('destroy', args)
+    run_terraform('destroy', wrapper_config)
 
 
-def terraform_fmt(args):
+def terraform_fmt(wrapper_config):
     """Terraform fmt wrapper function."""
-    run_terraform('fmt', args)
+    run_terraform('fmt', wrapper_config)
 
 
-def terraform_get(args):
+def terraform_get(wrapper_config):
     """Terraform get wrapper function."""
-    run_terraform('get', args)
+    run_terraform('get', wrapper_config)
 
 
-def terraform_graph(args):
+def terraform_graph(wrapper_config):
     """Terraform graph wrapper function."""
-    run_terraform('graph', args)
+    run_terraform('graph', wrapper_config)
 
 
-def terraform_import(args):
+def terraform_import(wrapper_config):
     """Terraform import wrapper function."""
-    run_terraform('import', args)
+    run_terraform('import', wrapper_config)
 
 
-def terraform_output(args):
+def terraform_output(wrapper_config):
     """Terraform output wrapper function."""
-    run_terraform('output', args)
+    run_terraform('output', wrapper_config)
 
 
-def terraform_plan(args):
+def terraform_plan(wrapper_config):
     """Terraform plan wrapper function."""
-    check_remote_state(args)
-    run_terraform('plan', args)
+    check_remote_state(wrapper_config)
+    run_terraform('plan', wrapper_config)
 
 
-def terraform_refresh(args):
+def terraform_refresh(wrapper_config):
     """Terraform refresh wrapper function."""
-    run_terraform('refresh', args)
+    run_terraform('refresh', wrapper_config)
 
 
-def terraform_show(args):
+def terraform_show(wrapper_config):
     """Terraform show wrapper function."""
-    run_terraform('show', args)
+    run_terraform('show', wrapper_config)
 
 
-def terraform_state(args):
+def terraform_state(wrapper_config):
     """Terraform state wrapper function."""
-    run_terraform('state', args)
+    run_terraform('state', wrapper_config)
 
 
-def terraform_taint(args):
+def terraform_taint(wrapper_config):
     """Terraform taint wrapper function."""
-    run_terraform('taint', args)
+    run_terraform('taint', wrapper_config)
 
 
-def terraform_untaint(args):
+def terraform_untaint(wrapper_config):
     """Terraform untaint wrapper function."""
-    run_terraform('untaint', args)
+    run_terraform('untaint', wrapper_config)
 
 
-def terraform_validate(args):
+def terraform_validate(wrapper_config):
     """Terraform validate wrapper function."""
-    run_terraform('validate', args)
+    run_terraform('validate', wrapper_config)
 
 
 def main():
     """Main function."""
     # terraforms params doc
-    tf_params_help='Any Terraform parameters after a "--" delimiter'
+    tf_params_help = 'Any Terraform parameters after a "--" delimiter'
 
     # argparse
-    parser = argparse.ArgumentParser(description='Terraform wrapper. ')
-    parser.add_argument('-c', '--confdir', help='configuration directory.',
+    parser = argparse.ArgumentParser(description='Terraform wrapper.')
+    parser.add_argument('-c', '--confdir',
+                        help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
-    parser.add_argument('-a', '--account', help='target account.',
-                        default='root')
-    parser.add_argument('-e', '--environment', help='target environment.',
-                        default='dev')
-    parser.add_argument('-r', '--region', help='target region.',
-                        default='eu-west-1')
-    parser.add_argument('-s', '--stack', help='target region.',
-                        default='default')
+    parser.add_argument('-a', '--account',
+                        help='Target account. Autodetected if none is provided.',
+                        nargs='?')
+    parser.add_argument('-e', '--environment',
+                        help='Target environment. Autodetected if none is provided.',
+                        nargs='?')
+    parser.add_argument('-r', '--region',
+                        help='Target region. Autodetected if none is provided.',
+                        nargs='?')
+    parser.add_argument('-s', '--stack', help='Target stack. Autodetected if none is provided.',
+                        nargs='?')
 
     subparsers = parser.add_subparsers(help='subcommands')
 
@@ -282,11 +341,18 @@ def main():
 
     args = parser.parse_args()
 
+    # process args
+    wrapper_config = load_wrapper_config(args)
     # load config
-    config = load_config(args.confdir, args.account, args.environment, args.region, args.stack)
+    stack_config = load_stack_config(wrapper_config['confdir'],
+                                     wrapper_config['account'],
+                                     wrapper_config['environment'],
+                                     wrapper_config['region'],
+                                     wrapper_config['stack'])
 
     # Open session and get clients
-    session_cache_file = '.run/session_cache_{}.pickle'.format(args.account)
+    session_cache_file = '{}/.run/session_cache_{}.pickle'.format(wrapper_config['rootdir'],
+                                                                  wrapper_config['account'])
 
     if (os.path.isfile(session_cache_file) and
         time.time() - os.stat(session_cache_file).st_mtime < 3600):
@@ -297,30 +363,30 @@ def main():
                                 aws_session_token=session_cache['credentials'].token,
                                 region_name=session_cache['region'])
     else:
-        session = boto3.Session(profile_name=config['aws']['credentials']['profile'],
-                                region_name=config['aws']['general']['region'])
+        session = boto3.Session(profile_name=stack_config['aws']['credentials']['profile'],
+                                region_name=stack_config['aws']['general']['region'])
         session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
                          'region': session.region_name}
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT, mode=0o600), 'wb') as f:
             pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
 
     sts_client = session.client('sts')
-    role_arn = 'arn:aws:iam::{}:role/{}'.format(config['aws']['general']['account'],
-                                                config['aws']['credentials']['role'])
+    role_arn = 'arn:aws:iam::{}:role/{}'.format(stack_config['aws']['general']['account'],
+                                                stack_config['aws']['credentials']['role'])
 
     # set environment variables
     set_aws_env(sts_client, role_arn)
 
-    terraform_vars = config['terraform']['vars']
-    terraform_vars['account'] = args.account
-    terraform_vars['environment'] = args.environment
-    terraform_vars['region'] = args.region
-    terraform_vars['stack'] = args.stack
+    terraform_vars = stack_config['terraform']['vars']
+    terraform_vars['account'] = wrapper_config['account']
+    terraform_vars['environment'] = wrapper_config['environment']
+    terraform_vars['region'] = wrapper_config['region']
+    terraform_vars['stack'] = wrapper_config['stack']
     set_terraform_vars(terraform_vars)
 
     # call subcommand
     if hasattr(args, 'func'):
-        args.func(args)
+        args.func(wrapper_config)
     else:
         parser.print_help()
 
