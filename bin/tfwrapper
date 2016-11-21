@@ -31,7 +31,7 @@ def load_wrapper_config(args):
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
 
     # detect parent dirs
-    if wrapper_config['rootdir'] == os.path.abspath(''):
+    if wrapper_config['rootdir'] == os.path.abspath('') and wrapper_config['account'] is None:
         wrapper_config['account'] = 'root'
     else:
         count_up = 0
