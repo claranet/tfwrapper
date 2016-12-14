@@ -120,12 +120,20 @@ def bootstrap(wrapper_config):
     state_bucket = "s3.terraform.root-state.{}.{}".format(state_region,
                                                           state_account)
 
+    if wrapper_config['template'] is None:
+        if environment == 'global':
+            template = 'global'
+        else:
+            template = 'basic'
+    else:
+        template = wrapper_config['template']
+
     if not account == 'root':
         if environment == 'global':
-            # bootstrap global environment files
+            # bootstrap global environment Terraform files
             tf_dir = '{}/{}/_global/{}'.format(rootdir, account, stack)
             if not os.path.isdir(tf_dir):
-                shutil.copytree('templates/global', tf_dir)
+                shutil.copytree('{}/templates/{}'.format(rootdir, template), tf_dir)
 
 
             # bootstrap remote state
@@ -139,9 +147,10 @@ def bootstrap(wrapper_config):
                                 '-backend-config', 'acl=bucket-owner-full-control'],
                                cwd='{}/{}/_global/{}'.format(rootdir, account, stack))
         else:
+            # bootstrap Terraform files
             tf_dir = '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
             if not os.path.isdir(tf_dir):
-                shutil.copytree('templates/basic', tf_dir)
+                shutil.copytree('{}/templates/{}'.format(rootdir, template), tf_dir)
 
             # bootstrap remote state
             state_file = "{}/{}/{}/{}/terraform.state".format(account, environment, region, stack)
@@ -338,6 +347,7 @@ def main():
 
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
     parser_bootstrap.set_defaults(func=bootstrap)
+    parser_bootstrap.add_argument('template', nargs='?''', help='template to use during bootstrap')
 
     args = parser.parse_args()
 
