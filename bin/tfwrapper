@@ -347,7 +347,7 @@ def main():
 
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
     parser_bootstrap.set_defaults(func=bootstrap)
-    parser_bootstrap.add_argument('template', nargs='?''', help='template to use during bootstrap')
+    parser_bootstrap.add_argument('template', nargs='?''', help='template to use during bootstrap', default=None)
 
     args = parser.parse_args()
 
