@@ -36,7 +36,16 @@ def load_wrapper_config(args):
     else:
         count_up = 0
         count_down = parents_count
-        parents_list = ['account', 'environment', 'region', 'stack']
+
+        # check wether we are in global environment
+        if (os.path.basename(os.path.abspath('.')) == '_global' or
+                os.path.basename(os.path.abspath('..')) == '_global' or
+                wrapper_config['environment'] == 'global'):
+            parents_list = ['account', 'environment', 'stack']
+        else:
+            parents_list = ['account', 'environment', 'region', 'stack']
+
+        # detect dirs
         while count_down > 0:
             if wrapper_config[parents_list[count_up]] is None:
                 wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath('./' + '../' * (count_down - 1)))
