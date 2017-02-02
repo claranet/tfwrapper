@@ -211,6 +211,11 @@ def terraform_fmt(wrapper_config):
 
 def terraform_get(wrapper_config):
     """Terraform get wrapper function."""
+    # force update
+    if not any('-update' in x for x in wrapper_config['tf_params']):
+        wrapper_config['tf_params'][1:1] = ['-update']
+
+    # call subcommand
     run_terraform('get', wrapper_config)
 
 
