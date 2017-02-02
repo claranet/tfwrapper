@@ -120,7 +120,7 @@ def bootstrap(wrapper_config):
     state_bucket = "s3.terraform.root-state.{}.{}".format(state_region,
                                                           state_account)
 
-    if wrapper_config['template'] is None:
+    if wrapper_config.get('template') is None:
         if environment == 'global':
             template = 'global'
         else:
