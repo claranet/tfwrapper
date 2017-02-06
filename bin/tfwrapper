@@ -10,6 +10,7 @@ import string
 import subprocess
 import time
 from copy import deepcopy
+from termcolor import colored
 
 import boto3
 import yaml
@@ -205,7 +206,52 @@ def run_terraform(action, wrapper_config):
 def terraform_apply(wrapper_config):
     """Terraform apply wrapper function."""
     check_remote_state(wrapper_config)
-    run_terraform('apply', wrapper_config)
+
+    # do not force plan if unsafe
+    if wrapper_config['unsafe']:
+        run_terraform('apply', wrapper_config)
+    else:
+        # plan config
+        plan_path = '{}/.run/plan_{}'.format(wrapper_config['rootdir'],
+                                             ''.join(random.choice(string.ascii_letters) for x in range(10)))
+        plan_wrapper_config = deepcopy(wrapper_config)
+        plan_wrapper_config['tf_params'][1:1] = ['-out', plan_path]
+        run_terraform('plan', plan_wrapper_config)
+
+        # ask for confirmation
+        colored_account = colored(plan_wrapper_config['account'], 'yellow')
+        colored_environement = colored(plan_wrapper_config['environment'], 'red')
+        colored_region = colored(plan_wrapper_config['region'], 'blue')
+        colored_stack = colored(plan_wrapper_config['stack'], 'green')
+
+        if plan_wrapper_config['environment'] == 'global':
+            env_msg = '''
+    Account : {}
+Environment : {}
+      Stack : {}
+            '''.format(colored_account, colored_environement, colored_stack)
+        else:
+            env_msg = '''
+    Account : {}
+Environment : {}
+     Region : {}
+      Stack : {}
+            '''.format(colored_account, colored_environement, colored_region, colored_stack)
+
+        print('\nDo you really want to apply this plan on the following stack ?')
+        print(env_msg)
+        apply_input = input("'yes' to confirm : ")
+
+        if apply_input == 'yes':
+            # apply config
+            apply_wrapper_config = deepcopy(wrapper_config)
+            apply_wrapper_config['tf_params'].append(plan_path)
+            run_terraform('apply', apply_wrapper_config)
+        else:
+            print('\nAborting apply.')
+
+        # delete plan
+        os.remove(plan_path)
 
 
 def terraform_destroy(wrapper_config):
@@ -300,6 +346,9 @@ def main():
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
+    parser_apply.add_argument('-u', '--unsafe',
+                              help='Do not force plan and human interaction before apply.',
+                              action='store_true', default=False)
     parser_apply.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_destroy = subparsers.add_parser('destroy', help='terraform destroy')
