@@ -544,6 +544,27 @@ def main():
         elif func_name in ['terraform_plan', 'terraform_apply', 'terraform_refresh', 'terraform_bootstrap', 'terraform_taint', 'terraform_untaint']:
             if lock_stack(wrapper_config, s3_resource):
                 args.func(wrapper_config)
+
+                # Force state ACLs
+                if stack_config['aws'].get('state_acls', False):
+                    put_acl_args = {}
+
+                    if stack_config['aws']['state_acls'].get('full_control'):
+                        full_control_ids = ['id={}'.format(i) for i in stack_config['aws']['state_acls']['full_control']]
+                        put_acl_args['GrantFullControl'] = ','.join(full_control_ids)
+
+                    if stack_config['aws']['state_acls'].get('read'):
+                        read_ids = ['id={}'.format(i) for i in stack_config['aws']['state_acls']['read']]
+                        put_acl_args['GrantRead'] = ','.join(read_ids)
+
+                    if stack_config['aws']['state_acls'].get('write'):
+                        write_ids = ['id={}'.format(i) for i in stack_config['aws']['state_acls']['write']]
+                        put_acl_args['GrantWrite'] = ','.join(write_ids)
+
+                    state_acl = s3_resource.ObjectAcl(wrapper_config['state_bucket'],
+                                                      get_remote_state_path(wrapper_config))
+                    state_acl.put(**put_acl_args)
+
                 unlock_stack(wrapper_config, s3_resource)
             else:
                 print('{} aborted.'.format(func_name))
