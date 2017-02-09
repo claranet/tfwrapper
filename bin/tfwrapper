@@ -9,7 +9,9 @@ import shutil
 import string
 import subprocess
 import time
+import sys
 from copy import deepcopy
+from datetime import datetime
 from termcolor import colored
 
 import boto3
@@ -57,6 +59,14 @@ def load_wrapper_config(args):
         if wrapper_config['environment'] == '_global':
             wrapper_config['environment'] = 'global'
 
+    # configure state bucket
+    root_stack_config = load_stack_config(wrapper_config['confdir'], 'root', None, None, None)
+    state_account = root_stack_config['aws']['general']['account']
+    state_region = root_stack_config['aws']['general']['region']
+    wrapper_config['state_region'] = state_region
+    wrapper_config['state_bucket'] = "s3.terraform.root-state.{}.{}".format(state_region,
+                                                                            state_account)
+
     return wrapper_config
 
 
@@ -98,82 +108,139 @@ def set_terraform_vars(vars):
             os.environ['TF_VAR_{}'.format(var)] = value
 
 
-def check_remote_state(wrapper_config):
+def get_stack_path(wrapper_config, local=False):
+    """Return stack path."""
     rootdir = wrapper_config['rootdir']
-
     account = wrapper_config['account']
     environment = wrapper_config['environment']
     region = wrapper_config['region']
     stack = wrapper_config['stack']
 
-    # bootstrap remote state if not already done
-    if account != 'root' and environment == 'global':
-        if not os.path.isfile('{}/{}/_global/{}/.terraform/terraform.tfstate'.format(rootdir, account, stack)):
-            bootstrap(wrapper_config)
-    elif account != 'root':
-        if not os.path.isfile('{}/{}/{}/{}/{}/.terraform/terraform.tfstate'.format(rootdir, account, environment, region, stack)):
+    if local:
+        if environment == 'global':
+            stack_path = '{}/{}/_global/{}'.format(rootdir, account, stack)
+        else:
+            stack_path = '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
+    else:
+        if environment == 'global':
+            stack_path = '{}/_global/{}'.format(account, stack)
+        else:
+            stack_path = '{}/{}/{}/{}'.format(account, environment, region, stack)
+
+    return stack_path
+
+
+def get_local_state_path(wrapper_config):
+    """Return local state path."""
+    rootdir = wrapper_config['rootdir']
+    local_state_path = '{}/{}/.terraform/terraform.tfstate'.format(rootdir,
+                                                                   get_stack_path(wrapper_config, local=True))
+
+    return local_state_path
+
+
+def get_remote_state_path(wrapper_config):
+    """Return local state path."""
+    remote_state_path = '{}/terraform.state'.format(get_stack_path(wrapper_config))
+
+    return remote_state_path
+
+
+def check_remote_state(wrapper_config):
+    """Bootstrap if there is no existing state."""
+    if wrapper_config['account'] != 'root':
+        if not os.path.isfile(get_local_state_path(wrapper_config)):
             bootstrap(wrapper_config)
 
 
 def bootstrap(wrapper_config):
     """Bootstrap project."""
-    rootdir = wrapper_config['rootdir']
-
     account = wrapper_config['account']
-    environment = wrapper_config['environment']
-    region = wrapper_config['region']
-    stack = wrapper_config['stack']
-
-    root_stack_config = load_stack_config(wrapper_config['confdir'], 'root', None, None, None)
-    state_account = root_stack_config['aws']['general']['account']
-    state_region = root_stack_config['aws']['general']['region']
-    state_bucket = "s3.terraform.root-state.{}.{}".format(state_region,
-                                                          state_account)
-
-    if wrapper_config.get('template') is None:
-        if environment == 'global':
-            template = 'global'
-        else:
-            template = 'basic'
-    else:
-        template = wrapper_config['template']
 
     if not account == 'root':
-        if environment == 'global':
-            # bootstrap global environment Terraform files
-            tf_dir = '{}/{}/_global/{}'.format(rootdir, account, stack)
-            if not os.path.isdir(tf_dir):
-                shutil.copytree('{}/templates/{}'.format(rootdir, template), tf_dir)
+        rootdir = wrapper_config['rootdir']
+        environment = wrapper_config['environment']
+        region = wrapper_config['region']
+        stack = wrapper_config['stack']
+        state_region = wrapper_config['state_region']
+        state_bucket = wrapper_config['state_bucket']
 
-
-            # bootstrap remote state
-            state_file = "{}/global/{}/terraform.state".format(account, stack)
-            local_state_file = "{}/{}/_global/{}/.terraform/terraform.tfstate".format(rootdir, account, stack)
-            if not os.path.isfile(local_state_file):
-                subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
-                                '-backend-config', 'bucket={}'.format(state_bucket),
-                                '-backend-config', 'key={}'.format(state_file),
-                                '-backend-config', 'region={}'.format(state_region),
-                                '-backend-config', 'acl=bucket-owner-full-control'],
-                               cwd='{}/{}/_global/{}'.format(rootdir, account, stack))
+        if wrapper_config.get('template') is None:
+            if environment == 'global':
+                template = 'global'
+            else:
+                template = 'basic'
         else:
-            # bootstrap Terraform files
-            tf_dir = '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
-            if not os.path.isdir(tf_dir):
-                shutil.copytree('{}/templates/{}'.format(rootdir, template), tf_dir)
+            template = wrapper_config['template']
 
-            # bootstrap remote state
-            state_file = "{}/{}/{}/{}/terraform.state".format(account, environment, region, stack)
-            local_state_file = "{}/{}/{}/{}/{}/.terraform/terraform.tfstate".format(rootdir, account, environment, region, stack)
-            if not os.path.isfile(local_state_file):
-                subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
-                                '-backend-config', 'bucket={}'.format(state_bucket),
-                                '-backend-config', 'key={}'.format(state_file),
-                                '-backend-config', 'region={}'.format(state_region),
-                                '-backend-config', 'acl=bucket-owner-full-control'],
-                               cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
+        # bootstrap Terraform files
+        stack_path = get_stack_path(wrapper_config, local=True)
+        if not os.path.isdir(stack_path):
+            shutil.copytree('{}/templates/{}'.format(rootdir, template), stack_path)
+
+        # bootstrap remote state
+        remote_state_file = get_remote_state_path(wrapper_config)
+        local_state_file = get_local_state_path(wrapper_config)
+        if not os.path.isfile(local_state_file):
+            subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
+                            '-backend-config', 'bucket={}'.format(state_bucket),
+                            '-backend-config', 'key={}'.format(remote_state_file),
+                            '-backend-config', 'region={}'.format(state_region),
+                            '-backend-config', 'acl=bucket-owner-full-control'],
+                           cwd=stack_path)
     else:
         print('Nothing to bootstrap')
+
+
+def lock_stack(wrapper_config, s3_resource):
+    """Lock stack."""
+    if not check_stack_lock(wrapper_config, s3_resource):
+        print('Locking state.')
+        lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+        lock_file = s3_resource.Object(wrapper_config['state_bucket'],
+                                       lock_file_path)
+
+        lock_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+        message = '{} {}'.format(lock_time, wrapper_config.get('message', 'Terraform wrapper action in progress.'))
+        print(message)
+
+        lock_file.put(ACL='bucket-owner-full-control', Body=message.encode('utf-8'))
+        return True
+    else:
+        print('Cannot acquire state lock.')
+        return False
+
+
+def unlock_stack(wrapper_config, s3_resource):
+    """Unlock stack."""
+    if check_stack_lock(wrapper_config, s3_resource):
+        print('Unlocking state.')
+        lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+        lock_file = s3_resource.Object(wrapper_config['state_bucket'],
+                                       lock_file_path)
+
+        lock_file.delete()
+    else:
+        print('No lock to remove.')
+        return False
+
+
+def check_stack_lock(wrapper_config, s3_resource):
+    """Check stack lock."""
+    state_bucket = s3_resource.Bucket(wrapper_config['state_bucket'])
+    lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+
+    objects = list(state_bucket.objects.filter(Prefix=lock_file_path))
+    if len(objects) > 0 and objects[0].key == lock_file_path:
+        lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+        lock_file = s3_resource.Object(wrapper_config['state_bucket'],
+                                       lock_file_path)
+
+        print('State is locked : {}'.format(lock_file.get()['Body'].read().decode('utf-8')))
+        return True
+    else:
+        print('State is not locked.')
+        return False
 
 
 def run_terraform(action, wrapper_config):
@@ -410,12 +477,23 @@ def main():
 
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
     parser_bootstrap.set_defaults(func=bootstrap)
-    parser_bootstrap.add_argument('template', nargs='?''', help='template to use during bootstrap', default=None)
+    parser_bootstrap.add_argument('template', nargs='?', help='template to use during bootstrap', default=None)
+
+    parser_bootstrap = subparsers.add_parser('lock', help='lock stack')
+    parser_bootstrap.set_defaults(func=lock_stack)
+    parser_bootstrap.add_argument('message', nargs='?', help='custom lock message', default='Manual state lock.')
+
+    parser_bootstrap = subparsers.add_parser('unlock', help='unlock stack')
+    parser_bootstrap.set_defaults(func=unlock_stack)
+
+    parser_bootstrap = subparsers.add_parser('check_lock', help='check if stack is locked')
+    parser_bootstrap.set_defaults(func=check_stack_lock)
 
     args = parser.parse_args()
 
     # process args
     wrapper_config = load_wrapper_config(args)
+
     # load config
     stack_config = load_stack_config(wrapper_config['confdir'],
                                      wrapper_config['account'],
@@ -443,7 +521,10 @@ def main():
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT, mode=0o600), 'wb') as f:
             pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
 
+    # set boto clients/resources
     sts_client = session.client('sts')
+    s3_resource = session.resource('s3')
+
     role_arn = 'arn:aws:iam::{}:role/{}'.format(stack_config['aws']['general']['account'],
                                                 stack_config['aws']['credentials']['role'])
 
@@ -457,11 +538,28 @@ def main():
     terraform_vars['stack'] = wrapper_config['stack']
     set_terraform_vars(terraform_vars)
 
-    # call subcommand
+    # manage state locking and call subcommand
     if hasattr(args, 'func'):
-        args.func(wrapper_config)
+        func_name = args.func.__name__
+
+        # lock management subcommands
+        if func_name in ['lock_stack', 'unlock_stack', 'check_stack_lock']:
+            args.func(wrapper_config, s3_resource)
+        # subcommands requiring lock
+        elif func_name in ['terraform_plan', 'terraform_apply', 'terraform_refresh', 'terraform_bootstrap', 'terraform_taint', 'terraform_untaint']:
+            if lock_stack(wrapper_config, s3_resource):
+                args.func(wrapper_config)
+                unlock_stack(wrapper_config, s3_resource)
+            else:
+                print('{} aborted.'.format(func_name))
+                sys.exit(1)
+        # other subcommands
+        else:
+            args.func(wrapper_config)
     else:
         parser.print_help()
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":
