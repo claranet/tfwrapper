@@ -194,52 +194,65 @@ def bootstrap(wrapper_config):
 
 def lock_stack(wrapper_config, s3_resource):
     """Lock stack."""
-    if not check_stack_lock(wrapper_config, s3_resource):
-        print('Locking state.')
-        lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-        lock_file = s3_resource.Object(wrapper_config['state_bucket'],
-                                       lock_file_path)
+    if not wrapper_config['account'] == 'root':
+        if not check_stack_lock(wrapper_config, s3_resource):
+            print('Locking state.')
+            lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+            lock_file = s3_resource.Object(wrapper_config['state_bucket'],
+                                           lock_file_path)
 
-        lock_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
-        message = '{} {}'.format(lock_time, wrapper_config.get('message', 'Terraform wrapper action in progress.'))
-        print(message)
+            lock_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
+            message = '{} {}'.format(lock_time, wrapper_config.get('message', 'Terraform wrapper action in progress.'))
+            print(message)
 
-        lock_file.put(ACL='bucket-owner-full-control', Body=message.encode('utf-8'))
-        return True
+            lock_file.put(ACL='bucket-owner-full-control', Body=message.encode('utf-8'))
+            return True
+        else:
+            print('Cannot acquire state lock.')
+            return False
     else:
-        print('Cannot acquire state lock.')
-        return False
+        print('Root state account, no need to acquire state lock.')
+        return True
 
 
 def unlock_stack(wrapper_config, s3_resource):
     """Unlock stack."""
-    if check_stack_lock(wrapper_config, s3_resource):
-        print('Unlocking state.')
-        lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-        lock_file = s3_resource.Object(wrapper_config['state_bucket'],
-                                       lock_file_path)
+    if not wrapper_config['account'] == 'root':
+        if check_stack_lock(wrapper_config, s3_resource):
+            print('Unlocking state.')
+            lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+            lock_file = s3_resource.Object(wrapper_config['state_bucket'],
+                                           lock_file_path)
 
-        lock_file.delete()
+            lock_file.delete()
+            return True
+        else:
+            print('No lock to remove.')
+            return False
     else:
-        print('No lock to remove.')
-        return False
+        print('Root state account, no need to release state lock.')
+        return True
 
 
 def check_stack_lock(wrapper_config, s3_resource):
     """Check stack lock."""
-    state_bucket = s3_resource.Bucket(wrapper_config['state_bucket'])
-    lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-
-    objects = list(state_bucket.objects.filter(Prefix=lock_file_path))
-    if len(objects) > 0 and objects[0].key == lock_file_path:
+    if not wrapper_config['account'] == 'root':
+        state_bucket = s3_resource.Bucket(wrapper_config['state_bucket'])
         lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-        lock_file = s3_resource.Object(wrapper_config['state_bucket'],
-                                       lock_file_path)
 
-        print('State is locked : {}'.format(lock_file.get()['Body'].read().decode('utf-8')))
-        return True
+        objects = list(state_bucket.objects.filter(Prefix=lock_file_path))
+        if len(objects) > 0 and objects[0].key == lock_file_path:
+            lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
+            lock_file = s3_resource.Object(wrapper_config['state_bucket'],
+                                           lock_file_path)
+
+            print('State is locked : {}'.format(lock_file.get()['Body'].read().decode('utf-8')))
+            return True
+        else:
+            print('State is not locked.')
+            return False
     else:
-        print('State is not locked.')
+        print('Root state account, state cannot be locked.')
         return False
 
 
