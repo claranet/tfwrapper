@@ -11,10 +11,10 @@ import subprocess
 import time
 import sys
 from copy import deepcopy
-from datetime import datetime
 from termcolor import colored
 
 import boto3
+import jinja2
 import yaml
 
 
@@ -34,48 +34,42 @@ def load_wrapper_config(args):
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
 
     # detect parent dirs
-    if wrapper_config['rootdir'] == os.path.abspath('') and wrapper_config['account'] is None:
-        wrapper_config['account'] = 'root'
+    count_up = 0
+    count_down = parents_count
+
+    # check wether we are in global environment
+    if (os.path.basename(os.path.abspath('.')) == '_global' or
+            os.path.basename(os.path.abspath('..')) == '_global' or
+            wrapper_config['environment'] == 'global'):
+        parents_list = ['account', 'environment', 'stack']
     else:
-        count_up = 0
-        count_down = parents_count
+        parents_list = ['account', 'environment', 'region', 'stack']
 
-        # check wether we are in global environment
-        if (os.path.basename(os.path.abspath('.')) == '_global' or
-                os.path.basename(os.path.abspath('..')) == '_global' or
-                wrapper_config['environment'] == 'global'):
-            parents_list = ['account', 'environment', 'stack']
-        else:
-            parents_list = ['account', 'environment', 'region', 'stack']
+    # detect dirs
+    while count_down > 0:
+        if wrapper_config[parents_list[count_up]] is None:
+            wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath('./' + '../' * (count_down - 1)))
+        count_down -= 1
+        count_up += 1
 
-        # detect dirs
-        while count_down > 0:
-            if wrapper_config[parents_list[count_up]] is None:
-                wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath('./' + '../' * (count_down - 1)))
-            count_down -= 1
-            count_up += 1
+    # support both _global (fs) and global (param)
+    if wrapper_config['environment'] == '_global':
+        wrapper_config['environment'] = 'global'
 
-        # support both _global (fs) and global (param)
-        if wrapper_config['environment'] == '_global':
-            wrapper_config['environment'] = 'global'
+    # load state configuration
+    with open(wrapper_config['confdir'] + '/state.yml', 'r') as f:
+        state_config = yaml.load(f)
 
-    # configure state bucket
-    root_stack_config = load_stack_config(wrapper_config['confdir'], 'root', None, None, None)
-    state_account = root_stack_config['aws']['general']['account']
-    state_region = root_stack_config['aws']['general']['region']
-    wrapper_config['state_region'] = state_region
-    wrapper_config['state_bucket'] = "s3.terraform.root-state.{}.{}".format(state_region,
-                                                                            state_account)
+    wrapper_config['state_account'] = state_config['aws']['general']['account']
+    wrapper_config['state_region'] = state_config['aws']['general']['region']
+    wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
 
     return wrapper_config
 
 
 def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
-    if account == 'root':
-        with open(confdir + '/root.yml', 'r') as f:
-            stack_config = yaml.load(f)
-    elif environment == 'global':
+    if environment == 'global':
         with open('{}/{}_global_{}.yml'.format(confdir, account, stack), 'r') as f:
             stack_config = yaml.load(f)
     else:
@@ -85,20 +79,27 @@ def load_stack_config(confdir, account, environment, region, stack):
     return stack_config
 
 
-def set_aws_env(sts_client, role_arn):
-    """Configure AWS env."""
-    random_id = ''.join(random.choice(string.ascii_letters) for x in range(10))
-    session_name = 'terraform-{}'.format(random_id)
+def get_session(rootdir, account, region, profile):
+    """Get or create cached session."""
+    session_cache_file = '{}/.run/session_cache_{}.pickle'.format(rootdir, account)
 
-    response = sts_client.assume_role(
-        RoleArn=role_arn,
-        RoleSessionName=session_name
-    )
+    if (os.path.isfile(session_cache_file) and
+        time.time() - os.stat(session_cache_file).st_mtime < 3600):
+        with open(session_cache_file, 'rb') as f:
+            session_cache = pickle.load(f)
+        session = boto3.Session(aws_access_key_id=session_cache['credentials'].access_key,
+                                aws_secret_access_key=session_cache['credentials'].secret_key,
+                                aws_session_token=session_cache['credentials'].token,
+                                region_name=session_cache['region'])
+    else:
+        session = boto3.Session(profile_name=profile, region_name=region)
+        session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
+                         'region': session.region_name}
+        with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT,
+                               mode=0o600), 'wb') as f:
+            pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
 
-    os.environ['AWS_ACCESS_KEY_ID'] = response['Credentials']['AccessKeyId']
-    os.environ['AWS_SECRET_ACCESS_KEY'] = response['Credentials']['SecretAccessKey']
-    os.environ['AWS_SECURITY_TOKEN'] = response['Credentials']['SessionToken']
-    os.environ['AWS_SESSION_TOKEN'] = response['Credentials']['SessionToken']
+    return session
 
 
 def set_terraform_vars(vars):
@@ -130,41 +131,19 @@ def get_stack_path(wrapper_config, local=False):
     return stack_path
 
 
-def get_local_state_path(wrapper_config):
-    """Return local state path."""
-    rootdir = wrapper_config['rootdir']
-    local_state_path = '{}/{}/.terraform/terraform.tfstate'.format(rootdir,
-                                                                   get_stack_path(wrapper_config, local=True))
-
-    return local_state_path
-
-
-def get_remote_state_path(wrapper_config):
-    """Return local state path."""
-    remote_state_path = '{}/terraform.state'.format(get_stack_path(wrapper_config))
-
-    return remote_state_path
-
-
-def check_remote_state(wrapper_config):
-    """Bootstrap if there is no existing state."""
-    if wrapper_config['account'] != 'root':
-        if not os.path.isfile(get_local_state_path(wrapper_config)):
-            bootstrap(wrapper_config)
-
-
 def bootstrap(wrapper_config):
     """Bootstrap project."""
+    rootdir = wrapper_config['rootdir']
+    confdir = wrapper_config['confdir']
+    stack_path = get_stack_path(wrapper_config, local=True)
+
     account = wrapper_config['account']
+    environment = wrapper_config['environment']
+    region = wrapper_config['region']
+    stack = wrapper_config['stack']
 
-    if not account == 'root':
-        rootdir = wrapper_config['rootdir']
-        environment = wrapper_config['environment']
-        region = wrapper_config['region']
-        stack = wrapper_config['stack']
-        state_region = wrapper_config['state_region']
-        state_bucket = wrapper_config['state_bucket']
-
+    # bootstrap Terraform files from stack template
+    if not os.path.isdir(stack_path):
         if wrapper_config.get('template') is None:
             if environment == 'global':
                 template = 'global'
@@ -173,94 +152,34 @@ def bootstrap(wrapper_config):
         else:
             template = wrapper_config['template']
 
-        # bootstrap Terraform files
-        stack_path = get_stack_path(wrapper_config, local=True)
-        if not os.path.isdir(stack_path):
-            shutil.copytree('{}/templates/{}'.format(rootdir, template), stack_path)
+        shutil.copytree('{}/templates/{}'.format(rootdir, template), stack_path)
 
-        # bootstrap remote state
-        remote_state_file = get_remote_state_path(wrapper_config)
-        local_state_file = get_local_state_path(wrapper_config)
-        if not os.path.isfile(local_state_file):
-            subprocess.run(['terraform', 'remote', 'config', '-backend=s3',
-                            '-backend-config', 'bucket={}'.format(state_bucket),
-                            '-backend-config', 'key={}'.format(remote_state_file),
-                            '-backend-config', 'region={}'.format(state_region),
-                            '-backend-config', 'acl=bucket-owner-full-control'],
-                           cwd=stack_path)
-    else:
-        print('Nothing to bootstrap')
+    # boostrap state.tf from jinja2 template
+    if not os.path.isfile('{}/state.tf'.format(stack_path)):
+        stack_config = load_stack_config(confdir, account, environment, region, stack)
+        client_name = stack_config['terraform']['vars']['client_name']
 
+        jinja2_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader('{}/templates/common'.format(rootdir)))
 
-def lock_stack(wrapper_config, s3_resource):
-    """Lock stack."""
-    if not wrapper_config['account'] == 'root':
-        if not check_stack_lock(wrapper_config, s3_resource):
-            print('Locking state.')
-            lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-            lock_file = s3_resource.Object(wrapper_config['state_bucket'],
-                                           lock_file_path)
+        state_conf = jinja2_env.get_template('state.tf.jinja2').render(
+            client_name=client_name,
+            account=account,
+            environment=environment,
+            region=region,
+            stack=stack)
 
-            lock_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M")
-            message = '{} {}'.format(lock_time, wrapper_config.get('message', 'Terraform wrapper action in progress.'))
-            print(message)
+        with open('{}/state.tf'.format(stack_path), "w") as f:
+            f.write(state_conf)
 
-            lock_file.put(ACL='bucket-owner-full-control', Body=message.encode('utf-8'))
-            return True
-        else:
-            print('Cannot acquire state lock.')
-            return False
-    else:
-        print('Root state account, no need to acquire state lock.')
-        return True
-
-
-def unlock_stack(wrapper_config, s3_resource):
-    """Unlock stack."""
-    if not wrapper_config['account'] == 'root':
-        if check_stack_lock(wrapper_config, s3_resource):
-            print('Unlocking state.')
-            lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-            lock_file = s3_resource.Object(wrapper_config['state_bucket'],
-                                           lock_file_path)
-
-            lock_file.delete()
-            return True
-        else:
-            print('No lock to remove.')
-            return False
-    else:
-        print('Root state account, no need to release state lock.')
-        return True
-
-
-def check_stack_lock(wrapper_config, s3_resource):
-    """Check stack lock."""
-    if not wrapper_config['account'] == 'root':
-        state_bucket = s3_resource.Bucket(wrapper_config['state_bucket'])
-        lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-
-        objects = list(state_bucket.objects.filter(Prefix=lock_file_path))
-        if len(objects) > 0 and objects[0].key == lock_file_path:
-            lock_file_path = '{}/tfwrapper.lock'.format(get_stack_path(wrapper_config))
-            lock_file = s3_resource.Object(wrapper_config['state_bucket'],
-                                           lock_file_path)
-
-            print('State is locked : {}'.format(lock_file.get()['Body'].read().decode('utf-8')))
-            return True
-        else:
-            print('State is not locked.')
-            return False
-    else:
-        print('Root state account, state cannot be locked.')
-        return False
+        run_terraform('init', wrapper_config)
 
 
 def run_terraform(action, wrapper_config):
     """Run Terraform command."""
     rootdir = wrapper_config['rootdir']
 
-    tf_params = wrapper_config['tf_params']
+    tf_params = wrapper_config.get('tf_params')
     account = wrapper_config['account']
     environment = wrapper_config['environment']
     region = wrapper_config['region']
@@ -270,12 +189,10 @@ def run_terraform(action, wrapper_config):
     command = ["terraform", action]
     if tf_params is not None:
         if tf_params and tf_params[0] == '--':
-                tf_params = tf_params[1:]
+            tf_params = tf_params[1:]
         command += tf_params
 
-    if account == 'root':
-        subprocess.run(command, cwd=rootdir)
-    elif environment == 'global':
+    if environment == 'global':
         subprocess.run(command,
                        cwd='{}/{}/_global/{}'.format(rootdir, account, stack))
     else:
@@ -285,7 +202,7 @@ def run_terraform(action, wrapper_config):
 
 def terraform_apply(wrapper_config):
     """Terraform apply wrapper function."""
-    check_remote_state(wrapper_config)
+    bootstrap(wrapper_config)
 
     # do not force plan if unsafe
     if wrapper_config['unsafe']:
@@ -300,7 +217,7 @@ def terraform_apply(wrapper_config):
 
         # ask for confirmation
         colored_account = colored(plan_wrapper_config['account'], 'yellow')
-        colored_environement = colored(plan_wrapper_config['environment'], 'red')
+        colored_environment = colored(plan_wrapper_config['environment'], 'red')
         colored_region = colored(plan_wrapper_config['region'], 'blue')
         colored_stack = colored(plan_wrapper_config['stack'], 'green')
 
@@ -309,14 +226,14 @@ def terraform_apply(wrapper_config):
     Account : {}
 Environment : {}
       Stack : {}
-            '''.format(colored_account, colored_environement, colored_stack)
+            '''.format(colored_account, colored_environment, colored_stack)
         else:
             env_msg = '''
     Account : {}
 Environment : {}
      Region : {}
       Stack : {}
-            '''.format(colored_account, colored_environement, colored_region, colored_stack)
+            '''.format(colored_account, colored_environment, colored_region, colored_stack)
 
         print('\nDo you really want to apply this plan on the following stack ?')
         print(env_msg)
@@ -364,6 +281,11 @@ def terraform_import(wrapper_config):
     run_terraform('import', wrapper_config)
 
 
+def terraform_init(wrapper_config):
+    """Terraform init wrapper function."""
+    run_terraform('init', wrapper_config)
+
+
 def terraform_output(wrapper_config):
     """Terraform output wrapper function."""
     run_terraform('output', wrapper_config)
@@ -371,7 +293,7 @@ def terraform_output(wrapper_config):
 
 def terraform_plan(wrapper_config):
     """Terraform plan wrapper function."""
-    check_remote_state(wrapper_config)
+    bootstrap(wrapper_config)
     run_terraform('plan', wrapper_config)
 
 
@@ -456,6 +378,10 @@ def main():
     parser_import.set_defaults(func=terraform_import)
     parser_import.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
+    parser_import = subparsers.add_parser('init', help='terraform init')
+    parser_import.set_defaults(func=terraform_init)
+    parser_import.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
+
     parser_output = subparsers.add_parser('output', help='terraform output')
     parser_output.set_defaults(func=terraform_output)
     parser_output.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
@@ -488,19 +414,9 @@ def main():
     parser_validate.set_defaults(func=terraform_validate)
     parser_validate.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
-    parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration and remote states')
+    parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration')
     parser_bootstrap.set_defaults(func=bootstrap)
     parser_bootstrap.add_argument('template', nargs='?', help='template to use during bootstrap', default=None)
-
-    parser_bootstrap = subparsers.add_parser('lock', help='lock stack')
-    parser_bootstrap.set_defaults(func=lock_stack)
-    parser_bootstrap.add_argument('message', nargs='?', help='custom lock message', default='Manual state lock.')
-
-    parser_bootstrap = subparsers.add_parser('unlock', help='unlock stack')
-    parser_bootstrap.set_defaults(func=unlock_stack)
-
-    parser_bootstrap = subparsers.add_parser('check_lock', help='check if stack is locked')
-    parser_bootstrap.set_defaults(func=check_stack_lock)
 
     args = parser.parse_args()
 
@@ -514,82 +430,47 @@ def main():
                                      wrapper_config['region'],
                                      wrapper_config['stack'])
 
-    # Open session and get clients
-    session_cache_file = '{}/.run/session_cache_{}.pickle'.format(wrapper_config['rootdir'],
-                                                                  wrapper_config['account'])
+    # get sessions
+    print(colored('Getting state session', 'yellow'))
+    state_session = get_session(wrapper_config['rootdir'],
+                                wrapper_config['state_account'],
+                                wrapper_config['state_region'],
+                                wrapper_config['state_profile'])
 
-    if (os.path.isfile(session_cache_file) and
-        time.time() - os.stat(session_cache_file).st_mtime < 3600):
-        with open(session_cache_file, 'rb') as f:
-            session_cache = pickle.load(f)
-        session = boto3.Session(aws_access_key_id=session_cache['credentials'].access_key,
-                                aws_secret_access_key=session_cache['credentials'].secret_key,
-                                aws_session_token=session_cache['credentials'].token,
-                                region_name=session_cache['region'])
-    else:
-        session = boto3.Session(profile_name=stack_config['aws']['credentials']['profile'],
-                                region_name=stack_config['aws']['general']['region'])
-        session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
-                         'region': session.region_name}
-        with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT, mode=0o600), 'wb') as f:
-            pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
+    print(colored('Getting stack session', 'yellow'))
+    stack_session = get_session(wrapper_config['rootdir'],
+                                stack_config['aws']['general']['account'],
+                                stack_config['aws']['general']['region'],
+                                stack_config['aws']['credentials']['profile'])
+
 
     # set boto clients/resources
-    sts_client = session.client('sts')
-    s3_resource = session.resource('s3')
+    sts_client = stack_session.client('sts')
 
     role_arn = 'arn:aws:iam::{}:role/{}'.format(stack_config['aws']['general']['account'],
                                                 stack_config['aws']['credentials']['role'])
 
-    # set environment variables
-    set_aws_env(sts_client, role_arn)
-
+    # set terraform environment variables
+    stack_credentials = stack_session.get_credentials().get_frozen_credentials()
     terraform_vars = stack_config['terraform']['vars']
     terraform_vars['account'] = wrapper_config['account']
     terraform_vars['environment'] = wrapper_config['environment']
     terraform_vars['region'] = wrapper_config['region']
     terraform_vars['stack'] = wrapper_config['stack']
+    terraform_vars['aws_access_key'] = stack_credentials.access_key
+    terraform_vars['aws_secret_key'] = stack_credentials.secret_key
+    terraform_vars['aws_token'] = stack_credentials.token
     set_terraform_vars(terraform_vars)
 
-    # manage state locking and call subcommand
+    # set AWS state centralization environment variables
+    state_credentials = state_session.get_credentials().get_frozen_credentials()
+    os.environ['AWS_ACCESS_KEY_ID'] = state_credentials.access_key
+    os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
+    os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
+
+    # call subcommand
     if hasattr(args, 'func'):
-        func_name = args.func.__name__
-
-        # lock management subcommands
-        if func_name in ['lock_stack', 'unlock_stack', 'check_stack_lock']:
-            args.func(wrapper_config, s3_resource)
-        # subcommands requiring lock
-        elif func_name in ['terraform_plan', 'terraform_apply', 'terraform_refresh', 'terraform_bootstrap', 'terraform_taint', 'terraform_untaint']:
-            if lock_stack(wrapper_config, s3_resource):
-                args.func(wrapper_config)
-
-                # Force state ACLs
-                if stack_config['aws'].get('state_acls', False):
-                    put_acl_args = {}
-
-                    if stack_config['aws']['state_acls'].get('full_control'):
-                        full_control_ids = ['id={}'.format(i) for i in stack_config['aws']['state_acls']['full_control']]
-                        put_acl_args['GrantFullControl'] = ','.join(full_control_ids)
-
-                    if stack_config['aws']['state_acls'].get('read'):
-                        read_ids = ['id={}'.format(i) for i in stack_config['aws']['state_acls']['read']]
-                        put_acl_args['GrantRead'] = ','.join(read_ids)
-
-                    if stack_config['aws']['state_acls'].get('write'):
-                        write_ids = ['id={}'.format(i) for i in stack_config['aws']['state_acls']['write']]
-                        put_acl_args['GrantWrite'] = ','.join(write_ids)
-
-                    state_acl = s3_resource.ObjectAcl(wrapper_config['state_bucket'],
-                                                      get_remote_state_path(wrapper_config))
-                    state_acl.put(**put_acl_args)
-
-                unlock_stack(wrapper_config, s3_resource)
-            else:
-                print('{} aborted.'.format(func_name))
-                sys.exit(1)
-        # other subcommands
-        else:
-            args.func(wrapper_config)
+        args.func(wrapper_config)
     else:
         parser.print_help()
 
