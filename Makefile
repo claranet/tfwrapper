@@ -20,4 +20,4 @@ clear:
 	@rm -Rf $(makefile_dir)/.virtualenv
 
 work: setup
-	@PATH=$(wrapper_bin):$(virtualenv_bin):$(PATH) $(SHELL)
+	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" $(SHELL)
