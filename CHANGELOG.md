@@ -1,8 +1,13 @@
-## 3.0.0 (06/04/2017)
+## 3.0.0 (27/04/2017)
+
+NOTES:
+
+  * Upgrade instructions : https://confluence.fr.clara.net/display/MT/Upgrade+to+Terraform+0.9
 
 UPDATES:
 
   * TER-85 : Support Terraform 0.9.
+  * TER-87 : Windows 10 compatibility.
 
 ## 2.0.0 (10/02/2017)
 
