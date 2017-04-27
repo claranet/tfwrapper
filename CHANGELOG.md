@@ -1,10 +1,16 @@
+## 3.0.0 (06/04/2017)
+
+UPDATES:
+
+  * TER-85 : Support Terraform 0.9.
+
 ## 2.0.0 (10/02/2017)
 
 UPDATES:
 
   * TER-17 : Add apply confirmation.
   * TER-19 : Implement soft state locking.
-  * TER-33 : Fix stack detection for global environement.
+  * TER-33 : Fix stack detection for global environment.
   * TER-39 : Force -update on a terraform get.
   * TER-57 : do not fail to bootstrap when bootstrap is implicit.
   * TER-59 : Support ACLs for statefiles.
