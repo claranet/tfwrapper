@@ -1,3 +1,14 @@
+## 3.0.1 (10/05/2017)
+
+NOTES:
+
+* This version mitigates https://github.com/hashicorp/terraform/issues/14298. For long runs, clear the cached credentials in `.run`.
+* Runs taking more than 1 hr cannot be supported from terraform `0.9.0` to at least `0.9.4`, so try to make good use of `target`.
+
+UPDATES:
+
+  * TER-96 : Add 15 minutes margin to AssumeRole renewal.
+
 ## 3.0.0 (27/04/2017)
 
 NOTES:
