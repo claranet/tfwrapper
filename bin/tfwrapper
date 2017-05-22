@@ -251,6 +251,11 @@ Environment : {}
         os.remove(plan_path)
 
 
+def terraform_console(wrapper_config):
+    """Terraform console wrapper function."""
+    run_terraform('console', wrapper_config)
+
+
 def terraform_destroy(wrapper_config):
     """Terraform destroy wrapper function."""
     run_terraform('destroy', wrapper_config)
@@ -259,6 +264,11 @@ def terraform_destroy(wrapper_config):
 def terraform_fmt(wrapper_config):
     """Terraform fmt wrapper function."""
     run_terraform('fmt', wrapper_config)
+
+
+def terraform_force_unlock(wrapper_config):
+    """Terraform force-unlock wrapper function."""
+    run_terraform('force-unlock', wrapper_config)
 
 
 def terraform_get(wrapper_config):
@@ -358,6 +368,10 @@ def main():
                               action='store_true', default=False)
     parser_apply.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
+    parser_console = subparsers.add_parser('console', help='terraform console')
+    parser_console.set_defaults(func=terraform_console)
+    parser_console.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
+
     parser_destroy = subparsers.add_parser('destroy', help='terraform destroy')
     parser_destroy.set_defaults(func=terraform_destroy)
     parser_destroy.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
@@ -365,6 +379,10 @@ def main():
     parser_fmt = subparsers.add_parser('fmt', help='terraform fmt')
     parser_fmt.set_defaults(func=terraform_fmt)
     parser_fmt.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
+
+    parser_force_unlock = subparsers.add_parser('force-unlock', help='terraform force-unlock')
+    parser_force_unlock.set_defaults(func=terraform_force_unlock)
+    parser_force_unlock.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_get = subparsers.add_parser('get', help='terraform get')
     parser_get.set_defaults(func=terraform_get)
@@ -378,9 +396,9 @@ def main():
     parser_import.set_defaults(func=terraform_import)
     parser_import.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
-    parser_import = subparsers.add_parser('init', help='terraform init')
-    parser_import.set_defaults(func=terraform_init)
-    parser_import.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_init = subparsers.add_parser('init', help='terraform init')
+    parser_init.set_defaults(func=terraform_init)
+    parser_init.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_output = subparsers.add_parser('output', help='terraform output')
     parser_output.set_defaults(func=terraform_output)
