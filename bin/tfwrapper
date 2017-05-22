@@ -84,7 +84,7 @@ def get_session(rootdir, account, region, profile):
     session_cache_file = '{}/.run/session_cache_{}.pickle'.format(rootdir, account)
 
     if (os.path.isfile(session_cache_file) and
-        time.time() - os.stat(session_cache_file).st_mtime < 3600):
+        time.time() - os.stat(session_cache_file).st_mtime < 2700):
         with open(session_cache_file, 'rb') as f:
             session_cache = pickle.load(f)
         session = boto3.Session(aws_access_key_id=session_cache['credentials'].access_key,
