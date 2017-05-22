@@ -1,3 +1,9 @@
+## 3.0.2 (22/05/2017)
+
+UPDATES:
+
+  * TER-99 : Update terraform subcommands.
+
 ## 3.0.1 (10/05/2017)
 
 NOTES:
