@@ -14,6 +14,7 @@ from copy import deepcopy
 from termcolor import colored
 
 import boto3
+import botocore
 import jinja2
 import yaml
 
@@ -30,6 +31,11 @@ def load_wrapper_config(args):
             wrapper_config['confdir'] = '../' * parents_count + wrapper_config['confdir']
             break
         parents_count += 1
+
+    if parents_count == 5:
+        print("Cannot find configuration directory %s in this directory or above" % wrapper_config['confdir'])
+        print("Maybe you're in the wrong directory")
+        sys.exit(1)
 
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
 
@@ -51,6 +57,11 @@ def load_wrapper_config(args):
             wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath('./' + '../' * (count_down - 1)))
         count_down -= 1
         count_up += 1
+
+    for element in parents_list:
+        if wrapper_config[element] is None:
+            print("%s cannot be autodetected. Exiting..." % element)
+            sys.exit(2)
 
     # support both _global (fs) and global (param)
     if wrapper_config['environment'] == '_global':
@@ -93,8 +104,12 @@ def get_session(rootdir, account, region, profile):
                                 region_name=session_cache['region'])
     else:
         session = boto3.Session(profile_name=profile, region_name=region)
-        session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
+        try: 
+            session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
                          'region': session.region_name}
+        except botocore.exceptions.ParamValidationError:
+            print("Error validating authentication. Maybe the wrong MFA code ?")
+            sys.exit(3)
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT,
                                mode=0o600), 'wb') as f:
             pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
