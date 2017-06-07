@@ -33,8 +33,8 @@ def load_wrapper_config(args):
         parents_count += 1
 
     if parents_count == 5:
-        print("Cannot find configuration directory %s in this directory or above" % wrapper_config['confdir'])
-        print("Maybe you're in the wrong directory")
+        print("Cannot find configuration directory '%s' in this directory or above" % wrapper_config['confdir'], file=sys.stderr)
+        print("Maybe you're in the wrong directory ?", file=sys.stderr)
         sys.exit(1)
 
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
@@ -60,7 +60,7 @@ def load_wrapper_config(args):
 
     for element in parents_list:
         if wrapper_config[element] is None:
-            print("%s cannot be autodetected. Exiting..." % element)
+            print("%s cannot be autodetected. Exiting..." % element, file=sys.stderr)
             sys.exit(2)
 
     # support both _global (fs) and global (param)
@@ -106,7 +106,7 @@ def get_session(rootdir, account, region, profile):
         session = boto3.Session(profile_name=profile, region_name=region)
         try: 
             session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
-                         'region': session.region_name}
+                             'region': session.region_name}
         except botocore.exceptions.ParamValidationError:
             print("Error validating authentication. Maybe the wrong MFA code ?")
             sys.exit(3)
