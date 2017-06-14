@@ -14,9 +14,13 @@ from copy import deepcopy
 from termcolor import colored
 
 import boto3
+import botocore
 import jinja2
 import yaml
 
+RC_OK = 0
+RC_KO = 1
+RC_UNK = 2
 
 def load_wrapper_config(args):
     """Load wrapper config from args. Validate args and autodetect current stack."""
@@ -30,6 +34,9 @@ def load_wrapper_config(args):
             wrapper_config['confdir'] = '../' * parents_count + wrapper_config['confdir']
             break
         parents_count += 1
+
+    if parents_count == 5:
+        raise ValueError("Cannot find configuration directory '%s' in this directory or above" % wrapper_config['confdir'])
 
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
 
@@ -51,6 +58,10 @@ def load_wrapper_config(args):
             wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath('./' + '../' * (count_down - 1)))
         count_down -= 1
         count_up += 1
+
+    for element in parents_list:
+        if wrapper_config[element] is None:
+            raise ValueError("%s cannot be autodetected. Exiting..." % element)
 
     # support both _global (fs) and global (param)
     if wrapper_config['environment'] == '_global':
@@ -92,9 +103,21 @@ def get_session(rootdir, account, region, profile):
                                 aws_session_token=session_cache['credentials'].token,
                                 region_name=session_cache['region'])
     else:
-        session = boto3.Session(profile_name=profile, region_name=region)
-        session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
-                         'region': session.region_name}
+        try:
+            session = boto3.Session(profile_name=profile, region_name=region)
+        except botocore.exceptions.ProfileNotFound:
+            print("Profile %s not found. Exiting..." % profile, file=sys.stderr)
+            sys.exit(RC_KO)
+        try: 
+            session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
+                             'region': session.region_name}
+        except botocore.exceptions.ParamValidationError:
+            print('Error validating authentication. Maybe the wrong MFA code ?', file=sys.stderr)
+            sys.exit(RC_KO)
+        except Exception as e:
+            print('Unknown error :', file=sys.stderr)
+            print(e, file=sys.stderr)
+            sys.exit(RC_UNK)
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT,
                                mode=0o600), 'wb') as f:
             pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
@@ -439,7 +462,15 @@ def main():
     args = parser.parse_args()
 
     # process args
-    wrapper_config = load_wrapper_config(args)
+    try:
+        wrapper_config = load_wrapper_config(args)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        sys.exit(RC_KO)
+    except Exception as e:
+        print('Unknown error :', file=sys.stderr)
+        print(e, file=sys.stderr)
+        sys.exit(RC_UNK)
 
     # load config
     stack_config = load_stack_config(wrapper_config['confdir'],
@@ -492,7 +523,7 @@ def main():
     else:
         parser.print_help()
 
-    sys.exit(0)
+    sys.exit(RC_OK)
 
 
 if __name__ == "__main__":
