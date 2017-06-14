@@ -103,7 +103,11 @@ def get_session(rootdir, account, region, profile):
                                 aws_session_token=session_cache['credentials'].token,
                                 region_name=session_cache['region'])
     else:
-        session = boto3.Session(profile_name=profile, region_name=region)
+        try:
+            session = boto3.Session(profile_name=profile, region_name=region)
+        except botocore.exceptions.ProfileNotFound:
+            print("Profile %s not found. Exiting..." % profile, file=sys.stderr)
+            sys.exit(RC_KO)
         try: 
             session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
                              'region': session.region_name}
