@@ -1,3 +1,14 @@
+## 3.1.0 (13/07/2017)
+
+NOTES:
+
+  * Wrapper messages are now outputted to `stderr`
+
+UPDATES:
+
+  * TER-104 : Output wrapper messages on `stderr`
+  * TER-105 : Catch some usual exceptions
+
 ## 3.0.2 (22/05/2017)
 
 UPDATES:
@@ -8,8 +19,8 @@ UPDATES:
 
 NOTES:
 
-* This version mitigates https://github.com/hashicorp/terraform/issues/14298. For long runs, clear the cached credentials in `.run`.
-* Runs taking more than 1 hr cannot be supported from terraform `0.9.0` to at least `0.9.4`, so try to make good use of `target`.
+  * This version mitigates https://github.com/hashicorp/terraform/issues/14298. For long runs, clear the cached credentials in `.run`.
+  * Runs taking more than 1 hr cannot be supported from terraform `0.9.0` to at least `0.9.4`, so try to make good use of `target`.
 
 UPDATES:
 
