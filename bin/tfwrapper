@@ -496,9 +496,6 @@ def main():
     # set boto clients/resources
     sts_client = stack_session.client('sts')
 
-    role_arn = 'arn:aws:iam::{}:role/{}'.format(stack_config['aws']['general']['account'],
-                                                stack_config['aws']['credentials']['role'])
-
     # set terraform environment variables
     stack_credentials = stack_session.get_credentials().get_frozen_credentials()
     terraform_vars = stack_config['terraform']['vars']
