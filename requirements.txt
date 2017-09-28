@@ -132,7 +132,7 @@ python-dateutil==2.6.1    # via adal, azure-multiapi-storage, azure-storage, bot
 pytz==2017.3              # via azure-cli-role
 pyyaml==3.12
 requests-oauthlib==0.8.0  # via msrest
-requests==2.18.4          # via adal, azure-cli-core, azure-multiapi-storage, azure-storage, msrest, pydocumentdb, requests-oauthlib
+requests==2.18.4
 s3transfer==0.1.12        # via boto3
 scp==0.10.2               # via azure-cli-acs
 secretstorage==2.3.1      # via keyring
