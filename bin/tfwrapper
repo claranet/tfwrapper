@@ -11,6 +11,7 @@ import subprocess
 import time
 import sys
 from copy import deepcopy
+from pathlib import Path
 from termcolor import colored
 
 import boto3
@@ -21,6 +22,8 @@ import yaml
 RC_OK = 0
 RC_KO = 1
 RC_UNK = 2
+
+home_dir = str(Path.home())
 
 def load_wrapper_config(args):
     """Load wrapper config from args. Validate args and autodetect current stack."""
@@ -381,6 +384,8 @@ def main():
                         nargs='?')
     parser.add_argument('-s', '--stack', help='Target stack. Autodetected if none is provided.',
                         nargs='?')
+    parser.add_argument('-p', '--plugin-cache-dir', help='Plugins cache directory.',
+                        default='{}/.terraform.d/plugin-cache'.format(home_dir))
 
     subparsers = parser.add_subparsers(help='subcommands')
 
@@ -507,6 +512,7 @@ def main():
     terraform_vars['aws_secret_key'] = stack_credentials.secret_key
     terraform_vars['aws_token'] = stack_credentials.token
     set_terraform_vars(terraform_vars)
+    os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
 
     # set AWS state centralization environment variables
     state_credentials = state_session.get_credentials().get_frozen_credentials()
