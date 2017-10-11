@@ -198,7 +198,7 @@ def bootstrap(wrapper_config):
         with open('{}/state.tf'.format(stack_path), "w") as f:
             f.write(state_conf)
 
-        run_terraform('init', wrapper_config)
+        return run_terraform('init', wrapper_config)
 
 
 def run_terraform(action, wrapper_config):
@@ -219,11 +219,11 @@ def run_terraform(action, wrapper_config):
         command += tf_params
 
     if environment == 'global':
-        subprocess.run(command,
-                       cwd='{}/{}/_global/{}'.format(rootdir, account, stack))
+        return subprocess.run(command,
+                              cwd='{}/{}/_global/{}'.format(rootdir, account, stack)).returncode
     else:
-        subprocess.run(command,
-                       cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
+        return subprocess.run(command,
+                              cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)).returncode
 
 
 def terraform_apply(wrapper_config):
@@ -232,14 +232,18 @@ def terraform_apply(wrapper_config):
 
     # do not force plan if unsafe
     if wrapper_config['unsafe']:
-        run_terraform('apply', wrapper_config)
+        return run_terraform('apply', wrapper_config)
     else:
         # plan config
         plan_path = '{}/.run/plan_{}'.format(wrapper_config['rootdir'],
                                              ''.join(random.choice(string.ascii_letters) for x in range(10)))
         plan_wrapper_config = deepcopy(wrapper_config)
         plan_wrapper_config['tf_params'][1:1] = ['-out', plan_path]
-        run_terraform('plan', plan_wrapper_config)
+        plan_return_code = run_terraform('plan', plan_wrapper_config)
+
+        # return Terraform return code if plan fails
+        if plan_return_code > 0 :
+            return plan_return_code
 
         # ask for confirmation
         colored_account = colored(plan_wrapper_config['account'], 'yellow')
@@ -265,36 +269,40 @@ Environment : {}
         print(env_msg, file=sys.stderr)
         apply_input = input("'yes' to confirm : ")
 
-        if apply_input == 'yes':
-            # apply config
-            apply_wrapper_config = deepcopy(wrapper_config)
-            apply_wrapper_config['tf_params'].append(plan_path)
-            run_terraform('apply', apply_wrapper_config)
-        else:
-            print('\nAborting apply.', file=sys.stderr)
+        try:
+            if apply_input == 'yes':
+                # apply config
+                apply_wrapper_config = deepcopy(wrapper_config)
+                apply_wrapper_config['tf_params'].append(plan_path)
+                apply_return_code = run_terraform('apply', apply_wrapper_config)
 
-        # delete plan
-        os.remove(plan_path)
+                return apply_return_code
+            else:
+                print('\nAborting apply.', file=sys.stderr)
+        finally:
+            # delete plan
+            os.remove(plan_path)
+
 
 
 def terraform_console(wrapper_config):
     """Terraform console wrapper function."""
-    run_terraform('console', wrapper_config)
+    return run_terraform('console', wrapper_config)
 
 
 def terraform_destroy(wrapper_config):
     """Terraform destroy wrapper function."""
-    run_terraform('destroy', wrapper_config)
+    return run_terraform('destroy', wrapper_config)
 
 
 def terraform_fmt(wrapper_config):
     """Terraform fmt wrapper function."""
-    run_terraform('fmt', wrapper_config)
+    return run_terraform('fmt', wrapper_config)
 
 
 def terraform_force_unlock(wrapper_config):
     """Terraform force-unlock wrapper function."""
-    run_terraform('force-unlock', wrapper_config)
+    return run_terraform('force-unlock', wrapper_config)
 
 
 def terraform_get(wrapper_config):
@@ -304,63 +312,63 @@ def terraform_get(wrapper_config):
         wrapper_config['tf_params'][1:1] = ['-update']
 
     # call subcommand
-    run_terraform('get', wrapper_config)
+    return run_terraform('get', wrapper_config)
 
 
 def terraform_graph(wrapper_config):
     """Terraform graph wrapper function."""
-    run_terraform('graph', wrapper_config)
+    return run_terraform('graph', wrapper_config)
 
 
 def terraform_import(wrapper_config):
     """Terraform import wrapper function."""
-    run_terraform('import', wrapper_config)
+    return run_terraform('import', wrapper_config)
 
 
 def terraform_init(wrapper_config):
     """Terraform init wrapper function."""
-    run_terraform('init', wrapper_config)
+    return run_terraform('init', wrapper_config)
 
 
 def terraform_output(wrapper_config):
     """Terraform output wrapper function."""
-    run_terraform('output', wrapper_config)
+    return run_terraform('output', wrapper_config)
 
 
 def terraform_plan(wrapper_config):
     """Terraform plan wrapper function."""
     bootstrap(wrapper_config)
-    run_terraform('plan', wrapper_config)
+    return run_terraform('plan', wrapper_config)
 
 
 def terraform_refresh(wrapper_config):
     """Terraform refresh wrapper function."""
-    run_terraform('refresh', wrapper_config)
+    return run_terraform('refresh', wrapper_config)
 
 
 def terraform_show(wrapper_config):
     """Terraform show wrapper function."""
-    run_terraform('show', wrapper_config)
+    return run_terraform('show', wrapper_config)
 
 
 def terraform_state(wrapper_config):
     """Terraform state wrapper function."""
-    run_terraform('state', wrapper_config)
+    return run_terraform('state', wrapper_config)
 
 
 def terraform_taint(wrapper_config):
     """Terraform taint wrapper function."""
-    run_terraform('taint', wrapper_config)
+    return run_terraform('taint', wrapper_config)
 
 
 def terraform_untaint(wrapper_config):
     """Terraform untaint wrapper function."""
-    run_terraform('untaint', wrapper_config)
+    return run_terraform('untaint', wrapper_config)
 
 
 def terraform_validate(wrapper_config):
     """Terraform validate wrapper function."""
-    run_terraform('validate', wrapper_config)
+    return run_terraform('validate', wrapper_config)
 
 
 def main():
@@ -522,11 +530,14 @@ def main():
 
     # call subcommand
     if hasattr(args, 'func'):
-        args.func(wrapper_config)
+        returncode = args.func(wrapper_config)
     else:
         parser.print_help(file=sys.stderr)
 
-    sys.exit(RC_OK)
+    if returncode is not None:
+        sys.exit(returncode)
+    else:
+        sys.exit(RC_OK)
 
 
 if __name__ == "__main__":
