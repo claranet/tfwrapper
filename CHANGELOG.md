@@ -1,3 +1,9 @@
+# 4.0.1 (13/10/2017)
+
+UPDATES :
+
+  * TER-176 : Add license file.
+
 # 4.0.0 (11/10/2017)
 
 NOTES:
