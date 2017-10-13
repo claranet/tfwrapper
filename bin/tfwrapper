@@ -499,8 +499,8 @@ def main():
                                 wrapper_config['state_region'],
                                 wrapper_config['state_profile'])
 
-    print(colored('Getting stack session', 'yellow'), file=sys.stderr)
     if 'aws' in stack_config:
+        print(colored('Getting stack session', 'yellow'), file=sys.stderr)
         stack_session = get_session(wrapper_config['rootdir'],
                                     stack_config['aws']['general']['account'],
                                     stack_config['aws']['general']['region'],
@@ -524,7 +524,7 @@ def main():
         test_azure = yaml.load(azure_config)
 
         terraform_vars = stack_config['terraform']['vars']
-        terraform_vars['azure_subscription_id'] = test_azure['morea-demo']['credential']['subscription_id']
+        terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
         terraform_vars['azure_client_id'] = test_azure['morea-demo']['credential']['client_id']
         terraform_vars['azure_client_secret'] = test_azure['morea-demo']['credential']['client_secret']
         terraform_vars['azure_tenant_id'] = test_azure['morea-demo']['credential']['tenant_id']
