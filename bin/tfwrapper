@@ -500,21 +500,35 @@ def main():
                                 wrapper_config['state_profile'])
 
     print(colored('Getting stack session', 'yellow'), file=sys.stderr)
-    stack_session = get_session(wrapper_config['rootdir'],
-                                stack_config['aws']['general']['account'],
-                                stack_config['aws']['general']['region'],
-                                stack_config['aws']['credentials']['profile'])
+    if 'aws' in stack_config:
+        stack_session = get_session(wrapper_config['rootdir'],
+                                    stack_config['aws']['general']['account'],
+                                    stack_config['aws']['general']['region'],
+                                    stack_config['aws']['credentials']['profile'])
 
     # set terraform environment variables
-    stack_credentials = stack_session.get_credentials().get_frozen_credentials()
-    terraform_vars = stack_config['terraform']['vars']
-    terraform_vars['account'] = wrapper_config['account']
-    terraform_vars['environment'] = wrapper_config['environment']
-    terraform_vars['region'] = wrapper_config['region']
-    terraform_vars['stack'] = wrapper_config['stack']
-    terraform_vars['aws_access_key'] = stack_credentials.access_key
-    terraform_vars['aws_secret_key'] = stack_credentials.secret_key
-    terraform_vars['aws_token'] = stack_credentials.token
+    if 'aws' in stack_config:
+        stack_credentials = stack_session.get_credentials().get_frozen_credentials()
+        terraform_vars = stack_config['terraform']['vars']
+        terraform_vars['account'] = wrapper_config['account']
+        terraform_vars['environment'] = wrapper_config['environment']
+        terraform_vars['region'] = wrapper_config['region']
+        terraform_vars['stack'] = wrapper_config['stack']
+        terraform_vars['aws_access_key'] = stack_credentials.access_key
+        terraform_vars['aws_secret_key'] = stack_credentials.secret_key
+        terraform_vars['aws_token'] = stack_credentials.token
+
+    # Add support Azure
+    if 'azure' in stack_config:
+        azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
+        test_azure = yaml.load(azure_config)
+
+        terraform_vars = stack_config['terraform']['vars']
+        terraform_vars['azure_subscription_id'] = test_azure['morea-demo']['credential']['subscription_id']
+        terraform_vars['azure_client_id'] = test_azure['morea-demo']['credential']['client_id']
+        terraform_vars['azure_client_secret'] = test_azure['morea-demo']['credential']['client_secret']
+        terraform_vars['azure_tenant_id'] = test_azure['morea-demo']['credential']['tenant_id']
+        
     set_terraform_vars(terraform_vars)
     os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
 
