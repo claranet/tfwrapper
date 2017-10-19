@@ -525,6 +525,10 @@ def main():
         profile = stack_config['azure']['credential']['profile']
 
         terraform_vars = stack_config['terraform']['vars']
+        terraform_vars['client_name'] = wrapper_config['account']
+        terraform_vars['environment'] = wrapper_config['environment']
+        terraform_vars['azurerm_region'] = wrapper_config['region']
+        terraform_vars['stack'] = wrapper_config['stack']
         terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
         terraform_vars['azure_client_id'] = load_azure_config[profile]['client_id']
         terraform_vars['azure_client_secret'] = load_azure_config[profile]['client_secret']
