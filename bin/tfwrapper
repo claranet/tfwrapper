@@ -96,7 +96,7 @@ def load_stack_config(confdir, account, environment, region, stack):
 
 def get_session(rootdir, account, region, profile):
     """Get or create cached session."""
-    session_cache_file = '{}/.run/session_cache_{}.pickle'.format(rootdir, account)
+    session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, account, profile)
 
     if (os.path.isfile(session_cache_file) and
             time.time() - os.stat(session_cache_file).st_mtime < 2700):
