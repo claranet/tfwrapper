@@ -525,6 +525,8 @@ def main():
     os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
 
     # call subcommand
+    returncode = None
+
     if hasattr(args, 'func'):
         returncode = args.func(wrapper_config)
     else:
