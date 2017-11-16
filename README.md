@@ -67,7 +67,7 @@ For example :
 mkdir -p templates/common templates/basic
 
 # create state configuration template
-cat << EOF > templates/common/state.tf.jinja2
+cat << 'EOF' > templates/common/state.tf.jinja2
 {% if region is not none %}
 {% set region = '/' + region + '/' %}
 {% else %}
@@ -88,7 +88,7 @@ resource "null_resource" "state-test" {}
 EOF
 
 # create a default stack templates with support for AWS assume role
-cat << EOF > templates/basic/main.tf
+cat << 'EOF' > templates/basic/main.tf
 provider "aws" {
   region     = "${var.aws_region}"
   access_key = "${var.aws_access_key}"
@@ -104,7 +104,7 @@ The `.run` directory is used for credentials caching and plan storage.
 
 ```bash
 mkdir .run
-cat << EOF > .run/.gitignore
+cat << 'EOF' > .run/.gitignore
 *
 !.gitignore
 EOF
@@ -115,7 +115,7 @@ EOF
 Adding the following `.gitignore` at the root of your project is recommended :
 
 ```bash
-cat << EOF > .gitignore
+cat << 'EOF' > .gitignore
 */**/terraform.tfstate
 */**/terraform.tfstate.backup
 */**/terraform.tfvars
