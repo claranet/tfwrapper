@@ -297,12 +297,21 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    if environment == 'global':
-        return subprocess.run(command,
-                              cwd='{}/{}/_global/{}'.format(rootdir, account, stack)).returncode
-    else:
-        return subprocess.run(command,
-                              cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)).returncode
+    working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
+                   else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
+
+    cmd_env = deepcopy(os.environ)
+    cmd_env['PATH'] = "{path}{sep}{old_path}".format(
+        path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
+
+    with subprocess.Popen(command, cwd=working_dir, env=cmd_env) as process:
+        try:
+            process.communicate()
+        except:
+            process.kill()
+            process.wait()
+            raise
+        return process.poll()
 
 
 def terraform_apply(wrapper_config):
