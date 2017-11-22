@@ -522,7 +522,13 @@ def main():
     if 'azure' in stack_config:
         azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
         load_azure_config = yaml.load(azure_config)
+        if load_azure_config is None:
+            print(colored('Please configure your ~/.azurerm/config.yml configuration file', 'red'), file=sys.stderr)
+            sys.exit(RC_KO)
         profile = stack_config['azure']['credential']['profile']
+        if profile not in load_azure_config.keys():
+            print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'), file=sys.stderr)
+            sys.exit(RC_KO)
 
         terraform_vars = stack_config['terraform']['vars']
         terraform_vars['client_name'] = wrapper_config['account']
