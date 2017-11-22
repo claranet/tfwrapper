@@ -506,8 +506,7 @@ def main():
                                     stack_config['aws']['general']['region'],
                                     stack_config['aws']['credentials']['profile'])
 
-    # set terraform environment variables
-    if 'aws' in stack_config:
+        # set terraform environment variables
         stack_credentials = stack_session.get_credentials().get_frozen_credentials()
         terraform_vars = stack_config['terraform']['vars']
         terraform_vars['account'] = wrapper_config['account']
