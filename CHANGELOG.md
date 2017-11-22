@@ -1,3 +1,11 @@
+# 4.1.0 (22/11/2017)
+
+UPDATES :
+
+  * TER-188 : Use AWS profile as part of the pickle session cache filename.
+  * TER-190 : Initialize returncode.
+  * TER-192 : Update `README.md`.
+
 # 4.0.1 (13/10/2017)
 
 UPDATES :
