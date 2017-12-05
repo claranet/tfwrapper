@@ -519,6 +519,13 @@ def main():
 
     # Add support Azure
     if 'azure' in stack_config:
+        terraform_vars = stack_config['terraform']['vars']
+        terraform_vars['client_name'] = wrapper_config['account']
+        terraform_vars['environment'] = wrapper_config['environment']
+        terraform_vars['azurerm_region'] = wrapper_config['region']
+        terraform_vars['stack'] = wrapper_config['stack']
+        terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
+
         azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
         load_azure_config = yaml.load(azure_config)
         if load_azure_config is None:
@@ -529,16 +536,17 @@ def main():
             print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'), file=sys.stderr)
             sys.exit(RC_KO)
 
-        terraform_vars = stack_config['terraform']['vars']
-        terraform_vars['client_name'] = wrapper_config['account']
-        terraform_vars['environment'] = wrapper_config['environment']
-        terraform_vars['azurerm_region'] = wrapper_config['region']
-        terraform_vars['stack'] = wrapper_config['stack']
-        terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
-        terraform_vars['azure_client_id'] = load_azure_config[profile]['client_id']
-        terraform_vars['azure_client_secret'] = load_azure_config[profile]['client_secret']
         terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
-        
+
+        az_login_mode = stack_config['azure']['general'].get('mode', 'user')
+        if az_login_mode == 'user':
+            print('Using Azure user mode')
+        else:
+            print('Using Azure Service Principal mode')
+
+            os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
+            os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
+
     set_terraform_vars(terraform_vars)
     os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
 
