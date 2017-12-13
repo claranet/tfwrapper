@@ -520,7 +520,8 @@ def main():
     # Add support Azure
     if 'azure' in stack_config:
         terraform_vars = stack_config['terraform']['vars']
-        terraform_vars['client_name'] = wrapper_config['account']
+        if 'client_name' not in terraform_vars:
+            terraform_vars['client_name'] = wrapper_config['account']
         terraform_vars['environment'] = wrapper_config['environment']
         terraform_vars['azurerm_region'] = wrapper_config['region']
         terraform_vars['stack'] = wrapper_config['stack']
