@@ -2,6 +2,7 @@
 """Python wrapper for Terraform."""
 
 import argparse
+import json
 import os
 import pickle
 import random
@@ -534,7 +535,8 @@ def main():
             sys.exit(RC_KO)
         profile = stack_config['azure']['credential']['profile']
         if profile not in load_azure_config.keys():
-            print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'), file=sys.stderr)
+            print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'),
+                  file=sys.stderr)
             sys.exit(RC_KO)
 
         terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
@@ -542,6 +544,31 @@ def main():
         az_login_mode = stack_config['azure']['general'].get('mode', 'user')
         if az_login_mode == 'user':
             print('Using Azure user mode')
+
+            command = ['az', 'account', 'get-access-token']
+            az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            if az_token_process.returncode == 0:
+                az_token = json.loads(az_token_process.stdout)
+                az_token_subscription = az_token['subscription']
+
+                if az_token_subscription != terraform_vars['azure_subscription_id']:
+                    command = ['az', 'account', 'set', '--subscription', terraform_vars['azure_subscription_id']]
+                    az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                    if az_account_process.returncode != 0:
+                        print(colored('Could not switch to {} subscription : {}'.format(
+                                      terraform_vars['azure_subscription_id'], az_account_process.stderr.decode("utf-8")), 'red'),
+                              file=sys.stderr)
+                        sys.exit(RC_KO)
+                    else:
+                        print(colored('Switched to {} subscription'.format(
+                                      terraform_vars['azure_subscription_id']), 'yellow'),
+                              file=sys.stderr)
+            else:
+                print(colored('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")), 'red'),
+                      file=sys.stderr)
+                sys.exit(RC_KO)
         else:
             print('Using Azure Service Principal mode')
 
