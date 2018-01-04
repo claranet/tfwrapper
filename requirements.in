@@ -1,3 +1,5 @@
+--extra-index-url https://azurecliprod.blob.core.windows.net/edge
+azure-cli
 boto3
 jinja2
 pip-tools
