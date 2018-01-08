@@ -1,3 +1,9 @@
+# 5.0.0 (08/01/2017)
+
+UPDATES :
+
+  * TER-28 : Add support for Azure stacks.
+
 # 4.1.0 (22/11/2017)
 
 UPDATES :
