@@ -250,7 +250,7 @@ def do_switch_version(version):
 
     print("Current terraform version is {}, switching to version {}".format(current_version, full_version))
 
-    version_path = os.path.expanduser(os.path.join('~/.terraform/versions', minor_version, full_version))
+    version_path = os.path.expanduser(os.path.join('~/.terraform.d/versions', minor_version, full_version))
     tf_bin_path = os.path.join(version_path, 'terraform')
     local_tf_bin_path = os.path.join(os.path.dirname(__file__), 'terraform')
     os.makedirs(version_path, exist_ok=True)
