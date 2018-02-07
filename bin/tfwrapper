@@ -179,7 +179,7 @@ def bootstrap(wrapper_config):
     stack_config = load_stack_config(confdir, account, environment, region, stack)
     tf_version = stack_config['terraform']['vars'].get('version')
     if tf_version:
-        do_switch_version(tf_version)
+        do_switchver(tf_version)
 
     # bootstrap Terraform files from stack template
     if not os.path.isdir(stack_path):
@@ -213,7 +213,7 @@ def bootstrap(wrapper_config):
         return run_terraform('init', wrapper_config)
 
 
-def do_switch_version(version):
+def do_switchver(version):
     """
     Switch to desired terraform version if different from current one
     :param version: string: desired terraform version
@@ -458,10 +458,10 @@ def terraform_validate(wrapper_config):
     return run_terraform('validate', wrapper_config)
 
 
-def switch_version(wrapper_config):
+def switchver(wrapper_config):
     """Switch terraform version command"""
     version = wrapper_config.get('version')[0]
-    do_switch_version(version)
+    do_switchver(version)
 
 
 def main():
@@ -566,7 +566,7 @@ def main():
     parser_bootstrap.add_argument('template', nargs='?', help='template to use during bootstrap', default=None)
 
     parser_switchver = subparsers.add_parser('switchver', help='switch terraform version')
-    parser_switchver.set_defaults(func=switch_version)
+    parser_switchver.set_defaults(func=switchver)
     parser_switchver.add_argument('version', nargs=1, help='terraform version to use')
 
     args = parser.parse_args()
