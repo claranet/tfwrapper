@@ -643,10 +643,11 @@ def main():
                 print('Using Azure user mode')
 
                 command = ['az', 'account', 'get-access-token']
-                az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
                 if az_token_process.returncode == 0:
-                    az_token = json.loads(az_token_process.stdout)
+                    result_json = str(az_token_process.stdout)
+                    az_token = json.loads(result_json)
                     az_token_subscription = az_token['subscription']
 
                     if az_token_subscription != terraform_vars['azure_subscription_id']:
