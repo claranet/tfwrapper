@@ -6,13 +6,19 @@ import json
 import os
 import pickle
 import random
+import re
 import shutil
+import stat
 import string
 import subprocess
+import tempfile
 import time
 import sys
+import zipfile
 from copy import deepcopy
 from pathlib import Path
+
+import requests
 from termcolor import colored
 
 import boto3
@@ -170,6 +176,11 @@ def bootstrap(wrapper_config):
     region = wrapper_config['region']
     stack = wrapper_config['stack']
 
+    stack_config = load_stack_config(confdir, account, environment, region, stack)
+    tf_version = stack_config['terraform']['vars'].get('version')
+    if tf_version:
+        do_switchver(tf_version)
+
     # bootstrap Terraform files from stack template
     if not os.path.isdir(stack_path):
         if wrapper_config.get('template') is None:
@@ -184,7 +195,6 @@ def bootstrap(wrapper_config):
 
     # boostrap state.tf from jinja2 template
     if not os.path.isfile('{}/state.tf'.format(stack_path)):
-        stack_config = load_stack_config(confdir, account, environment, region, stack)
         client_name = stack_config['terraform']['vars']['client_name']
 
         jinja2_env = jinja2.Environment(
@@ -201,6 +211,73 @@ def bootstrap(wrapper_config):
             f.write(state_conf)
 
         return run_terraform('init', wrapper_config)
+
+
+def do_switchver(version):
+    """
+    Switch to desired terraform version if different from current one
+    :param version: string: desired terraform version
+    """
+    m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?$', version)
+    if not m:
+        raise ValueError('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
+    minor_version, patch = m.groups()
+
+    # Checking version existence and getting latest patch version if not defined
+    found = False
+    releases = requests.get('https://api.github.com/repos/hashicorp/terraform/releases').json()
+    for release in releases:
+        if re.match(r'^v{}\.{}$'.format(minor_version, patch if patch else '[0-9]+'), release['tag_name']):
+            found = True
+            patch = patch or release['tag_name'].split('.')[-1]
+            break
+
+    if not found:
+        raise ValueError("The terraform version {} does not exist".format(version))
+
+    full_version = "{}.{}".format(minor_version, patch)
+
+    # Getting current version
+    try:
+        p = subprocess.run(['terraform', '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        current_version = re.match(r'^Terraform v([0-9]+.[0-9]+.[0-9]+)', p.stdout.decode('ascii')).group(1)
+    except FileNotFoundError:
+        current_version = 'not installed'
+
+    if current_version == full_version:
+        print("Terraform is already on version {}".format(full_version))
+        return
+
+    print("Current terraform version is {}, switching to version {}".format(current_version, full_version))
+
+    version_path = os.path.expanduser(os.path.join('~/.terraform.d/versions', minor_version, full_version))
+    tf_bin_path = os.path.join(version_path, 'terraform')
+    local_tf_bin_path = os.path.join(os.path.dirname(__file__), 'terraform')
+    os.makedirs(version_path, exist_ok=True)
+
+    if not os.path.isfile(tf_bin_path):
+        # Download and extract in user's home if needed
+        print("Version does not exist locally, downloading it")
+        handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
+        r = requests.get(
+            'https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_linux_amd64.zip'.format(
+                full_version=full_version),
+            stream=True)
+        with open(tmp_file, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=128):
+                fd.write(chunk)
+        with zipfile.ZipFile(tmp_file, 'r') as zip:
+            zip.extractall(path=version_path)
+        # Permissions not preserved on extract https://bugs.python.org/issue15795
+        os.chmod(tf_bin_path, os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.remove(tmp_file)
+
+    # Doing symlink
+    if os.path.islink(local_tf_bin_path):
+        os.remove(local_tf_bin_path)
+    os.symlink(tf_bin_path, local_tf_bin_path)
+
+    print("Switch done, current terraform version is {}".format(full_version))
 
 
 def run_terraform(action, wrapper_config):
@@ -220,12 +297,21 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    if environment == 'global':
-        return subprocess.run(command,
-                              cwd='{}/{}/_global/{}'.format(rootdir, account, stack)).returncode
-    else:
-        return subprocess.run(command,
-                              cwd='{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)).returncode
+    working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
+                   else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
+
+    cmd_env = deepcopy(os.environ)
+    cmd_env['PATH'] = "{path}{sep}{old_path}".format(
+        path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
+
+    with subprocess.Popen(command, cwd=working_dir, env=cmd_env) as process:
+        try:
+            process.communicate()
+        except:
+            process.kill()
+            process.wait()
+            raise
+        return process.poll()
 
 
 def terraform_apply(wrapper_config):
@@ -372,6 +458,12 @@ def terraform_validate(wrapper_config):
     return run_terraform('validate', wrapper_config)
 
 
+def switchver(wrapper_config):
+    """Switch terraform version command"""
+    version = wrapper_config.get('version')[0]
+    do_switchver(version)
+
+
 def main():
     """Main function."""
     # terraforms params doc
@@ -396,7 +488,7 @@ def main():
     parser.add_argument('-p', '--plugin-cache-dir', help='Plugins cache directory.',
                         default='{}/.terraform.d/plugin-cache'.format(home_dir))
 
-    subparsers = parser.add_subparsers(help='subcommands')
+    subparsers = parser.add_subparsers(dest='subcommand', help='subcommands')
 
     parser_apply = subparsers.add_parser('apply', help='terraform apply')
     parser_apply.set_defaults(func=terraform_apply)
@@ -473,116 +565,123 @@ def main():
     parser_bootstrap.set_defaults(func=bootstrap)
     parser_bootstrap.add_argument('template', nargs='?', help='template to use during bootstrap', default=None)
 
+    parser_switchver = subparsers.add_parser('switchver', help='switch terraform version')
+    parser_switchver.set_defaults(func=switchver)
+    parser_switchver.add_argument('version', nargs=1, help='terraform version to use')
+
     args = parser.parse_args()
 
-    # process args
-    try:
-        wrapper_config = load_wrapper_config(args)
-    except ValueError as e:
-        print(e, file=sys.stderr)
-        sys.exit(RC_KO)
-    except Exception as e:
-        print('Unknown error :', file=sys.stderr)
-        print(e, file=sys.stderr)
-        sys.exit(RC_UNK)
-
-    # load config
-    stack_config = load_stack_config(wrapper_config['confdir'],
-                                     wrapper_config['account'],
-                                     wrapper_config['environment'],
-                                     wrapper_config['region'],
-                                     wrapper_config['stack'])
-
-    # get sessions
-    print(colored('Getting state session', 'yellow'), file=sys.stderr)
-    state_session = get_session(wrapper_config['rootdir'],
-                                wrapper_config['state_account'],
-                                wrapper_config['state_region'],
-                                wrapper_config['state_profile'])
-
-    if 'aws' in stack_config:
-        print(colored('Getting stack session', 'yellow'), file=sys.stderr)
-        stack_session = get_session(wrapper_config['rootdir'],
-                                    stack_config['aws']['general']['account'],
-                                    stack_config['aws']['general']['region'],
-                                    stack_config['aws']['credentials']['profile'])
-
-        # set terraform environment variables
-        stack_credentials = stack_session.get_credentials().get_frozen_credentials()
-        terraform_vars = stack_config['terraform']['vars']
-        terraform_vars['account'] = wrapper_config['account']
-        terraform_vars['environment'] = wrapper_config['environment']
-        terraform_vars['region'] = wrapper_config['region']
-        terraform_vars['stack'] = wrapper_config['stack']
-        terraform_vars['aws_access_key'] = stack_credentials.access_key
-        terraform_vars['aws_secret_key'] = stack_credentials.secret_key
-        terraform_vars['aws_token'] = stack_credentials.token
-
-    # Add support Azure
-    if 'azure' in stack_config:
-        terraform_vars = stack_config['terraform']['vars']
-        if 'client_name' not in terraform_vars:
-            terraform_vars['client_name'] = wrapper_config['account']
-        terraform_vars['environment'] = wrapper_config['environment']
-        terraform_vars['azurerm_region'] = wrapper_config['region']
-        terraform_vars['stack'] = wrapper_config['stack']
-        terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
-
-        azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
-        load_azure_config = yaml.load(azure_config)
-        if load_azure_config is None:
-            print(colored('Please configure your ~/.azurerm/config.yml configuration file', 'red'), file=sys.stderr)
+    if args.subcommand not in ('switchver',):
+        # process args
+        try:
+            wrapper_config = load_wrapper_config(args)
+        except ValueError as e:
+            print(e, file=sys.stderr)
             sys.exit(RC_KO)
-        profile = stack_config['azure']['credential']['profile']
-        if profile not in load_azure_config.keys():
-            print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'),
-                  file=sys.stderr)
-            sys.exit(RC_KO)
+        except Exception as e:
+            print('Unknown error :', file=sys.stderr)
+            print(e, file=sys.stderr)
+            sys.exit(RC_UNK)
 
-        terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
+        # load config
+        stack_config = load_stack_config(wrapper_config['confdir'],
+                                         wrapper_config['account'],
+                                         wrapper_config['environment'],
+                                         wrapper_config['region'],
+                                         wrapper_config['stack'])
 
-        az_login_mode = stack_config['azure']['general'].get('mode', 'user')
-        if az_login_mode == 'user':
-            print('Using Azure user mode')
+        # get sessions
+        print(colored('Getting state session', 'yellow'), file=sys.stderr)
+        state_session = get_session(wrapper_config['rootdir'],
+                                    wrapper_config['state_account'],
+                                    wrapper_config['state_region'],
+                                    wrapper_config['state_profile'])
 
-            command = ['az', 'account', 'get-access-token']
-            az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if 'aws' in stack_config:
+            print(colored('Getting stack session', 'yellow'), file=sys.stderr)
+            stack_session = get_session(wrapper_config['rootdir'],
+                                        stack_config['aws']['general']['account'],
+                                        stack_config['aws']['general']['region'],
+                                        stack_config['aws']['credentials']['profile'])
 
-            if az_token_process.returncode == 0:
-                az_token = json.loads(az_token_process.stdout)
-                az_token_subscription = az_token['subscription']
+            # set terraform environment variables
+            stack_credentials = stack_session.get_credentials().get_frozen_credentials()
+            terraform_vars = stack_config['terraform']['vars']
+            terraform_vars['account'] = wrapper_config['account']
+            terraform_vars['environment'] = wrapper_config['environment']
+            terraform_vars['region'] = wrapper_config['region']
+            terraform_vars['stack'] = wrapper_config['stack']
+            terraform_vars['aws_access_key'] = stack_credentials.access_key
+            terraform_vars['aws_secret_key'] = stack_credentials.secret_key
+            terraform_vars['aws_token'] = stack_credentials.token
 
-                if az_token_subscription != terraform_vars['azure_subscription_id']:
-                    command = ['az', 'account', 'set', '--subscription', terraform_vars['azure_subscription_id']]
-                    az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Add support Azure
+        if 'azure' in stack_config:
+            terraform_vars = stack_config['terraform']['vars']
+            if 'client_name' not in terraform_vars:
+                terraform_vars['client_name'] = wrapper_config['account']
+            terraform_vars['environment'] = wrapper_config['environment']
+            terraform_vars['azurerm_region'] = wrapper_config['region']
+            terraform_vars['stack'] = wrapper_config['stack']
+            terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
 
-                    if az_account_process.returncode != 0:
-                        print(colored('Could not switch to {} subscription : {}'.format(
-                                      terraform_vars['azure_subscription_id'], az_account_process.stderr.decode("utf-8")), 'red'),
-                              file=sys.stderr)
-                        sys.exit(RC_KO)
-                    else:
-                        print(colored('Switched to {} subscription'.format(
-                                      terraform_vars['azure_subscription_id']), 'yellow'),
-                              file=sys.stderr)
-            else:
-                print(colored('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")), 'red'),
+            azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
+            load_azure_config = yaml.load(azure_config)
+            if load_azure_config is None:
+                print(colored('Please configure your ~/.azurerm/config.yml configuration file', 'red'), file=sys.stderr)
+                sys.exit(RC_KO)
+            profile = stack_config['azure']['credential']['profile']
+            if profile not in load_azure_config.keys():
+                print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'),
                       file=sys.stderr)
                 sys.exit(RC_KO)
-        else:
-            print('Using Azure Service Principal mode')
 
-            os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
-            os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
+            terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
 
-    set_terraform_vars(terraform_vars)
-    os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
+            az_login_mode = stack_config['azure']['general'].get('mode', 'user')
+            if az_login_mode == 'user':
+                print('Using Azure user mode')
 
-    # set AWS state centralization environment variables
-    state_credentials = state_session.get_credentials().get_frozen_credentials()
-    os.environ['AWS_ACCESS_KEY_ID'] = state_credentials.access_key
-    os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
-    os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
+                command = ['az', 'account', 'get-access-token']
+                az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                if az_token_process.returncode == 0:
+                    az_token = json.loads(az_token_process.stdout)
+                    az_token_subscription = az_token['subscription']
+
+                    if az_token_subscription != terraform_vars['azure_subscription_id']:
+                        command = ['az', 'account', 'set', '--subscription', terraform_vars['azure_subscription_id']]
+                        az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                        if az_account_process.returncode != 0:
+                            print(colored('Could not switch to {} subscription : {}'.format(
+                                          terraform_vars['azure_subscription_id'], az_account_process.stderr.decode("utf-8")), 'red'),
+                                  file=sys.stderr)
+                            sys.exit(RC_KO)
+                        else:
+                            print(colored('Switched to {} subscription'.format(
+                                          terraform_vars['azure_subscription_id']), 'yellow'),
+                                  file=sys.stderr)
+                else:
+                    print(colored('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")), 'red'),
+                          file=sys.stderr)
+                    sys.exit(RC_KO)
+            else:
+                print('Using Azure Service Principal mode')
+
+                os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
+                os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
+
+        set_terraform_vars(terraform_vars)
+        os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
+
+        # set AWS state centralization environment variables
+        state_credentials = state_session.get_credentials().get_frozen_credentials()
+        os.environ['AWS_ACCESS_KEY_ID'] = state_credentials.access_key
+        os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
+        os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
+    else:
+        wrapper_config = deepcopy(vars(args))
 
     # call subcommand
     returncode = None

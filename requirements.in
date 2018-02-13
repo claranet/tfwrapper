@@ -4,4 +4,5 @@ boto3
 jinja2
 pip-tools
 pyyaml
+requests
 termcolor
