@@ -2,6 +2,7 @@
 """Python wrapper for Terraform."""
 
 import argparse
+import codecs
 import json
 import os
 import pickle
@@ -16,6 +17,7 @@ import time
 import sys
 import zipfile
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 
 import boto3
@@ -669,6 +671,40 @@ def main():
                     print(colored('Please set the `azure.general.directory_id` variable in your stack configuration.', 'red'),
                           file=sys.stderr)
                     sys.exit(RC_KO)
+
+                azure_path = os.path.join(os.path.abspath(home_dir), '.azure')
+                if not os.path.exists(os.path.join(azure_path, 'accessTokens.json')):
+                    print(colored('Error : please run "az login"', 'red'),file=sys.stderr)
+                    sys.exit(RC_KO)
+
+                with open(os.path.join(azure_path, 'accessTokens.json'), 'r') as f1:
+                    try:
+                        access_token_obj = json.load(f1)
+                    except json.JSONDecodeError as errorloadjson:
+                        print('Unexpected error while loading your accessTokens.json file :', errorloadjson.msg)
+                        sys.exit(RC_KO)
+                    if access_token_obj is None or len(access_token_obj) == 0:
+                        print(colored('Error : you do not have access to these resources', 'red'),
+                              file=sys.stderr)
+                        sys.exit(RC_KO)
+
+                with codecs.open(os.path.join(azure_path, 'azureProfile.json'), 'r', 'utf-8-sig') as f2:
+                    try:
+                        azure_profile_obj = json.load(f2)
+                    except json.JSONDecodeError as errorloadprofile:
+                        print('Unexpected error while loading your azureProfile.json file :', errorloadprofile.msg)
+                        sys.exit(RC_KO)
+                    if terraform_vars['azure_subscription_id'] not in str(azure_profile_obj):
+                        print(colored('Error : your subscription did not match with your azure profiles,'
+                                      ' you may not have access to the subscription or try running "az login"', 'red'),
+                              file=sys.stderr)
+                        sys.exit(RC_KO)
+
+                if not datetime.strptime(access_token_obj[0]['expiresOn'], '%Y-%m-%d %H:%M:%S.%f') > datetime.now():
+                    print(colored('Error : your token is outdated, try running "az login"', 'red'),
+                          file=sys.stderr)
+                    sys.exit(RC_KO)
+
                 command = ['az', 'account', 'get-access-token']
                 az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
