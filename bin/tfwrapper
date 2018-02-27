@@ -140,7 +140,7 @@ def set_terraform_vars(vars):
     """Configure Terraform env."""
     for var, value in vars.items():
         if value is not None:
-            os.environ['TF_VAR_{}'.format(var)] = value
+            os.environ['TF_VAR_{}'.format(var)] = str(value)
 
 
 def get_stack_path(wrapper_config, local=False):
