@@ -1,3 +1,10 @@
+# 6.0.0 (27/02/2018)
+
+UPDATES :
+
+  * TER-159 : Terraform version siwtching support.
+  * TER-28 : azurerm token support update.
+
 # 5.0.0 (08/01/2017)
 
 UPDATES :
