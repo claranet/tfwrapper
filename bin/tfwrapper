@@ -639,7 +639,7 @@ def main():
             terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
 
             az_login_mode = stack_config['azure']['general'].get('mode', 'user')
-            if az_login_mode == 'user':
+            if az_login_mode.lower() == 'user':
                 print('Using Azure user mode')
 
                 command = ['az', 'account', 'get-access-token']
@@ -667,11 +667,14 @@ def main():
                     print(colored('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")), 'red'),
                           file=sys.stderr)
                     sys.exit(RC_KO)
-            else:
+            elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
                 print('Using Azure Service Principal mode')
 
                 os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
                 os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
+            else:
+                print(colored('Please use a correct Azure authentication mode in your stack YAML configuration.', 'red'), file=sys.stderr)
+                sys.exit(RC_KO)
 
         set_terraform_vars(terraform_vars)
         os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
