@@ -679,7 +679,7 @@ def main():
                 os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
                 os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
             else:
-                print(colored('Please use a correct Azure authentication mode in your stack YAML configuration.', 'red'), file=sys.stderr)
+                print(colored('Please use a correct Azure authentication mode ("user" or "service_principal") in your stack YAML configuration.', 'red'), file=sys.stderr)
                 sys.exit(RC_KO)
 
         set_terraform_vars(terraform_vars)
