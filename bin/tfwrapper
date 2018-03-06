@@ -18,13 +18,13 @@ import zipfile
 from copy import deepcopy
 from pathlib import Path
 
-import requests
-from termcolor import colored
-
 import boto3
 import botocore
 import jinja2
+import requests
 import yaml
+from schema import Schema, SchemaError, Optional
+from termcolor import colored
 
 RC_OK = 0
 RC_KO = 1
@@ -32,6 +32,31 @@ RC_UNK = 2
 
 home_dir = str(Path.home())
 
+stack_configuration_schema = Schema({
+    Optional('aws'): {
+        'general': {
+            'account': str,
+            'region': str
+        },
+        'credentials':{
+            'profile': str,
+            'role': str
+        }
+    },
+    Optional('azure'): {
+        'general': {
+            'mode': str,
+            'subscription_id': str,
+            'directory_id': str
+        },
+        Optional('credential'): {
+            'profile': str
+        }
+    },
+    'terraform': {
+        'vars': {str: str}
+    }
+})
 
 def load_wrapper_config(args):
     """Load wrapper config from args. Validate args and autodetect current stack."""
@@ -92,11 +117,19 @@ def load_wrapper_config(args):
 def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
     if environment == 'global':
-        with open('{}/{}_global_{}.yml'.format(confdir, account, stack), 'r') as f:
-            stack_config = yaml.load(f)
+        stack_config_file = '{}/{}_global_{}.yml'.format(confdir, account, stack)
     else:
-        with open('{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack), 'r') as f:
-            stack_config = yaml.load(f)
+        stack_config_file = '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
+
+    with open(stack_config_file, 'r') as f:
+        stack_config = yaml.load(f)
+
+    try:
+        stack_configuration_schema.validate(stack_config)
+    except SchemaError as e :
+        print(colored('Configuration error in {} :'.format(stack_config_file), 'red'), file=sys.stderr)
+        print(e, file=sys.stderr)
+        sys.exit(RC_KO)
 
     return stack_config
 

@@ -5,4 +5,5 @@ jinja2
 pip-tools
 pyyaml
 requests
+schema
 termcolor
