@@ -627,7 +627,7 @@ def main():
 
             az_login_mode = stack_config['azure']['general'].get('mode', 'user')
             if az_login_mode.lower() == 'user':
-                print(colored('Using Azure user mode'), 'yellow')
+                print(colored('Using Azure user mode', 'yellow'))
 
                 terraform_vars['azure_tenant_id'] = stack_config['azure']['general'].get('tenant_id',
                                                                                          stack_config['azure']['general'].get('directory_id', None))
@@ -661,7 +661,7 @@ def main():
                           file=sys.stderr)
                     sys.exit(RC_KO)
             elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
-                print(colored('Using Azure Service Principal mode'), 'yellow')
+                print(colored('Using Azure Service Principal mode', 'yellow'))
 
                 azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
                 load_azure_config = yaml.load(azure_config)
