@@ -9,6 +9,7 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 - Standardized file structure
 - Stack initialization from templates
 - AWS credentials caching
+- Azure credentials loading
 - Plugins caching
 
 ## Drawbacks
@@ -136,7 +137,7 @@ Stacks configuration files use the following naming convention :
 conf/${account}_${environment}_${region}_${stack}.yml
 ```
 
-Here is an example stack configuration :
+Here is an example for an AWS stack configuration:
 
 ```yaml
 ---
@@ -153,6 +154,51 @@ terraform:
     aws_region: *aws_region
     client_name: my-client-name # arbitrary client name  
 ```
+
+Here is an example for an Azure stack configuration using user mode:
+
+```yaml
+---
+azure:
+  general:
+    mode: user # Uses Claranet personal credentials with MFA
+    directory_id: &directory_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Tenant/Directory UID
+    subscription_id: &subscription_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Subscription UID
+
+terraform:
+  vars:
+    subscription_id: *subscription_id
+    directory_id: *directory_id
+    client_name: client-name #Replace it with the name of your client
+    #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
+```
+
+It is using your Claranet account linked to a Microsoft Account. You must have access to the Azure Subscription if you want to use Terraform.
+
+Here is an example for an Azure stack configuration using Service Principal mode:
+
+```yaml
+---
+azure:
+  general:
+    mode: service_principal # Uses a Azure tenant Service Principal account
+    directory_id: &directory_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Tenant/Directory UID
+    subscription_id: &subscription_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Subscription UID
+
+  credential:
+    profile: azurerm-account-profile # To stay coherent, create an AzureRM profile with the same name than the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
+
+terraform:
+  vars:
+    subscription_id: *subscription_id
+    directory_id: *directory_id
+    client_name: client-name #Replace it with the name of your client
+    #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
+```
+
+It is using the Service Principal's credentials to connect the Azure Subscription. This SP must have access to the subscription.
+The wrapper loads client_id and client_secret from your `azurerm_config.yml` located in `~/.azurem/config.yml`.
+Please check the example here: [https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master](https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master)
 
 ### States centralization configuration
 
@@ -262,11 +308,19 @@ The default AWS credentials of the environment are set to point to the S3 state 
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_SESSION_TOKEN`
 
+### Azure Service Principal credentials
+
+Those AzureRM credentials are loaded only if you are using the Service Principal mode. They are acquired from the profile defined in `~/.azurerm/config.yml`
+
+- `ARM_CLIENT_ID`
+- `ARM_CLIENT_SECRET`
+
 ### Stack configurations and credentials
 
 The `terraform['vars']` dictionary from the stack configuration is accessible as Terraform variables.
 
 The profile defined in the stack configuration is used to acquire credentials accessible from Terraform.
+There is two supported providers, the variables which will be loaded depends on the used provider.
 
 - `TF_VAR_aws_account`
 - `TF_VAR_aws_region`
@@ -274,6 +328,10 @@ The profile defined in the stack configuration is used to acquire credentials ac
 - `TF_VAR_aws_access_key`
 - `TF_VAR_aws_secret_key`
 - `TF_VAR_aws_token`
+- `TF_VAR_azurerm_region`
+- `TF_VAR_azure_region`
+- `TF_VAR_azure_subscription_id`
+- `TF_VAR_azure_tenant_id`
 
 ### Stack path
 
