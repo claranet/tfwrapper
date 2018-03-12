@@ -621,27 +621,21 @@ def main():
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
             terraform_vars['environment'] = wrapper_config['environment']
-            terraform_vars['azurerm_region'] = wrapper_config['region']
+            terraform_vars['azurerm_region'] = wrapper_config['region'] # Kept for retro-compat
+            terraform_vars['azure_region'] = wrapper_config['region']
             terraform_vars['stack'] = wrapper_config['stack']
             terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
 
-            azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
-            load_azure_config = yaml.load(azure_config)
-            if load_azure_config is None:
-                print(colored('Please configure your ~/.azurerm/config.yml configuration file', 'red'), file=sys.stderr)
-                sys.exit(RC_KO)
-            profile = stack_config['azure']['credential']['profile']
-            if profile not in load_azure_config.keys():
-                print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'),
-                      file=sys.stderr)
-                sys.exit(RC_KO)
-
-            terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
-
             az_login_mode = stack_config['azure']['general'].get('mode', 'user')
-            if az_login_mode == 'user':
-                print('Using Azure user mode')
+            if az_login_mode.lower() == 'user':
+                print(colored('Using Azure user mode', 'yellow'))
 
+                terraform_vars['azure_tenant_id'] = stack_config['azure']['general'].get('tenant_id',
+                                                                                         stack_config['azure']['general'].get('directory_id', None))
+                if not terraform_vars['azure_tenant_id']:
+                    print(colored('Please set the `azure.general.directory_id` variable in your stack configuration.', 'red'),
+                          file=sys.stderr)
+                    sys.exit(RC_KO)
                 command = ['az', 'account', 'get-access-token']
                 az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
@@ -667,11 +661,27 @@ def main():
                     print(colored('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")), 'red'),
                           file=sys.stderr)
                     sys.exit(RC_KO)
-            else:
-                print('Using Azure Service Principal mode')
+            elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
+                print(colored('Using Azure Service Principal mode', 'yellow'))
+
+                azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
+                load_azure_config = yaml.load(azure_config)
+                if load_azure_config is None:
+                    print(colored('Please configure your ~/.azurerm/config.yml configuration file', 'red'), file=sys.stderr)
+                    sys.exit(RC_KO)
+                profile = stack_config['azure']['credential']['profile']
+                if profile not in load_azure_config.keys():
+                    print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'),
+                          file=sys.stderr)
+                    sys.exit(RC_KO)
+
+                terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
 
                 os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
                 os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
+            else:
+                print(colored('Please use a correct Azure authentication mode ("user" or "service_principal") in your stack YAML configuration.', 'red'), file=sys.stderr)
+                sys.exit(RC_KO)
 
         set_terraform_vars(terraform_vars)
         os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
