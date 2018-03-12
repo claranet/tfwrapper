@@ -621,7 +621,8 @@ def main():
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
             terraform_vars['environment'] = wrapper_config['environment']
-            terraform_vars['azurerm_region'] = wrapper_config['region']
+            terraform_vars['azurerm_region'] = wrapper_config['region'] # Kept for retro-compat
+            terraform_vars['azure_region'] = wrapper_config['region']
             terraform_vars['stack'] = wrapper_config['stack']
             terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
 
