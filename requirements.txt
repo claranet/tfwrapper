@@ -134,6 +134,7 @@ pyyaml==3.12
 requests-oauthlib==0.8.0  # via msrest
 requests==2.18.4
 s3transfer==0.1.12        # via boto3
+schema==0.6.7
 scp==0.10.2               # via azure-cli-acs
 secretstorage==2.3.1      # via keyring
 six==1.11.0               # via azure-cli-acs, azure-cli-core, azure-cli-eventgrid, azure-cli-interactive, azure-cli-rdbms, azure-cli-sql, bcrypt, cryptography, isodate, mock, pip-tools, prompt-toolkit, pydocumentdb, pynacl, pyopenssl, python-dateutil
