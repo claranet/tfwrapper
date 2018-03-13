@@ -674,14 +674,15 @@ def main():
 
                 azure_path = os.path.join(os.path.abspath(home_dir), '.azure')
                 if not os.path.exists(os.path.join(azure_path, 'accessTokens.json')):
-                    print(colored('Error : please run "az login"', 'red'),file=sys.stderr)
+                    print(colored('Error : please run "az login"', 'red'), file=sys.stderr)
                     sys.exit(RC_KO)
 
                 with open(os.path.join(azure_path, 'accessTokens.json'), 'r') as f1:
                     try:
                         access_token_obj = json.load(f1)
                     except json.JSONDecodeError as errorloadjson:
-                        print('Unexpected error while loading your accessTokens.json file :', errorloadjson.msg)
+                        print(colored('Unexpected error while loading your accessTokens.json file :', 'red'),
+                              errorloadjson.msg)
                         sys.exit(RC_KO)
                     if access_token_obj is None or len(access_token_obj) == 0:
                         print(colored('Error : you do not have access to these resources', 'red'),
@@ -692,7 +693,8 @@ def main():
                     try:
                         azure_profile_obj = json.load(f2)
                     except json.JSONDecodeError as errorloadprofile:
-                        print('Unexpected error while loading your azureProfile.json file :', errorloadprofile.msg)
+                        print(colored('Unexpected error while loading your azureProfile.json file :', 'red'),
+                              errorloadprofile.msg)
                         sys.exit(RC_KO)
                     if terraform_vars['azure_subscription_id'] not in str(azure_profile_obj):
                         print(colored('Error : your subscription did not match with your azure profiles,'
