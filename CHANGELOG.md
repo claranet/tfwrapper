@@ -1,3 +1,13 @@
+# 6.1.0 (14/03/2018)
+
+UPDATES :
+
+  * TER-214 : Enhance Azure user mode error handling.
+  * TER-225 : Enhance Azure documentation.
+  * TER-226 : Enhance Azure configuration handling.
+  * TER-228 : Add basic schema validation to stack configuration.
+  * TER-231 : Switch from `azurerm_region` to `azure_region`.
+
 # 6.0.0 (27/02/2018)
 
 UPDATES :
