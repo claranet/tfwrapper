@@ -42,7 +42,6 @@ stack_configuration_schema = Schema({
         },
         'credentials':{
             'profile': str,
-            'role': str
         }
     },
     Optional('azure'): {
