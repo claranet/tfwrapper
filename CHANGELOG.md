@@ -1,3 +1,9 @@
+# 6.1.1 (15/03/2018)
+
+UPDATES :
+
+  * GITHUB-1 : Remove unused attribute in AWS configuration schema.
+
 # 6.1.0 (14/03/2018)
 
 UPDATES :
