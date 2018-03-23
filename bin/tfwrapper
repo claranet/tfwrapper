@@ -25,6 +25,7 @@ import botocore
 import jinja2
 import requests
 import yaml
+from dateutil import parser as dateutil_parser
 from schema import Schema, SchemaError, Optional
 from termcolor import colored
 
@@ -701,7 +702,15 @@ def main():
                               file=sys.stderr)
                         sys.exit(RC_KO)
 
-                if not datetime.strptime(access_token_obj[0]['expiresOn'], '%Y-%m-%d %H:%M:%S.%f') > datetime.now():
+                up_to_date_token = False
+                for token in access_token_obj:
+                    # Force TZ to None because token can be set with or without TZ (yes it's insane)
+                    if (dateutil_parser.parse(token['expiresOn']).replace(tzinfo=None)
+                            > datetime.now().replace(tzinfo=None)):
+                        up_to_date_token = True
+                        continue
+
+                if not up_to_date_token:
                     print(colored('Error : your token is outdated, try running "az login"', 'red'),
                           file=sys.stderr)
                     sys.exit(RC_KO)
