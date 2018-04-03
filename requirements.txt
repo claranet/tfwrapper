@@ -128,7 +128,7 @@ pygments==2.2.0           # via azure-cli-core
 pyjwt==1.5.3              # via adal, azure-cli-core
 pynacl==1.2.1             # via paramiko
 pyopenssl==17.5.0         # via azure-cli-appservice, azure-cli-core, azure-cli-iot, azure-cli-keyvault, azure-cli-servicefabric
-python-dateutil==2.6.1    # via adal, azure-multiapi-storage, azure-storage, botocore
+python-dateutil==2.6.1
 pytz==2017.3              # via azure-cli-role
 pyyaml==3.12
 requests-oauthlib==0.8.0  # via msrest
