@@ -1,6 +1,7 @@
 --extra-index-url https://azurecliprod.blob.core.windows.net/edge
 azure-cli
 boto3
+colorlog
 python-dateutil
 jinja2
 pip-tools
