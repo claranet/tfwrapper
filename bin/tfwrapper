@@ -4,6 +4,7 @@
 import argparse
 import codecs
 import json
+import logging
 import os
 import pickle
 import random
@@ -22,6 +23,7 @@ from pathlib import Path
 
 import boto3
 import botocore
+import colorlog
 import jinja2
 import requests
 import yaml
@@ -34,6 +36,14 @@ RC_KO = 1
 RC_UNK = 2
 
 home_dir = str(Path.home())
+
+# setup logging parameters
+LOG_FORMAT = "{log_color}{levelname: <7}{reset} {purple}tfwrapper{reset} : {bold}{message}{reset}"
+handler = colorlog.StreamHandler()
+handler.setFormatter(colorlog.ColoredFormatter(LOG_FORMAT, style='{'))
+logger = colorlog.getLogger()
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 stack_configuration_schema = Schema({
     Optional('aws'): {
@@ -60,6 +70,7 @@ stack_configuration_schema = Schema({
     }
 })
 
+
 def load_wrapper_config(args):
     """Load wrapper config from args. Validate args and autodetect current stack."""
     # convert args to dict
@@ -74,7 +85,7 @@ def load_wrapper_config(args):
         parents_count += 1
 
     if parents_count == 5:
-        raise ValueError("Cannot find configuration directory '%s' in this directory or above" % wrapper_config['confdir'])
+        raise ValueError("Cannot find configuration directory '{}' in this directory or above".format(wrapper_config['confdir']))
 
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
 
@@ -99,7 +110,7 @@ def load_wrapper_config(args):
 
     for element in parents_list:
         if wrapper_config[element] is None:
-            raise ValueError("%s cannot be autodetected. Exiting..." % element)
+            raise ValueError("{} cannot be autodetected. Exiting...".format(element))
 
     # support both _global (fs) and global (param)
     if wrapper_config['environment'] == '_global':
@@ -129,8 +140,7 @@ def load_stack_config(confdir, account, environment, region, stack):
     try:
         stack_configuration_schema.validate(stack_config)
     except SchemaError as e :
-        print(colored('Configuration error in {} :'.format(stack_config_file), 'red'), file=sys.stderr)
-        print(e, file=sys.stderr)
+        logger.error('Configuration error in {} : {}'.format(stack_config_file, e))
         sys.exit(RC_KO)
 
     return stack_config
@@ -152,17 +162,16 @@ def get_session(rootdir, account, region, profile):
         try:
             session = boto3.Session(profile_name=profile, region_name=region)
         except botocore.exceptions.ProfileNotFound:
-            print("Profile %s not found. Exiting..." % profile, file=sys.stderr)
+            logger.error("Profile {} not found. Exiting...".format(profile))
             sys.exit(RC_KO)
         try:
             session_cache = {'credentials': session.get_credentials().get_frozen_credentials(),
                              'region': session.region_name}
         except botocore.exceptions.ParamValidationError:
-            print('Error validating authentication. Maybe the wrong MFA code ?', file=sys.stderr)
+            logger.error('Error validating authentication. Maybe the wrong MFA code ?')
             sys.exit(RC_KO)
         except Exception as e:
-            print('Unknown error :', file=sys.stderr)
-            print(e, file=sys.stderr)
+            logger.error('Unknown error : {}'.format(e))
             sys.exit(RC_UNK)
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT,
                                mode=0o600), 'wb') as f:
@@ -280,10 +289,10 @@ def do_switchver(version):
         current_version = 'not installed'
 
     if current_version == full_version:
-        print("Terraform is already on version {}".format(full_version))
+        logger.debug("Terraform is already on version {}".format(full_version))
         return
 
-    print("Current terraform version is {}, switching to version {}".format(current_version, full_version))
+    logger.warning("Current terraform version is {}, switching to version {}".format(current_version, full_version))
 
     version_path = os.path.expanduser(os.path.join('~/.terraform.d/versions', minor_version, full_version))
     tf_bin_path = os.path.join(version_path, 'terraform')
@@ -292,7 +301,7 @@ def do_switchver(version):
 
     if not os.path.isfile(tf_bin_path):
         # Download and extract in user's home if needed
-        print("Version does not exist locally, downloading it")
+        logger.warning("Version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
         r = requests.get(
             'https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_linux_amd64.zip'.format(
@@ -312,7 +321,7 @@ def do_switchver(version):
         os.remove(local_tf_bin_path)
     os.symlink(tf_bin_path, local_tf_bin_path)
 
-    print("Switch done, current terraform version is {}".format(full_version))
+    logger.warning("Switch done, current terraform version is {}".format(full_version))
 
 
 def run_terraform(action, wrapper_config):
@@ -379,17 +388,17 @@ def terraform_apply(wrapper_config):
     Account : {}
 Environment : {}
       Stack : {}
-            '''.format(colored_account, colored_environment, colored_stack)
+'''.format(colored_account, colored_environment, colored_stack)
         else:
             env_msg = '''
     Account : {}
 Environment : {}
      Region : {}
       Stack : {}
-            '''.format(colored_account, colored_environment, colored_region, colored_stack)
+'''.format(colored_account, colored_environment, colored_region, colored_stack)
 
-        print('\nDo you really want to apply this plan on the following stack ?', file=sys.stderr)
-        print(env_msg, file=sys.stderr)
+        print('\nDo you really want to apply this plan on the following stack ?\n',
+              env_msg)
         apply_input = input("'yes' to confirm : ")
 
         try:
@@ -401,7 +410,7 @@ Environment : {}
 
                 return apply_return_code
             else:
-                print('\nAborting apply.', file=sys.stderr)
+                logger.warning('Aborting apply.')
         finally:
             # delete plan
             os.remove(plan_path)
@@ -611,11 +620,10 @@ def main():
         try:
             wrapper_config = load_wrapper_config(args)
         except ValueError as e:
-            print(e, file=sys.stderr)
+            logger.error(e)
             sys.exit(RC_KO)
         except Exception as e:
-            print('Unknown error :', file=sys.stderr)
-            print(e, file=sys.stderr)
+            logger.error('Unknown error : {}'.format(e))
             sys.exit(RC_UNK)
 
         # load config
@@ -626,14 +634,14 @@ def main():
                                          wrapper_config['stack'])
 
         # get sessions
-        print(colored('Getting state session', 'yellow'), file=sys.stderr)
+        logger.info('Getting state session')
         state_session = get_session(wrapper_config['rootdir'],
                                     wrapper_config['state_account'],
                                     wrapper_config['state_region'],
                                     wrapper_config['state_profile'])
 
         if 'aws' in stack_config:
-            print(colored('Getting stack session', 'yellow'), file=sys.stderr)
+            logger.info('Getting stack session')
             stack_session = get_session(wrapper_config['rootdir'],
                                         stack_config['aws']['general']['account'],
                                         stack_config['aws']['general']['region'],
@@ -663,43 +671,38 @@ def main():
 
             az_login_mode = stack_config['azure']['general'].get('mode', 'user')
             if az_login_mode.lower() == 'user':
-                print(colored('Using Azure user mode', 'yellow'))
+                logger.info('Using Azure user mode')
 
                 terraform_vars['azure_tenant_id'] = stack_config['azure']['general'].get('tenant_id',
                                                                                          stack_config['azure']['general'].get('directory_id', None))
                 if not terraform_vars['azure_tenant_id']:
-                    print(colored('Please set the `azure.general.directory_id` variable in your stack configuration.', 'red'),
-                          file=sys.stderr)
+                    logger.error('Please set the `azure.general.directory_id` variable in your stack configuration.')
                     sys.exit(RC_KO)
 
                 azure_path = os.path.join(os.path.abspath(home_dir), '.azure')
                 if not os.path.exists(os.path.join(azure_path, 'accessTokens.json')):
-                    print(colored('Error : please run "az login"', 'red'), file=sys.stderr)
+                    logger.error('Please run "az login"')
                     sys.exit(RC_KO)
 
                 with open(os.path.join(azure_path, 'accessTokens.json'), 'r') as f1:
                     try:
                         access_token_obj = json.load(f1)
                     except json.JSONDecodeError as errorloadjson:
-                        print(colored('Unexpected error while loading your accessTokens.json file :', 'red'),
-                              errorloadjson.msg)
+                        logger.error('Unexpected error while loading your accessTokens.json file : {}'.format(errorloadjson.msg))
                         sys.exit(RC_KO)
                     if access_token_obj is None or len(access_token_obj) == 0:
-                        print(colored('Error : you do not have access to these resources', 'red'),
-                              file=sys.stderr)
+                        logger.error('You do not have access to these resources.')
                         sys.exit(RC_KO)
 
                 with codecs.open(os.path.join(azure_path, 'azureProfile.json'), 'r', 'utf-8-sig') as f2:
                     try:
                         azure_profile_obj = json.load(f2)
                     except json.JSONDecodeError as errorloadprofile:
-                        print(colored('Unexpected error while loading your azureProfile.json file :', 'red'),
-                              errorloadprofile.msg)
+                        logger.error('Unexpected error while loading your azureProfile.json file : {}'.format(errorloadprofile.ms))
                         sys.exit(RC_KO)
                     if terraform_vars['azure_subscription_id'] not in str(azure_profile_obj):
-                        print(colored('Error : your subscription did not match with your azure profiles,'
-                                      ' you may not have access to the subscription or try running "az login"', 'red'),
-                              file=sys.stderr)
+                        logger.error('Your subscription did not match with your azure profiles,'
+                                      ' you may not have access to the subscription or try running "az login".')
                         sys.exit(RC_KO)
 
                 up_to_date_token = False
@@ -711,8 +714,7 @@ def main():
                         continue
 
                 if not up_to_date_token:
-                    print(colored('Error : your token is outdated, try running "az login"', 'red'),
-                          file=sys.stderr)
+                    logger.error('Your token is outdated, try running "az login".')
                     sys.exit(RC_KO)
 
                 command = ['az', 'account', 'get-access-token']
@@ -728,30 +730,25 @@ def main():
                         az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                         if az_account_process.returncode != 0:
-                            print(colored('Could not switch to {} subscription : {}'.format(
-                                          terraform_vars['azure_subscription_id'], az_account_process.stderr.decode("utf-8")), 'red'),
-                                  file=sys.stderr)
+                            logger.error('Could not switch to {} subscription : {}'.format(
+                                          terraform_vars['azure_subscription_id'], az_account_process.stderr.decode("utf-8")))
                             sys.exit(RC_KO)
                         else:
-                            print(colored('Switched to {} subscription'.format(
-                                          terraform_vars['azure_subscription_id']), 'yellow'),
-                                  file=sys.stderr)
+                            logger.warning('Switched to {} subscription'.format(terraform_vars['azure_subscription_id']))
                 else:
-                    print(colored('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")), 'red'),
-                          file=sys.stderr)
+                    logger.error('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")))
                     sys.exit(RC_KO)
             elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
-                print(colored('Using Azure Service Principal mode', 'yellow'))
+                logger.info('Using Azure Service Principal mode')
 
                 azure_config = open(os.path.abspath(home_dir) + '/.azurerm/config.yml')
                 load_azure_config = yaml.load(azure_config)
                 if load_azure_config is None:
-                    print(colored('Please configure your ~/.azurerm/config.yml configuration file', 'red'), file=sys.stderr)
+                    logger.error('Please configure your ~/.azurerm/config.yml configuration file')
                     sys.exit(RC_KO)
                 profile = stack_config['azure']['credential']['profile']
                 if profile not in load_azure_config.keys():
-                    print(colored('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile), 'red'),
-                          file=sys.stderr)
+                    logger.error('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile))
                     sys.exit(RC_KO)
 
                 terraform_vars['azure_tenant_id'] = load_azure_config[profile]['tenant_id']
@@ -759,7 +756,7 @@ def main():
                 os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
                 os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
             else:
-                print(colored('Please use a correct Azure authentication mode ("user" or "service_principal") in your stack YAML configuration.', 'red'), file=sys.stderr)
+                logger.error('Please use a correct Azure authentication mode ("user" or "service_principal") in your stack YAML configuration.')
                 sys.exit(RC_KO)
 
         set_terraform_vars(terraform_vars)
