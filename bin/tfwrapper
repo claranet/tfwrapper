@@ -351,6 +351,8 @@ def run_terraform(action, wrapper_config):
     with subprocess.Popen(command, cwd=working_dir, env=cmd_env) as process:
         try:
             process.communicate()
+        except KeyboardInterrupt:
+            logger.warning('Received Ctrl+C')
         except:
             process.kill()
             process.wait()
