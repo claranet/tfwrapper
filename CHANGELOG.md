@@ -1,3 +1,12 @@
+# 6.2.0 (06/07/2018)
+
+UPDATES :
+
+  * TER-253 : Fix Azure language dependant date format
+  * TER-241 : streamline wrapper output.
+  * TER-284 : Fix Ctrl+C.
+  * TER-274 : Always make sure that we use correct Terraform version. 
+
 # 6.1.1 (15/03/2018)
 
 UPDATES :
