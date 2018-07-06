@@ -220,11 +220,6 @@ def bootstrap(wrapper_config):
     region = wrapper_config['region']
     stack = wrapper_config['stack']
 
-    stack_config = load_stack_config(confdir, account, environment, region, stack)
-    tf_version = stack_config['terraform']['vars'].get('version')
-    if tf_version:
-        do_switchver(tf_version)
-
     # bootstrap Terraform files from stack template
     if not os.path.isdir(stack_path):
         if wrapper_config.get('template') is None:
@@ -776,6 +771,12 @@ def main():
     returncode = None
 
     if hasattr(args, 'func'):
+        # check terraform version
+        if args.subcommand != "switchver":
+            tf_version = stack_config['terraform']['vars'].get('version')
+            if tf_version:
+                do_switchver(tf_version)
+
         returncode = args.func(wrapper_config)
     else:
         parser.print_help(file=sys.stderr)
