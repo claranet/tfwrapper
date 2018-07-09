@@ -220,6 +220,8 @@ def bootstrap(wrapper_config):
     region = wrapper_config['region']
     stack = wrapper_config['stack']
 
+    stack_config = load_stack_config(confdir, account, environment, region, stack)
+
     # bootstrap Terraform files from stack template
     if not os.path.isdir(stack_path):
         if wrapper_config.get('template') is None:
