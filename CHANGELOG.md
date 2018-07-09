@@ -1,3 +1,9 @@
+# 6.2.1 (09/07/2018)
+
+UPDATES :
+
+  * TER-301 : Fix bootstrap.
+
 # 6.2.0 (06/07/2018)
 
 UPDATES :
