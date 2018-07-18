@@ -699,7 +699,7 @@ def main():
                     except json.JSONDecodeError as errorloadprofile:
                         logger.error('Unexpected error while loading your azureProfile.json file : {}'.format(errorloadprofile.ms))
                         sys.exit(RC_KO)
-                    if terraform_vars['azure_subscription_id'] not in str(azure_profile_obj):
+                    if str(terraform_vars['azure_subscription_id']).lower() not in str(azure_profile_obj):
                         logger.error('Your subscription did not match with your azure profiles,'
                                       ' you may not have access to the subscription or try running "az login".')
                         sys.exit(RC_KO)
