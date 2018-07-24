@@ -239,7 +239,10 @@ def bootstrap(wrapper_config):
         client_name = stack_config['terraform']['vars']['client_name']
 
         jinja2_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader('{}/templates/common'.format(rootdir)))
+            loader=jinja2.FileSystemLoader('{}/templates/common'.format(rootdir)),
+            lstrip_blocks=True,
+            trim_blocks=True
+        )
 
         state_conf = jinja2_env.get_template('state.tf.jinja2').render(
             client_name=client_name,
