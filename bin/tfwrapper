@@ -66,8 +66,9 @@ stack_configuration_schema = Schema({
         }
     },
     'terraform': {
-        'vars': {str: str}
-    }
+        'vars': {str: str},
+        Optional('claranet-providers'): {str: str},
+    },
 })
 
 
@@ -319,6 +320,62 @@ def do_switchver(version):
     os.symlink(tf_bin_path, local_tf_bin_path)
 
     logger.warning("Switch done, current terraform version is {}".format(full_version))
+
+
+def download_custom_provider(provider_name, provider_version):
+    """Download Claranet custom provider"""
+    logger.warning("Checking custom Claranet provider '{}' at version '{}'".format(provider_name, provider_version))
+    github_base = 'https://github.com/claranet/terraform-provider'
+    github_endpoint = "{g}-{p}".format(g=github_base, p=provider_name)
+
+    r = requests.get(github_endpoint)
+    if r.status_code != 200:
+        raise ValueError("The terraform provider {} does not exist ({})".format(provider_name, github_endpoint))
+
+    m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$', provider_version)
+    if not m:
+        raise ValueError('The terraform version seems not correct, it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
+    minor_version, patch, custom = m.groups()
+
+    github_api = 'https://api.github.com/repos/claranet/terraform-provider-{}/releases'.format(provider_name)
+    releases = requests.get(github_api).json()
+    found = False
+    for release in releases:
+        if re.match(r'^v{}\.{}'.format(minor_version, patch if patch else '[0-9]+'), release['tag_name']):
+            found = True
+            patch = patch or release['tag_name'].split('.')[-1]
+            break
+
+    if not found:
+        raise ValueError("The  provider version '{}-{}' does not exist".format(provider_name, provider_version))
+
+    full_version = "{}.{}".format(minor_version, patch)
+    # Getting current version
+
+    plugins_path = os.path.expanduser('~/.terraform.d/plugins/linux_amd64')
+    os.makedirs(plugins_path, exist_ok=True)
+    bin_name = 'terraform-provider-{n}_{v}'.format(n=provider_name, v=full_version)
+    tf_bin_path = os.path.join(plugins_path, 'terraform-provider-{n}_v{v}'.format(n=provider_name, v=full_version))
+
+    if not os.path.isfile(tf_bin_path):
+        # Download and extract in user's home if needed
+        logger.warning("Provider version does not exist locally, downloading it")
+        handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
+        r = requests.get(
+            'https://github.com/claranet/terraform-provider-{p}/releases/download/v{v}/{b}_linux_amd64.zip'.format(
+                p=provider_name, v=full_version, b=bin_name),
+            stream=True)
+        with open(tmp_file, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=128):
+                fd.write(chunk)
+        with zipfile.ZipFile(tmp_file, 'r') as zip:
+            zip.extractall(path=plugins_path)
+        # Permissions not preserved on extract https://bugs.python.org/issue15795
+        os.chmod(tf_bin_path, os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        os.remove(tmp_file)
+        logger.warning("Download done, current provider terraform version is {}".format(full_version))
+    else:
+        logger.warning("Current provider terraform version is already at {}".format(full_version))
 
 
 def run_terraform(action, wrapper_config):
@@ -639,6 +696,7 @@ def main():
                                     wrapper_config['state_region'],
                                     wrapper_config['state_profile'])
 
+        terraform_vars = stack_config['terraform']['vars']
         if 'aws' in stack_config:
             logger.info('Getting stack session')
             stack_session = get_session(wrapper_config['rootdir'],
@@ -648,7 +706,6 @@ def main():
 
             # set terraform environment variables
             stack_credentials = stack_session.get_credentials().get_frozen_credentials()
-            terraform_vars = stack_config['terraform']['vars']
             terraform_vars['account'] = wrapper_config['account']
             terraform_vars['environment'] = wrapper_config['environment']
             terraform_vars['region'] = wrapper_config['region']
@@ -659,7 +716,6 @@ def main():
 
         # Add support Azure
         if 'azure' in stack_config:
-            terraform_vars = stack_config['terraform']['vars']
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
             terraform_vars['environment'] = wrapper_config['environment']
@@ -769,7 +825,6 @@ def main():
     else:
         wrapper_config = deepcopy(vars(args))
 
-    # call subcommand
     returncode = None
 
     if hasattr(args, 'func'):
@@ -778,7 +833,12 @@ def main():
             tf_version = stack_config['terraform']['vars'].get('version')
             if tf_version:
                 do_switchver(tf_version)
+        # do we need Claranet custom providers?
+        if args.subcommand in ["init", "bootstrap"]:
+            for provider, provider_version in stack_config['terraform'].get('claranet-providers', {}).items():
+                download_custom_provider(provider, provider_version)
 
+        # call subcommand
         returncode = args.func(wrapper_config)
     else:
         parser.print_help(file=sys.stderr)
