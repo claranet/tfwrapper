@@ -697,6 +697,8 @@ def main():
                                     wrapper_config['state_profile'])
 
         terraform_vars = stack_config['terraform']['vars']
+        terraform_vars['environment'] = wrapper_config['environment']
+        terraform_vars['stack'] = wrapper_config['stack']
         if 'aws' in stack_config:
             logger.info('Getting stack session')
             stack_session = get_session(wrapper_config['rootdir'],
@@ -707,9 +709,7 @@ def main():
             # set terraform environment variables
             stack_credentials = stack_session.get_credentials().get_frozen_credentials()
             terraform_vars['account'] = wrapper_config['account']
-            terraform_vars['environment'] = wrapper_config['environment']
             terraform_vars['region'] = wrapper_config['region']
-            terraform_vars['stack'] = wrapper_config['stack']
             terraform_vars['aws_access_key'] = stack_credentials.access_key
             terraform_vars['aws_secret_key'] = stack_credentials.secret_key
             terraform_vars['aws_token'] = stack_credentials.token
@@ -718,10 +718,8 @@ def main():
         if 'azure' in stack_config:
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
-            terraform_vars['environment'] = wrapper_config['environment']
             terraform_vars['azurerm_region'] = wrapper_config['region'] # Kept for retro-compat
             terraform_vars['azure_region'] = wrapper_config['region']
-            terraform_vars['stack'] = wrapper_config['stack']
             terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
 
             az_login_mode = stack_config['azure']['general'].get('mode', 'user')
