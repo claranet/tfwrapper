@@ -67,7 +67,7 @@ stack_configuration_schema = Schema({
     },
     'terraform': {
         'vars': {str: str},
-        Optional('claranet-providers'): {str: str},
+        Optional('custom-providers'): {str: str},
     },
 })
 
@@ -323,10 +323,10 @@ def do_switchver(version):
 
 
 def download_custom_provider(provider_name, provider_version):
-    """Download Claranet custom provider"""
-    logger.warning("Checking custom Claranet provider '{}' at version '{}'".format(provider_name, provider_version))
-    github_base = 'https://github.com/claranet/terraform-provider'
-    github_endpoint = "{g}-{p}".format(g=github_base, p=provider_name)
+    """Download Terraform custom provider"""
+    logger.warning("Checking custom Terraform provider '{}' at version '{}'".format(provider_name, provider_version))
+    github_base = 'https://github.com/'
+    github_endpoint = "{g}{p}".format(g=github_base, p=provider_name)
 
     r = requests.get(github_endpoint)
     if r.status_code != 200:
@@ -337,7 +337,7 @@ def download_custom_provider(provider_name, provider_version):
         raise ValueError('The terraform version seems not correct, it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
     minor_version, patch, custom = m.groups()
 
-    github_api = 'https://api.github.com/repos/claranet/terraform-provider-{}/releases'.format(provider_name)
+    github_api = 'https://api.github.com/repos/{}/releases'.format(provider_name)
     releases = requests.get(github_api).json()
     found = False
     for release in releases:
@@ -347,22 +347,23 @@ def download_custom_provider(provider_name, provider_version):
             break
 
     if not found:
-        raise ValueError("The  provider version '{}-{}' does not exist".format(provider_name, provider_version))
+        raise ValueError("The provider version '{}-{}' does not exist".format(provider_name, provider_version))
 
     full_version = "{}.{}".format(minor_version, patch)
     # Getting current version
 
     plugins_path = os.path.expanduser('~/.terraform.d/plugins/linux_amd64')
     os.makedirs(plugins_path, exist_ok=True)
-    bin_name = 'terraform-provider-{n}_{v}'.format(n=provider_name, v=full_version)
-    tf_bin_path = os.path.join(plugins_path, 'terraform-provider-{n}_v{v}'.format(n=provider_name, v=full_version))
+    provider_short_name = provider_name.split('/', 1)[1]
+    bin_name = '{n}_{v}'.format(n=provider_short_name, v=full_version)
+    tf_bin_path = os.path.join(plugins_path, '{n}_v{v}'.format(n=provider_short_name, v=full_version))
 
     if not os.path.isfile(tf_bin_path):
         # Download and extract in user's home if needed
         logger.warning("Provider version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
         r = requests.get(
-            'https://github.com/claranet/terraform-provider-{p}/releases/download/v{v}/{b}_linux_amd64.zip'.format(
+            'https://github.com/{p}/releases/download/v{v}/{b}_linux_amd64.zip'.format(
                 p=provider_name, v=full_version, b=bin_name),
             stream=True)
         with open(tmp_file, 'wb') as fd:
@@ -833,7 +834,7 @@ def main():
                 do_switchver(tf_version)
         # do we need Claranet custom providers?
         if args.subcommand in ["init", "bootstrap"]:
-            for provider, provider_version in stack_config['terraform'].get('claranet-providers', {}).items():
+            for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
                 download_custom_provider(provider, provider_version)
 
         # call subcommand
