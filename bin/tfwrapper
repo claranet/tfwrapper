@@ -474,6 +474,12 @@ def terraform_plan(wrapper_config):
     return run_terraform('plan', wrapper_config)
 
 
+def terraform_providers(wrapper_config):
+    """Terraform providers wrapper function."""
+    bootstrap(wrapper_config)
+    return run_terraform('providers', wrapper_config)
+
+
 def terraform_refresh(wrapper_config):
     """Terraform refresh wrapper function."""
     return run_terraform('refresh', wrapper_config)
@@ -502,6 +508,11 @@ def terraform_untaint(wrapper_config):
 def terraform_validate(wrapper_config):
     """Terraform validate wrapper function."""
     return run_terraform('validate', wrapper_config)
+
+
+def terraform_version(wrapper_config):
+    """Terraform version wrapper function."""
+    return run_terraform('version', wrapper_config)
 
 
 def switchver(wrapper_config):
@@ -583,6 +594,10 @@ def main():
     parser_plan.set_defaults(func=terraform_plan)
     parser_plan.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
+    parser_providers = subparsers.add_parser('providers', help='terraform providers')
+    parser_providers.set_defaults(func=terraform_providers)
+    parser_providers.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
+
     parser_refresh = subparsers.add_parser('refresh', help='terraform refresh')
     parser_refresh.set_defaults(func=terraform_refresh)
     parser_refresh.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
@@ -606,6 +621,10 @@ def main():
     parser_validate = subparsers.add_parser('validate', help='terraform validate')
     parser_validate.set_defaults(func=terraform_validate)
     parser_validate.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
+
+    parser_version = subparsers.add_parser('version', help='terraform version')
+    parser_version.set_defaults(func=terraform_version)
+    parser_version.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_bootstrap = subparsers.add_parser('bootstrap', help='bootstrap configuration')
     parser_bootstrap.set_defaults(func=bootstrap)
