@@ -1,3 +1,12 @@
+# 6.3.0 (10/092018)
+
+UPDATES :
+
+  * TER-336 : Add terraform version and providers commands support to the wrapper.
+  * TER-331 : Support download of custom providers from Github.
+  * TER-319 : Make subscription id check case insensitive.
+  * GITHUB-1 : add lstrip_blocks=True and trim_blocks=True for jinja2 env.
+
 # 6.2.1 (09/07/2018)
 
 UPDATES :
@@ -11,7 +20,7 @@ UPDATES :
   * TER-253 : Fix Azure language dependant date format
   * TER-241 : streamline wrapper output.
   * TER-284 : Fix Ctrl+C.
-  * TER-274 : Always make sure that we use correct Terraform version. 
+  * TER-274 : Always make sure that we use correct Terraform version.
 
 # 6.1.1 (15/03/2018)
 
