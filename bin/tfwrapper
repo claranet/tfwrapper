@@ -324,7 +324,7 @@ def do_switchver(version):
 
 def download_custom_provider(provider_name, provider_version):
     """Download Terraform custom provider"""
-    logger.warning("Checking custom Terraform provider '{}' at version '{}'".format(provider_name, provider_version))
+    logger.info("Checking custom Terraform provider '{}' at version '{}'".format(provider_name, provider_version))
     github_base = 'https://github.com/'
     github_endpoint = "{g}{p}".format(g=github_base, p=provider_name)
 
@@ -334,7 +334,7 @@ def download_custom_provider(provider_name, provider_version):
 
     m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$', provider_version)
     if not m:
-        raise ValueError('The terraform version seems not correct, it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
+        raise ValueError('The provider version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
     minor_version, patch, custom = m.groups()
 
     github_api = 'https://api.github.com/repos/{}/releases'.format(provider_name)
@@ -374,9 +374,9 @@ def download_custom_provider(provider_name, provider_version):
         # Permissions not preserved on extract https://bugs.python.org/issue15795
         os.chmod(tf_bin_path, os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         os.remove(tmp_file)
-        logger.warning("Download done, current provider terraform version is {}".format(full_version))
+        logger.info("Download done, current provider version is {}".format(full_version))
     else:
-        logger.warning("Current provider terraform version is already at {}".format(full_version))
+        logger.debug("Current provider version is already {}".format(full_version))
 
 
 def run_terraform(action, wrapper_config):
@@ -832,7 +832,7 @@ def main():
             tf_version = stack_config['terraform']['vars'].get('version')
             if tf_version:
                 do_switchver(tf_version)
-        # do we need Claranet custom providers?
+        # do we need a custom provider ?
         if args.subcommand in ["init", "bootstrap"]:
             for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
                 download_custom_provider(provider, provider_version)
