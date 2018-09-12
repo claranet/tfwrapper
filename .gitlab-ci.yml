@@ -1,0 +1,23 @@
+stages:
+  - lint
+
+pycodestyle:
+  stage: lint
+  image: claranetfrcloudnative/pycodestyle:latest
+  tags:
+    - default
+  script: pycodestyle bin/tfwrapper
+
+pydocstyle:
+  stage: lint
+  image: claranetfrcloudnative/pydocstyle:latest
+  tags:
+    - default
+  script: pydocstyle
+
+pyflakes:
+  stage: lint
+  image: claranetfrcloudnative/pyflakes:latest
+  tags:
+    - default
+  script: pyflakes bin/tfwrapper
