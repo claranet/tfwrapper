@@ -271,14 +271,18 @@ def do_switchver(version):
     # Checking version existence and getting latest patch version if not defined
     found = False
     releases = requests.get('https://api.github.com/repos/hashicorp/terraform/releases').json()
-    for release in releases:
-        if re.match(r'^v{}\.{}$'.format(minor_version, patch if patch else '[0-9]+'), release['tag_name']):
-            found = True
-            patch = patch or release['tag_name'].split('.')[-1]
-            break
+    if type(releases) is list:
+        for release in releases:
+            if re.match(r'^v{}\.{}$'.format(minor_version, patch if patch else '[0-9]+'), release['tag_name']):
+                found = True
+                patch = patch or release['tag_name'].split('.')[-1]
+                break
 
-    if not found:
-        raise ValueError("The terraform version {} does not exist".format(version))
+        if not found:
+            raise ValueError("The terraform version {} does not exist".format(version))
+    else:
+        message = releases.get('message', 'Unknown error')
+        logger.warning("Failed to retrieve terraform releases from github: {}".format(message))
 
     full_version = "{}.{}".format(minor_version, patch)
 
