@@ -152,7 +152,7 @@ def load_stack_config(confdir, account, environment, region, stack):
 
     try:
         stack_configuration_schema.validate(stack_config)
-    except SchemaError as e :
+    except SchemaError as e:
         logger.error('Configuration error in {} : {}'.format(stack_config_file, e))
         sys.exit(RC_KO)
 
@@ -272,7 +272,8 @@ def bootstrap(wrapper_config):
 
 def do_switchver(version):
     """
-    Switch to desired terraform version if different from current one
+    Switch to desired terraform version if different from current one.
+
     :param version: string: desired terraform version
     """
     m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?$', version)
@@ -338,7 +339,7 @@ def do_switchver(version):
 
 
 def download_custom_provider(provider_name, provider_version):
-    """Download Terraform custom provider"""
+    """Download Terraform custom provider."""
     logger.info("Checking custom Terraform provider '{}' at version '{}'".format(provider_name, provider_version))
     github_base = 'https://github.com/'
     github_endpoint = "{g}{p}".format(g=github_base, p=provider_name)
@@ -349,7 +350,8 @@ def download_custom_provider(provider_name, provider_version):
 
     m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$', provider_version)
     if not m:
-        raise ValueError('The provider version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
+        raise ValueError('The provider version does not seem correct, '
+                         'it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
     minor_version, patch, custom = m.groups()
 
     github_api = 'https://api.github.com/repos/{}/releases'.format(provider_name)
@@ -457,7 +459,7 @@ def run_terraform(action, wrapper_config):
             process.communicate()
         except KeyboardInterrupt:
             logger.warning('Received Ctrl+C')
-        except:
+        except:  # noqa
             process.kill()
             process.wait()
             raise
@@ -620,13 +622,13 @@ def terraform_version(wrapper_config):
 
 
 def switchver(wrapper_config):
-    """Switch terraform version command"""
+    """Switch terraform version command."""
     version = wrapper_config.get('version')[0]
     do_switchver(version)
 
 
 def main():
-    """Main function."""
+    """Execute tfwrapper."""
     # terraforms params doc
     tf_params_help = 'Any Terraform parameters after a "--" delimiter'
 
@@ -836,7 +838,7 @@ def main():
         if 'azure' in stack_config:
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
-            terraform_vars['azurerm_region'] = wrapper_config['region'] # Kept for retro-compat
+            terraform_vars['azurerm_region'] = wrapper_config['region']  # Kept for retro-compat
             terraform_vars['azure_region'] = wrapper_config['region']
             terraform_vars['azure_subscription_id'] = stack_config['azure']['general']['subscription_id']
 
@@ -844,8 +846,8 @@ def main():
             if az_login_mode.lower() == 'user':
                 logger.info('Using Azure user mode')
 
-                terraform_vars['azure_tenant_id'] = stack_config['azure']['general'].get('tenant_id',
-                                                                                         stack_config['azure']['general'].get('directory_id', None))
+                directory_id = stack_config['azure']['general'].get('directory_id', None)
+                terraform_vars['azure_tenant_id'] = stack_config['azure']['general'].get('tenant_id', directory_id)
                 if not terraform_vars['azure_tenant_id']:
                     logger.error('Please set the `azure.general.directory_id` variable in your stack configuration.')
                     sys.exit(RC_KO)
@@ -869,11 +871,12 @@ def main():
                     try:
                         azure_profile_obj = json.load(f2)
                     except json.JSONDecodeError as errorloadprofile:
-                        logger.error('Unexpected error while loading your azureProfile.json file : {}'.format(errorloadprofile.ms))
+                        logger.error('Unexpected error while loading your azureProfile.json file : '
+                                     '{}'.format(errorloadprofile.ms))
                         sys.exit(RC_KO)
                     if str(terraform_vars['azure_subscription_id']).lower() not in str(azure_profile_obj):
-                        logger.error('Your subscription did not match with your azure profiles,'
-                                      ' you may not have access to the subscription or try running "az login".')
+                        logger.error('Your subscription did not match with your azure profiles, '
+                                     'you may not have access to the subscription or try running "az login".')
                         sys.exit(RC_KO)
 
                 up_to_date_token = False
@@ -889,7 +892,8 @@ def main():
                     sys.exit(RC_KO)
 
                 command = ['az', 'account', 'get-access-token']
-                az_token_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                az_token_process = subprocess.run(command,
+                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
                 if az_token_process.returncode == 0:
                     result_json = str(az_token_process.stdout)
@@ -927,7 +931,8 @@ def main():
                 os.environ['ARM_CLIENT_ID'] = load_azure_config[profile]['client_id']
                 os.environ['ARM_CLIENT_SECRET'] = load_azure_config[profile]['client_secret']
             else:
-                logger.error('Please use a correct Azure authentication mode ("user" or "service_principal") in your stack YAML configuration.')
+                logger.error('Please use a correct Azure authentication mode ("user" or "service_principal") '
+                             'in your stack YAML configuration.')
                 sys.exit(RC_KO)
 
         set_terraform_vars(terraform_vars)
