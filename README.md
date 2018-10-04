@@ -10,6 +10,7 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 - Stack initialization from templates
 - AWS credentials caching
 - Azure credentials loading
+- GCP and GKE user ADC support
 - Plugins caching
 
 ## Drawbacks
@@ -200,6 +201,29 @@ It is using the Service Principal's credentials to connect the Azure Subscriptio
 The wrapper loads client_id and client_secret from your `azurerm_config.yml` located in `~/.azurem/config.yml`.
 Please check the example here: [https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master](https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master)
 
+Here is an example for a GCP/GKE stack with user ADC and multiple GKE instances :
+
+```yaml
+---
+gcp:
+  general:
+    mode: adc-user
+    project: &gcp_project project-name
+  gke:
+    - name: kubernetes-1
+      zone: europe-west1-c
+    - name: kubernetes-2
+      region: europe-west1
+
+terraform:
+  vars:
+    gcp_region: europe-west1
+    gcp_zone: europe-west1-c
+    gcp_project: *gcp_project
+    client_name: client-name
+    #version: "0.11"  # Terraform version like "0.10" or "0.10.5" - optional
+```
+
 ### States centralization configuration
 
 `conf/state.yml` defines the configuration used to connect to the S3 state backend's AWS account.
@@ -314,6 +338,20 @@ Those AzureRM credentials are loaded only if you are using the Service Principal
 
 - `ARM_CLIENT_ID`
 - `ARM_CLIENT_SECRET`
+
+### GCP configuration
+
+Those GCP related variables are available from the environment when using the example configuration :
+
+- `TF_VAR_gcp_region`
+- `TF_VAR_gcp_gcp_zone`
+- `TF_VAR_gcp_gcp_project`
+
+### GKE configurations
+
+Each GKE instance has its own kubeconfig, the path to each configuration is available from the environment :
+
+- `TF_VAR_gke_kubeconfig_${gke_cluster_name}`
 
 ### Stack configurations and credentials
 
