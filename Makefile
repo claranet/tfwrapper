@@ -10,6 +10,7 @@ makefile_dir := $(patsubst %/,%,$(dir $(makefile_path)))
 wrapper_bin := $(makefile_dir)/bin
 virtualenv_bin := $(makefile_dir)/.virtualenv/bin
 pip := $(virtualenv_bin)/pip
+with_azure_deps := true
 
 .DEFAULT_GOAL := work
 
@@ -21,8 +22,12 @@ ifneq ($(shell test -d $(makefile_dir)/.virtualenv; echo $$?),0)
 	@echo 'Setting up virtualenv.'
 	@virtualenv -p python3 $(makefile_dir)/.virtualenv
 	@$(pip) install -r $(makefile_dir)/requirements.txt
+ifeq ($(with_azure_deps),true)
+	@$(pip) install --upgrade azure-cli
+endif
 endif
 
+clean: clear
 clear:
 	@echo 'Removing virtualenv.'
 	@rm -Rf $(makefile_dir)/.virtualenv

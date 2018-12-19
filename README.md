@@ -281,6 +281,9 @@ The following file structure is enforced :
 ```bash
 # this will initialize a virtualenv and update your PATH in a new instance of your current SHELL
 make
+# if you don't want to install Azure CLI dependencies for a non Azure repository, you may want to use:
+make -e with_azure_deps=false
+
 tfwrapper -h
 
 # when you are done using the tfwrapper you can leave the virtualenv

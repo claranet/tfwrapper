@@ -4,170 +4,23 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
---extra-index-url https://azurecliprod.blob.core.windows.net/edge
-
-adal==1.1.0               # via azure-cli-core, azure-datalake-store, msrestazure
-antlr4-python3-runtime==4.7.1  # via azure-cli-core
-applicationinsights==0.11.6  # via azure-cli-feedback, azure-cli-interactive, azure-cli-telemetry
-argcomplete==1.9.4        # via azure-cli-core, knack
-asn1crypto==0.24.0        # via cryptography
-azure-batch==4.1.3        # via azure-cli-batch
-azure-cli-acr==2.1.4      # via azure-cli
-azure-cli-acs==2.3.2      # via azure-cli
-azure-cli-advisor==0.6.0  # via azure-cli
-azure-cli-ams==0.2.3      # via azure-cli
-azure-cli-appservice==0.2.3  # via azure-cli
-azure-cli-backup==1.2.1   # via azure-cli
-azure-cli-batch==3.3.3    # via azure-cli
-azure-cli-batchai==0.4.2  # via azure-cli
-azure-cli-billing==0.2.0  # via azure-cli
-azure-cli-cdn==0.1.1      # via azure-cli
-azure-cli-cloud==2.1.0    # via azure-cli
-azure-cli-cognitiveservices==0.2.1  # via azure-cli
-azure-cli-command-modules-nspkg==2.0.2  # via azure-cli-acr, azure-cli-acs, azure-cli-advisor, azure-cli-ams, azure-cli-appservice, azure-cli-backup, azure-cli-batch, azure-cli-batchai, azure-cli-billing, azure-cli-cdn, azure-cli-cloud, azure-cli-cognitiveservices, azure-cli-configure, azure-cli-consumption, azure-cli-container, azure-cli-cosmosdb, azure-cli-dla, azure-cli-dls, azure-cli-dms, azure-cli-eventgrid, azure-cli-eventhubs, azure-cli-extension, azure-cli-feedback, azure-cli-find, azure-cli-interactive, azure-cli-iot, azure-cli-keyvault, azure-cli-lab, azure-cli-monitor, azure-cli-network, azure-cli-profile, azure-cli-rdbms, azure-cli-redis, azure-cli-reservations, azure-cli-resource, azure-cli-role, azure-cli-search, azure-cli-servicebus, azure-cli-servicefabric, azure-cli-sql, azure-cli-storage, azure-cli-vm
-azure-cli-configure==2.0.18  # via azure-cli
-azure-cli-consumption==0.4.0  # via azure-cli
-azure-cli-container==0.3.3  # via azure-cli
-azure-cli-core==2.0.45    # via azure-cli, azure-cli-acr, azure-cli-acs, azure-cli-advisor, azure-cli-ams, azure-cli-appservice, azure-cli-backup, azure-cli-batch, azure-cli-batchai, azure-cli-billing, azure-cli-cdn, azure-cli-cloud, azure-cli-cognitiveservices, azure-cli-configure, azure-cli-consumption, azure-cli-container, azure-cli-cosmosdb, azure-cli-dla, azure-cli-dls, azure-cli-dms, azure-cli-eventgrid, azure-cli-eventhubs, azure-cli-extension, azure-cli-feedback, azure-cli-find, azure-cli-interactive, azure-cli-iot, azure-cli-keyvault, azure-cli-lab, azure-cli-monitor, azure-cli-network, azure-cli-profile, azure-cli-rdbms, azure-cli-redis, azure-cli-reservations, azure-cli-resource, azure-cli-role, azure-cli-search, azure-cli-servicebus, azure-cli-servicefabric, azure-cli-sql, azure-cli-storage, azure-cli-vm
-azure-cli-cosmosdb==0.2.1  # via azure-cli
-azure-cli-dla==0.2.2      # via azure-cli
-azure-cli-dls==0.1.1      # via azure-cli
-azure-cli-dms==0.1.0      # via azure-cli
-azure-cli-eventgrid==0.2.0  # via azure-cli
-azure-cli-eventhubs==0.2.3  # via azure-cli
-azure-cli-extension==0.2.1  # via azure-cli
-azure-cli-feedback==2.1.4  # via azure-cli
-azure-cli-find==0.2.12    # via azure-cli
-azure-cli-interactive==0.3.28  # via azure-cli
-azure-cli-iot==0.3.1      # via azure-cli
-azure-cli-keyvault==2.2.2  # via azure-cli
-azure-cli-lab==0.1.1      # via azure-cli
-azure-cli-monitor==0.2.3  # via azure-cli
-azure-cli-network==2.2.4  # via azure-cli
-azure-cli-nspkg==3.0.3    # via azure-cli, azure-cli-command-modules-nspkg, azure-cli-core, azure-cli-telemetry
-azure-cli-profile==2.1.1  # via azure-cli
-azure-cli-rdbms==0.3.1    # via azure-cli
-azure-cli-redis==0.3.2    # via azure-cli
-azure-cli-reservations==0.3.2  # via azure-cli
-azure-cli-resource==2.1.3  # via azure-cli
-azure-cli-role==2.1.4     # via azure-cli
-azure-cli-search==0.1.1   # via azure-cli
-azure-cli-servicebus==0.2.2  # via azure-cli
-azure-cli-servicefabric==0.1.2  # via azure-cli
-azure-cli-sql==2.1.3      # via azure-cli
-azure-cli-storage==2.2.1  # via azure-cli
-azure-cli-telemetry==1.0.0  # via azure-cli-core
-azure-cli-vm==2.2.2       # via azure-cli
-azure-cli==2.0.45
-azure-common==1.1.15      # via azure-batch, azure-graphrbac, azure-keyvault, azure-mgmt-advisor, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-analytics, azure-mgmt-datalake-store, azure-mgmt-datamigration, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-keyvault, azure-mgmt-loganalytics, azure-mgmt-managementgroups, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-network, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redis, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-sql, azure-mgmt-storage, azure-mgmt-trafficmanager, azure-mgmt-web, azure-multiapi-storage, azure-storage-blob, azure-storage-common
-azure-datalake-store==0.0.27  # via azure-cli-dls
-azure-graphrbac==0.40.0   # via azure-cli-acs, azure-cli-ams, azure-cli-keyvault, azure-cli-lab, azure-cli-role, azure-cli-servicefabric
-azure-keyvault==1.1.0     # via azure-cli-keyvault, azure-cli-role, azure-cli-servicefabric, azure-cli-vm
-azure-mgmt-advisor==1.0.1  # via azure-cli-advisor
-azure-mgmt-authorization==0.50.0  # via azure-cli-acs, azure-cli-resource, azure-cli-role, azure-cli-vm
-azure-mgmt-batch==5.0.1   # via azure-cli-batch
-azure-mgmt-batchai==2.0.0  # via azure-cli-batchai
-azure-mgmt-billing==0.2.0  # via azure-cli-billing
-azure-mgmt-cdn==3.0.0     # via azure-cli-cdn
-azure-mgmt-cognitiveservices==1.0.0  # via azure-cli-cognitiveservices
-azure-mgmt-compute==4.0.0  # via azure-cli-acs, azure-cli-servicefabric, azure-cli-vm
-azure-mgmt-consumption==2.0.0  # via azure-cli-consumption
-azure-mgmt-containerinstance==1.0.0  # via azure-cli-container
-azure-mgmt-containerregistry==2.1.0  # via azure-cli-acr, azure-cli-appservice
-azure-mgmt-containerservice==4.2.2  # via azure-cli-acs
-azure-mgmt-cosmosdb==0.4.0  # via azure-cli-cosmosdb
-azure-mgmt-datalake-analytics==0.2.0  # via azure-cli-dla
-azure-mgmt-datalake-nspkg==2.0.0  # via azure-mgmt-datalake-analytics, azure-mgmt-datalake-store
-azure-mgmt-datalake-store==0.2.0  # via azure-cli-dla, azure-cli-dls
-azure-mgmt-datamigration==0.1.0  # via azure-cli-dms
-azure-mgmt-devtestlabs==2.2.0  # via azure-cli-lab
-azure-mgmt-dns==2.0.0rc2  # via azure-cli-network
-azure-mgmt-eventgrid==0.4.0  # via azure-cli-eventgrid
-azure-mgmt-eventhub==2.1.0  # via azure-cli-eventhubs
-azure-mgmt-iothub==0.5.0  # via azure-cli-iot
-azure-mgmt-iothubprovisioningservices==0.2.0  # via azure-cli-iot
-azure-mgmt-keyvault==1.1.0  # via azure-cli-batch, azure-cli-keyvault, azure-cli-servicefabric, azure-cli-vm
-azure-mgmt-loganalytics==0.2.0  # via azure-cli-container
-azure-mgmt-managementgroups==0.1.0  # via azure-cli-resource
-azure-mgmt-marketplaceordering==0.1.0  # via azure-cli-vm
-azure-mgmt-media==1.0.0rc1  # via azure-cli-ams
-azure-mgmt-monitor==0.5.2  # via azure-cli-monitor, azure-cli-role
-azure-mgmt-msi==0.2.0     # via azure-cli-vm
-azure-mgmt-network==2.0.0rc3  # via azure-cli-network, azure-cli-servicefabric, azure-cli-vm
-azure-mgmt-nspkg==2.0.0   # via azure-mgmt-advisor, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-nspkg, azure-mgmt-datamigration, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-keyvault, azure-mgmt-loganalytics, azure-mgmt-managementgroups, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-network, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redis, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-sql, azure-mgmt-storage, azure-mgmt-trafficmanager, azure-mgmt-web
-azure-mgmt-rdbms==1.2.0   # via azure-cli-rdbms
-azure-mgmt-recoveryservices==0.1.0  # via azure-cli-backup
-azure-mgmt-recoveryservicesbackup==0.1.1  # via azure-cli-backup
-azure-mgmt-redis==5.0.0   # via azure-cli-redis
-azure-mgmt-reservations==0.2.1  # via azure-cli-reservations
-azure-mgmt-resource==2.0.0  # via azure-cli-container, azure-cli-core
-azure-mgmt-search==2.0.0  # via azure-cli-search
-azure-mgmt-servicebus==0.5.1  # via azure-cli-servicebus
-azure-mgmt-servicefabric==0.2.0  # via azure-cli-servicefabric
-azure-mgmt-sql==0.9.1     # via azure-cli-sql
-azure-mgmt-storage==2.0.0rc4  # via azure-cli-acr, azure-cli-appservice, azure-cli-batchai, azure-cli-servicefabric, azure-cli-sql, azure-cli-storage
-azure-mgmt-trafficmanager==0.50.0  # via azure-cli-network
-azure-mgmt-web==0.35.0    # via azure-cli-appservice
-azure-multiapi-storage==0.2.2  # via azure-cli-storage, azure-cli-vm
-azure-nspkg==2.0.0        # via azure-batch, azure-cli-nspkg, azure-common, azure-graphrbac, azure-keyvault, azure-mgmt-nspkg, azure-multiapi-storage, azure-storage-nspkg
-azure-storage-blob==1.1.0  # via azure-cli-acr, azure-cli-batchai
-azure-storage-common==1.1.0  # via azure-storage-blob
-azure-storage-nspkg==3.0.0  # via azure-storage-blob, azure-storage-common
-bcrypt==3.1.4             # via paramiko
-boto3==1.9.6
-botocore==1.12.6          # via boto3, s3transfer
-certifi==2018.8.24        # via msrest, requests, urllib3
-cffi==1.11.5              # via azure-datalake-store, bcrypt, cryptography, pynacl
+boto3==1.9.68
+botocore==1.12.68         # via boto3, s3transfer
+certifi==2018.11.29       # via requests
 chardet==3.0.4            # via requests
-click==6.7                # via pip-tools
-colorama==0.3.9           # via azure-cli-container, azure-cli-core, knack
-colorlog==3.1.4
-cryptography==2.3.1       # via adal, azure-keyvault, azure-multiapi-storage, azure-storage-common, paramiko, pyopenssl, secretstorage
+click==7.0                # via pip-tools
+colorlog==4.0.2
 docutils==0.14            # via botocore
-entrypoints==0.2.3        # via keyring
-first==2.0.1              # via pip-tools
-humanfriendly==4.16.1     # via azure-cli-core
-idna==2.7                 # via cryptography, requests
-isodate==0.6.0            # via msrest
-jeepney==0.3.1            # via secretstorage
+idna==2.8                 # via requests
 jinja2==2.10
-jmespath==0.9.3           # via azure-cli-core, azure-cli-interactive, boto3, botocore, knack
-keyring==15.1.0           # via msrestazure
-knack==0.4.2              # via azure-cli-core
-markupsafe==1.0           # via jinja2
-mock==2.0.0               # via azure-cli-batchai, azure-cli-network, vsts-cd-manager
-msrest==0.5.5             # via azure-cli-core, azure-keyvault, azure-mgmt-compute, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-eventhub, azure-mgmt-keyvault, azure-mgmt-servicefabric, msrestazure, vsts-cd-manager
-msrestazure==0.4.34       # via azure-batch, azure-cli-core, azure-graphrbac, azure-keyvault, azure-mgmt-advisor, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-analytics, azure-mgmt-datalake-store, azure-mgmt-datamigration, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-keyvault, azure-mgmt-loganalytics, azure-mgmt-managementgroups, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-network, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redis, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-sql, azure-mgmt-storage, azure-mgmt-trafficmanager, azure-mgmt-web
-oauthlib==2.1.0           # via requests-oauthlib
-paramiko==2.4.2           # via azure-cli-acs, azure-cli-core, scp, sshtunnel
-pbr==4.2.0                # via mock
-pip-tools==2.0.2
-portalocker==1.2.1        # via azure-cli-telemetry
-prompt-toolkit==1.0.15    # via azure-cli-interactive
-pyasn1==0.4.4             # via paramiko
-pycparser==2.18           # via cffi
-pydocumentdb==2.3.3       # via azure-cli-cosmosdb
-pygments==2.2.0           # via azure-cli-core, knack
-pyjwt==1.6.4              # via adal, azure-cli-core
-pynacl==1.2.1             # via paramiko
-pyopenssl==18.0.0         # via azure-cli-appservice, azure-cli-core, azure-cli-dms, azure-cli-iot, azure-cli-keyvault, azure-cli-servicefabric
-python-dateutil==2.7.3
-pytz==2018.5              # via azure-cli-role
+jmespath==0.9.3           # via boto3, botocore
+markupsafe==1.1.0         # via jinja2
+pip-tools==3.2.0
+python-dateutil==2.7.5
 pyyaml==3.13
-requests-oauthlib==1.0.0  # via msrest
-requests==2.19.1
+requests==2.21.0
 s3transfer==0.1.13        # via boto3
 schema==0.6.8
-scp==0.11.0               # via azure-cli-acs
-secretstorage==3.1.0      # via keyring
-six==1.11.0               # via azure-cli-acs, azure-cli-appservice, azure-cli-core, azure-cli-eventgrid, azure-cli-eventhubs, azure-cli-interactive, azure-cli-rdbms, azure-cli-servicebus, azure-cli-sql, bcrypt, cryptography, isodate, knack, mock, pip-tools, prompt-toolkit, pydocumentdb, pynacl, pyopenssl, python-dateutil, websocket-client
-sshtunnel==0.1.4          # via azure-cli-acs, azure-cli-batchai
-tabulate==0.8.2           # via azure-cli-core, knack
+six==1.12.0               # via pip-tools, python-dateutil
 termcolor==1.1.0
-urllib3[secure]==1.23     # via azure-cli-appservice, botocore, requests
-vsts-cd-manager==1.0.2    # via azure-cli-appservice
-wcwidth==0.1.7            # via prompt-toolkit
-websocket-client==0.53.0  # via azure-cli-container
-wheel==0.30.0             # via azure-cli-core, azure-cli-extension
-whoosh==2.7.4             # via azure-cli-find
-xmltodict==0.11.0         # via azure-cli-appservice
+urllib3==1.24.1           # via botocore, requests
