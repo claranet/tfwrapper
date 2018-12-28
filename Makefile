@@ -23,7 +23,7 @@ ifneq ($(shell test -d $(makefile_dir)/.virtualenv; echo $$?),0)
 	@virtualenv -p python3 $(makefile_dir)/.virtualenv
 	@$(pip) install -r $(makefile_dir)/requirements.txt
 ifeq ($(with_azure_deps),true)
-	@$(pip) install --upgrade azure-cli
+	@$(pip) install -r $(makefile_dir)/requirements-azure.txt
 endif
 endif
 
