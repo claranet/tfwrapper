@@ -130,7 +130,7 @@ def load_wrapper_config(args):
         wrapper_config['environment'] = 'global'
 
     # load state configuration
-    with open(wrapper_config['confdir'] + '/state.yml', 'r') as f:
+    with open(os.path.join(wrapper_config['confdir'], 'state.yml'), 'r') as f:
         state_config = yaml.load(f)
 
     wrapper_config['state_account'] = state_config['aws']['general']['account']
@@ -183,8 +183,8 @@ def get_session(rootdir, account, region, profile):
         except botocore.exceptions.ParamValidationError:
             logger.error('Error validating authentication. Maybe the wrong MFA code ?')
             sys.exit(RC_KO)
-        except Exception as e:
-            logger.error('Unknown error : {}'.format(e))
+        except Exception:
+            logger.exception('Unknown error')
             sys.exit(RC_UNK)
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT,
                                mode=0o600), 'wb') as f:
@@ -511,7 +511,7 @@ Environment : {}
 
         print('\nDo you really want to apply this plan on the following stack ?\n',
               env_msg)
-        apply_input = input("'yes' to confirm : ")
+        apply_input = input("'yes' to confirm: ")
 
         try:
             if apply_input == 'yes':
@@ -753,8 +753,8 @@ def main():
         except ValueError as e:
             logger.error(e)
             sys.exit(RC_KO)
-        except Exception as e:
-            logger.error('Unknown error : {}'.format(e))
+        except Exception:
+            logger.exception('Unknown error')
             sys.exit(RC_UNK)
 
         # load config
@@ -807,7 +807,7 @@ def main():
                     logger.error('Please make sure that gcloud is available on this system.')
                     sys.exit(RC_KO)
                 except subprocess.CalledProcessError:
-                    logger.error('Could not find valid user Application Default Credentials. Please run : '
+                    logger.error('Could not find valid user Application Default Credentials. Please run: '
                                  'gcloud auth application-default login')
                     sys.exit(RC_KO)
                 logger.info('Found GCP user Application Default Credentials.')
@@ -865,7 +865,7 @@ def main():
                     try:
                         access_token_obj = json.load(f1)
                     except json.JSONDecodeError as errorloadjson:
-                        logger.error('Unexpected error while loading your accessTokens.json file : {}'.format(errorloadjson.msg))
+                        logger.error('Unexpected error while loading your accessTokens.json file: {}'.format(errorloadjson.msg))
                         sys.exit(RC_KO)
                     if access_token_obj is None or len(access_token_obj) == 0:
                         logger.error('You do not have access to these resources.')
@@ -875,7 +875,7 @@ def main():
                     try:
                         azure_profile_obj = json.load(f2)
                     except json.JSONDecodeError as errorloadprofile:
-                        logger.error('Unexpected error while loading your azureProfile.json file : '
+                        logger.error('Unexpected error while loading your azureProfile.json file: '
                                      '{}'.format(errorloadprofile.ms))
                         sys.exit(RC_KO)
                     if str(terraform_vars['azure_subscription_id']).lower() not in str(azure_profile_obj):
@@ -897,7 +897,8 @@ def main():
 
                 command = ['az', 'account', 'get-access-token']
                 az_token_process = subprocess.run(command,
-                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                                  universal_newlines=True)
 
                 if az_token_process.returncode == 0:
                     result_json = str(az_token_process.stdout)
@@ -909,13 +910,14 @@ def main():
                         az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                         if az_account_process.returncode != 0:
-                            logger.error('Could not switch to {} subscription : {}'.format(
-                                          terraform_vars['azure_subscription_id'], az_account_process.stderr.decode("utf-8")))
+                            logger.error('Could not switch to {} subscription: {}'.format(
+                                         terraform_vars['azure_subscription_id'],
+                                         az_account_process.stderr.decode("utf-8")))
                             sys.exit(RC_KO)
                         else:
                             logger.warning('Switched to {} subscription'.format(terraform_vars['azure_subscription_id']))
                 else:
-                    logger.error('Could not get an access token : {}'.format(az_token_process.stderr.decode("utf-8")))
+                    logger.error('Could not get an access token: {}'.format(az_token_process.stderr.decode("utf-8")))
                     sys.exit(RC_KO)
             elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
                 logger.info('Using Azure Service Principal mode')
