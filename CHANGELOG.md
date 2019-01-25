@@ -1,3 +1,9 @@
+# 6.4.1 (25/01/2019)
+
+UPDATES:
+
+  * GITHUB-4: More robust shell detection in makefile.
+
 # 6.4.0 (04/10/2018)
 
 UPDATES:
