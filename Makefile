@@ -1,4 +1,6 @@
-SHELL := $(shell env | grep SHELL= | cut -d '=' -f '2' )
+# Keep the user's current shell (say bash or zsh) instead of using the system's
+# default /bin/sh shell which can differ (e.g. dash by default on Ubuntu).
+SHELL := $(shell env | grep '^SHELL=' | cut -d '=' -f '2' )
 
 python_version_full := $(wordlist 2,4,$(subst ., ,$(shell python3 --version 2>&1)))
 python_version_minor := $(word 2,${python_version_full})
