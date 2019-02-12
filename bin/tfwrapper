@@ -274,6 +274,7 @@ def bootstrap(wrapper_config):
     environment = wrapper_config['environment']
     region = wrapper_config['region']
     stack = wrapper_config['stack']
+    state_backend_type = wrapper_config.get('state_backend_type', 'aws')
 
     stack_config = load_stack_config(confdir, account, environment, region, stack)
 
@@ -311,7 +312,7 @@ def bootstrap(wrapper_config):
         client_name = stack_config['terraform']['vars'].get('client_name', account)
 
         jinja2_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader('{}/templates/common'.format(rootdir)),
+            loader=jinja2.FileSystemLoader('{}/templates/{}/common'.format(rootdir, state_backend_type)),
             lstrip_blocks=True,
             trim_blocks=True
         )
