@@ -152,16 +152,16 @@ def load_wrapper_config(args):
     with open(os.path.join(wrapper_config['confdir'], 'state.yml'), 'r') as f:
         state_config = yaml.load(f)
 
-    if 'aws' in state_config:
-        wrapper_config['state_backend_type'] = 'aws'
-        wrapper_config['state_account'] = state_config['aws']['general']['account']
-        wrapper_config['state_region'] = state_config['aws']['general']['region']
-        wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
-    else:
+    if 'azure' in state_config:
         wrapper_config['state_backend_type'] = 'azure'
         wrapper_config['state_subscription'] = state_config['azure']['general']['subscription_uid']
         wrapper_config['state_rg'] = state_config['azure']['general']['resource_group_name']
         wrapper_config['state_storage'] = state_config['azure']['general']['storage_account_name']
+    else:
+        wrapper_config['state_backend_type'] = 'aws'
+        wrapper_config['state_account'] = state_config['aws']['general']['account']
+        wrapper_config['state_region'] = state_config['aws']['general']['region']
+        wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
 
     return wrapper_config
 
