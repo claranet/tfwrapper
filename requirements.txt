@@ -15,7 +15,7 @@ idna==2.8                 # via requests
 jinja2==2.10
 jmespath==0.9.3           # via boto3, botocore
 markupsafe==1.1.0         # via jinja2
-pip-tools==3.2.0
+pip-tools==3.3.2
 python-dateutil==2.7.5
 pyyaml==3.13
 requests==2.21.0

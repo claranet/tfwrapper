@@ -28,8 +28,6 @@ import colorlog
 import jinja2
 import requests
 import yaml
-from azure.common.client_factory import get_client_from_cli_profile
-from azure.mgmt.storage import StorageManagementClient
 from dateutil import parser as dateutil_parser
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
@@ -216,6 +214,10 @@ def _get_boto_session(session_cache_file, region, profile):
 
 
 def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile, azure_storage):
+    """Retrieve Azure storage access keys"""
+    from azure.common.client_factory import get_client_from_cli_profile
+    from azure.mgmt.storage import StorageManagementClient
+
     storage_client = get_client_from_cli_profile(StorageManagementClient)
     storage_keys = storage_client.storage_accounts.list_keys(azure_rg_profile, azure_storage)
     storage_keys = {v.key_name: v.value for v in storage_keys.keys}
@@ -223,7 +225,7 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
 
 
 def get_session(rootdir, account, region, profile, backend_type='aws', conf=None):
-    """Get or create cached session."""
+    """Get or create boto cached session."""
     if backend_type == 'aws':
         session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, account, profile)
         session = _get_boto_session(session_cache_file, region, profile)
