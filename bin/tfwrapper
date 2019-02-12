@@ -214,7 +214,7 @@ def _get_boto_session(session_cache_file, region, profile):
 
 
 def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile, azure_storage):
-    """Retrieve Azure storage access keys"""
+    """Retrieve Azure storage access keys."""
     from azure.common.client_factory import get_client_from_cli_profile
     from azure.mgmt.storage import StorageManagementClient
 
