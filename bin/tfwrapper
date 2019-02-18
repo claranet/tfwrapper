@@ -183,7 +183,7 @@ def load_stack_config(confdir, account, environment, region, stack):
     return stack_config
 
 
-def _get_boto_session(session_cache_file, region, profile):
+def _get_aws_session(session_cache_file, region, profile):
     if (os.path.isfile(session_cache_file) and
             time.time() - os.stat(session_cache_file).st_mtime < 2700):
         with open(session_cache_file, 'rb') as f:
@@ -228,7 +228,7 @@ def get_session(rootdir, account, region, profile, backend_type='aws', conf=None
     """Get or create boto cached session."""
     if backend_type == 'aws':
         session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, account, profile)
-        session = _get_boto_session(session_cache_file, region, profile)
+        session = _get_aws_session(session_cache_file, region, profile)
 
     else:
         session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, conf['state_subscription'], conf['state_rg'])
