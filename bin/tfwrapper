@@ -155,11 +155,13 @@ def load_wrapper_config(args):
         wrapper_config['state_subscription'] = state_config['azure']['general']['subscription_uid']
         wrapper_config['state_rg'] = state_config['azure']['general']['resource_group_name']
         wrapper_config['state_storage'] = state_config['azure']['general']['storage_account_name']
-    else:
+    elif 'aws' in state_config:
         wrapper_config['state_backend_type'] = 'aws'
         wrapper_config['state_account'] = state_config['aws']['general']['account']
         wrapper_config['state_region'] = state_config['aws']['general']['region']
         wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
+    else:
+        wrapper_config['state_backend_type'] = None
 
     return wrapper_config
 
@@ -184,6 +186,7 @@ def load_stack_config(confdir, account, environment, region, stack):
 
 
 def _get_aws_session(session_cache_file, region, profile):
+    """Get or create boto cached session."""
     if (os.path.isfile(session_cache_file) and
             time.time() - os.stat(session_cache_file).st_mtime < 2700):
         with open(session_cache_file, 'rb') as f:
@@ -225,14 +228,16 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
 
 
 def get_session(rootdir, account, region, profile, backend_type='aws', conf=None):
-    """Get or create boto cached session."""
+    """Get/create session credentials for supported providers."""
     if backend_type == 'aws':
+        # Get or create boto cached session.
         session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, account, profile)
         session = _get_aws_session(session_cache_file, region, profile)
-
-    else:
+    elif backend_type == 'azure':
         session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, conf['state_subscription'], conf['state_rg'])
         session = _get_azure_session(session_cache_file, conf['state_subscription'], conf['state_rg'], conf['state_storage'])
+    else:
+        session = None
 
     return session
 
@@ -1030,9 +1035,11 @@ def main():
             os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
             if state_credentials.token:
                 os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
-        else:
+        elif state_backend_type == 'azure':
             # set Azure state centralization environment variables
             os.environ['ARM_ACCESS_KEY'] = state_session['key1']
+        else:
+            logger.info('Unsupported state backend type. Let terraform handle with its default behavior.')
     else:
         wrapper_config = deepcopy(vars(args))
 
