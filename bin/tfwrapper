@@ -185,6 +185,20 @@ def load_stack_config(confdir, account, environment, region, stack):
     return stack_config
 
 
+def _switch_azure_context(azure_subscription_id):
+    """Use az cli to switch to the desired Azure Subscription context."""
+    command = ['az', 'account', 'set', '--subscription', azure_subscription_id]
+    az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    if az_account_process.returncode != 0:
+        logger.error('Could not switch to {} subscription: {}'.format(
+                        azure_subscription_id,
+                        az_account_process.stderr.decode("utf-8")))
+        sys.exit(RC_KO)
+    else:
+        logger.warning('Switched to {} subscription'.format(azure_subscription_id))
+
+
 def _get_aws_session(session_cache_file, region, profile):
     """Get or create boto cached session."""
     if (os.path.isfile(session_cache_file) and
@@ -220,6 +234,9 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
     """Retrieve Azure storage access keys."""
     from azure.common.client_factory import get_client_from_cli_profile
     from azure.mgmt.storage import StorageManagementClient
+
+    # Switch to the Azure subscription that contains the backend storage account
+    _switch_azure_context(azure_subscription)
 
     storage_client = get_client_from_cli_profile(StorageManagementClient)
     storage_keys = storage_client.storage_accounts.list_keys(azure_rg_profile, azure_storage)
@@ -990,16 +1007,7 @@ def main():
                     az_token_subscription = az_token['subscription']
 
                     if az_token_subscription != terraform_vars['azure_subscription_id']:
-                        command = ['az', 'account', 'set', '--subscription', terraform_vars['azure_subscription_id']]
-                        az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                        if az_account_process.returncode != 0:
-                            logger.error('Could not switch to {} subscription: {}'.format(
-                                         terraform_vars['azure_subscription_id'],
-                                         az_account_process.stderr.decode("utf-8")))
-                            sys.exit(RC_KO)
-                        else:
-                            logger.warning('Switched to {} subscription'.format(terraform_vars['azure_subscription_id']))
+                        _switch_azure_context(terraform_vars['azure_subscription_id'])
                 else:
                     logger.error('Could not get an access token: {}'.format(az_token_process.stderr.decode("utf-8")))
                     sys.exit(RC_KO)
