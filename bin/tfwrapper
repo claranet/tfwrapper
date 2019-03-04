@@ -241,7 +241,7 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
     storage_client = get_client_from_cli_profile(StorageManagementClient)
     storage_keys = storage_client.storage_accounts.list_keys(azure_rg_profile, azure_storage)
     storage_keys = {v.key_name: v.value for v in storage_keys.keys}
-    return storage_keys
+    return storage_keys['key1']
 
 
 def get_session(rootdir, account, region, profile, backend_type='aws', conf=None):
@@ -1045,7 +1045,8 @@ def main():
                 os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
         elif state_backend_type == 'azure':
             # set Azure state centralization environment variables
-            os.environ['ARM_ACCESS_KEY'] = state_session['key1']
+            os.environ['ARM_ACCESS_KEY'] = state_session
+            os.environ['TF_VAR_azure_state_access_key'] = state_session
         else:
             logger.info('Unsupported state backend type. Let terraform handle with its default behavior.')
     else:

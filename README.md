@@ -412,6 +412,7 @@ There is two supported providers, the variables which will be loaded depends on 
 - `TF_VAR_azure_region`
 - `TF_VAR_azure_subscription_id`
 - `TF_VAR_azure_tenant_id`
+- `TF_VAR_azure_state_access_key`
 
 ### Stack path
 
