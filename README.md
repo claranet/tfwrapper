@@ -9,7 +9,7 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 - Standardized file structure
 - Stack initialization from templates
 - AWS credentials caching
-- Azure credentials loading
+- Azure credentials loading (both Service Principal or User)
 - GCP and GKE user ADC support
 - Plugins caching
 
@@ -25,7 +25,8 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 - python-pip
 - python-virtualenv
 - Terraform `>= 0.10`
-- An AWS S3 bucket and DynamoDB table for state centralization.
+- An AWS S3 bucket and DynamoDB table for state centralization in AWS.
+- An Azure Storage blob container for state centralization in Azure.
 
 ## Installation
 
@@ -60,16 +61,16 @@ The `templates` directory is used to store the state backend configuration templ
 
 The following files are required:
 
-- `templates/common/state.tf.jinja2`: S3 state backend configuration template.
+- `templates/{provider}/common/state.tf.jinja2`: AWS S3 or Azure Storage state backend configuration template.
 - `templates/{provider}/basic/main.tf`: the default Terraform configuration for new stacks. The whole `template/{provider}/basic` directory is copied on stack initialization.
 
-For example:
+For example with AWS:
 
 ```bash
-mkdir -p templates/common templates/aws/basic
+mkdir -p templates/aws/common templates/aws/basic
 
-# create state configuration template
-cat << 'EOF' > templates/common/state.tf.jinja2
+# create state configuration template with AWS backend
+cat << 'EOF' > templates/aws/common/state.tf.jinja2
 {% if region is not none %}
 {% set region = '/' + region + '/' %}
 {% else %}
@@ -96,6 +97,38 @@ provider "aws" {
   access_key = "${var.aws_access_key}"
   secret_key = "${var.aws_secret_key}"
   token      = "${var.aws_token}"
+}
+EOF
+```
+
+For example with Azure:
+
+```bash
+mkdir -p templates/azure/common templates/azure/basic
+
+# create state configuration template with Azure backend
+cat << 'EOF' > templates/azure/common/state.tf.jinja2
+{% if region is not none %}
+{% set region = '/' + region + '/' %}
+{% else %}
+{% set region = '/' %}
+{% endif %}
+
+terraform {
+  backend "azurerm" {
+    storage_account_name = "tfstatesprodclara"
+    container_name       = "terraform-states"
+
+    key = "{{ client_name }}/{{ account }}/{{ environment }}{{ region }}{{ stack }}/terraform.state"
+  }
+}
+EOF
+
+# create a default stack templates with support for Azure credentials
+cat << 'EOF' > templates/azure/basic/main.tf
+provider "azurerm" {
+  subscription_id = "${var.azure_subscription_id}"
+  tenant_id       = "${var.azure_tenant_id}"
 }
 EOF
 ```
@@ -156,7 +189,7 @@ terraform:
     client_name: my-client-name # arbitrary client name  
 ```
 
-Here is an example for an Azure stack configuration using user mode:
+Here is an example for a stack on Azure configuration using user mode:
 
 ```yaml
 ---
@@ -176,7 +209,7 @@ terraform:
 
 It is using your Claranet account linked to a Microsoft Account. You must have access to the Azure Subscription if you want to use Terraform.
 
-Here is an example for an Azure stack configuration using Service Principal mode:
+Here is an example for a stack on Azure configuration using Service Principal mode:
 
 ```yaml
 ---
@@ -298,7 +331,7 @@ After creating a `conf/${account}_${environment}_${region}_${stack}.yml` stack c
 # you can bootstrap using the templates/{provider}/basic stack
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap
 
-# or another stack template, for example : templates/aws/foobar
+# or another stack template, for example: templates/aws/foobar
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap aws/foobar
 ```
 
@@ -335,6 +368,12 @@ The default AWS credentials of the environment are set to point to the S3 state 
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_SESSION_TOKEN`
 
+### Azure storage state backend credentials
+
+When using Azure storage (container blob), needed credentials are set in the environment. Those credentials are acquired from the profile defined in `conf/state.yml`
+
+- `ARM_ACCESS_KEY`
+
 ### Azure Service Principal credentials
 
 Those AzureRM credentials are loaded only if you are using the Service Principal mode. They are acquired from the profile defined in `~/.azurerm/config.yml`
@@ -363,9 +402,9 @@ The `terraform['vars']` dictionary from the stack configuration is accessible as
 The profile defined in the stack configuration is used to acquire credentials accessible from Terraform.
 There is two supported providers, the variables which will be loaded depends on the used provider.
 
+- `TF_VAR_client_name`
 - `TF_VAR_aws_account`
 - `TF_VAR_aws_region`
-- `TF_VAR_client_name`
 - `TF_VAR_aws_access_key`
 - `TF_VAR_aws_secret_key`
 - `TF_VAR_aws_token`
@@ -382,4 +421,3 @@ The stack path is passed to Terraform. This is especially useful for resource na
 - `TF_VAR_environment`
 - `TF_VAR_region`
 - `TF_VAR_stack`
-  
