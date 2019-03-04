@@ -61,12 +61,12 @@ The `templates` directory is used to store the state backend configuration templ
 The following files are required:
 
 - `templates/common/state.tf.jinja2`: S3 state backend configuration template.
-- `templates/basic/main.tf`: the default Terraform configuration for new stacks. The whole `template/basic` directory is copied on stack initialization.
+- `templates/{provider}/basic/main.tf`: the default Terraform configuration for new stacks. The whole `template/{provider}/basic` directory is copied on stack initialization.
 
 For example:
 
 ```bash
-mkdir -p templates/common templates/basic
+mkdir -p templates/common templates/aws/basic
 
 # create state configuration template
 cat << 'EOF' > templates/common/state.tf.jinja2
@@ -90,7 +90,7 @@ resource "null_resource" "state-test" {}
 EOF
 
 # create a default stack templates with support for AWS assume role
-cat << 'EOF' > templates/basic/main.tf
+cat << 'EOF' > templates/aws/basic/main.tf
 provider "aws" {
   region     = "${var.aws_region}"
   access_key = "${var.aws_access_key}"
@@ -198,8 +198,8 @@ terraform:
 ```
 
 It is using the Service Principal's credentials to connect the Azure Subscription. This SP must have access to the subscription.
-The wrapper loads client_id and client_secret from your `azurerm_config.yml` located in `~/.azurem/config.yml`.
-Please check the example here: [https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master](https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master)
+The wrapper loads client_id and client_secret from your `config.yml` located in `~/.azurem/config.yml`.
+Please check the example here: [https://git.fr.clara.net/claranet/cloudnative/projects/terraform/base-template/tree/master/conf](https://git.fr.clara.net/claranet/cloudnative/projects/terraform/base-template/tree/master/conf)
 
 Here is an example for a GCP/GKE stack with user ADC and multiple GKE instances:
 
@@ -295,11 +295,11 @@ exit
 After creating a `conf/${account}_${environment}_${region}_${stack}.yml` stack configuration file you can bootstrap it.
 
 ```bash
-# you can bootstrap using the templates/basic stack
+# you can bootstrap using the templates/{provider}/basic stack
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap
 
-# or another stack template, for example: templates/foobar
-tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap foobar
+# or another stack template, for example : templates/aws/foobar
+tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap aws/foobar
 ```
 
 ### Working on a stack
@@ -382,3 +382,4 @@ The stack path is passed to Terraform. This is especially useful for resource na
 - `TF_VAR_environment`
 - `TF_VAR_region`
 - `TF_VAR_stack`
+  
