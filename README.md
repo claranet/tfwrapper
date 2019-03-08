@@ -15,7 +15,7 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 
 ## Drawbacks
 
-- AWS oriented (even if other providers do work)
+- AWS oriented (even if other cloud providers do work)
 - Setup overhead
 
 ## Dependencies
@@ -58,12 +58,12 @@ Stacks configurations are stored in the `conf` directory.
 
 The `templates` directory is used to store the state backend configuration template and the Terraform stack templates used to initialize new stack. Using a git submodule is recommended.
 
-The following files are required :
+The following files are required:
 
-- `templates/common/state.tf.jinja2` : S3 state backend configuration template.
-- `templates/basic/main.tf` : the default Terraform configuration for new stacks. The whole `template/basic` directory is copied on stack initialization.
+- `templates/common/state.tf.jinja2`: S3 state backend configuration template.
+- `templates/basic/main.tf`: the default Terraform configuration for new stacks. The whole `template/basic` directory is copied on stack initialization.
 
-For example :
+For example:
 
 ```bash
 mkdir -p templates/common templates/basic
@@ -114,7 +114,7 @@ EOF
 
 #### .gitignore
 
-Adding the following `.gitignore` at the root of your project is recommended :
+Adding the following `.gitignore` at the root of your project is recommended:
 
 ```bash
 cat << 'EOF' > .gitignore
@@ -132,7 +132,7 @@ tfwrapper uses yaml files stored in the `conf` directory of the project.
 
 ### Stacks configurations
 
-Stacks configuration files use the following naming convention :
+Stacks configuration files use the following naming convention:
 
 ```bash
 conf/${account}_${environment}_${region}_${stack}.yml
@@ -193,7 +193,7 @@ terraform:
   vars:
     subscription_id: *subscription_id
     directory_id: *directory_id
-    client_name: client-name #Replace it with the name of your client
+    client_name: client-name # Replace it with the name of your client
     #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
@@ -201,7 +201,7 @@ It is using the Service Principal's credentials to connect the Azure Subscriptio
 The wrapper loads client_id and client_secret from your `azurerm_config.yml` located in `~/.azurem/config.yml`.
 Please check the example here: [https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master](https://bitbucket.org/morea/terraform.base_template/src//conf/?at=master)
 
-Here is an example for a GCP/GKE stack with user ADC and multiple GKE instances :
+Here is an example for a GCP/GKE stack with user ADC and multiple GKE instances:
 
 ```yaml
 ---
@@ -240,14 +240,14 @@ aws:
 
 ## Stacks file structure
 
-Terraform stacks are organized based on their :
+Terraform stacks are organized based on their:
 
-- account : an account alias which may reference one or multiple providers accounts. `aws-production`, `azure-dev`, etc…
-- environment : `production`, `preproduction`, `dev`, etc…
-- region : `eu-west-1`, `westeurope`, `global`, etc…
-- stack : defaults to `default`. `web`, `admin`, `tools`, etc…
+- account: an account alias which may reference one or multiple providers accounts. `aws-production`, `azure-dev`, etc…
+- environment: `production`, `preproduction`, `dev`, etc…
+- region: `eu-west-1`, `westeurope`, `global`, etc…
+- stack: defaults to `default`. `web`, `admin`, `tools`, etc…
 
-The following file structure is enforced :
+The following file structure is enforced:
 
 ```
 # enforced file structure
@@ -292,13 +292,13 @@ exit
 
 ### Stack bootstrap
 
-After creating a `conf/${account}_${environment}_${region}_${stack}.yml` stack configuration file you c bootstrap it.
+After creating a `conf/${account}_${environment}_${region}_${stack}.yml` stack configuration file you can bootstrap it.
 
 ```bash
 # you can bootstrap using the templates/basic stack
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap
 
-# or another stack template, for example : templates/foobar
+# or another stack template, for example: templates/foobar
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap foobar
 ```
 
@@ -344,7 +344,7 @@ Those AzureRM credentials are loaded only if you are using the Service Principal
 
 ### GCP configuration
 
-Those GCP related variables are available from the environment when using the example configuration :
+Those GCP related variables are available from the environment when using the example configuration:
 
 - `TF_VAR_gcp_region`
 - `TF_VAR_gcp_gcp_zone`
@@ -352,7 +352,7 @@ Those GCP related variables are available from the environment when using the ex
 
 ### GKE configurations
 
-Each GKE instance has its own kubeconfig, the path to each configuration is available from the environment :
+Each GKE instance has its own kubeconfig, the path to each configuration is available from the environment:
 
 - `TF_VAR_gke_kubeconfig_${gke_cluster_name}`
 
