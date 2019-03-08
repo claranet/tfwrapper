@@ -34,6 +34,9 @@ from termcolor import colored
 RC_OK = 0
 RC_KO = 1
 RC_UNK = 2
+LIMIT_TERRAFORM_VERSION = 'v0.7.13'
+LIMIT_GITHUB_RELEASES = 42
+GITHUB_RELEASES = 'https://github.com/{}/releases'
 
 home_dir = str(Path.home())
 
@@ -270,6 +273,29 @@ def bootstrap(wrapper_config):
         return run_terraform('init', wrapper_config)
 
 
+def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
+    """Search release on github."""
+    result = requests.get(GITHUB_RELEASES.format(repo))
+    releases_count = 0
+    while result.status_code == 200:
+        releases = re.findall(r'<a href=\"/{}/releases/tag/.*\">(.*)</a>'.format(repo), result.text)
+        releases_count += len(releases)
+        for release in releases:
+            if re.match(r'^v{}\.{}$'.format(minor_version, patch if patch else patch_regex), release):
+                patch = patch or release.split('.')[-1]
+                return patch
+            # hard limit or it will takes too long time and terraform versions older than 0.7 do not respect naming convention
+            if terraform and any(LIMIT_TERRAFORM_VERSION in r for r in releases):
+                return None
+            elif releases_count > LIMIT_GITHUB_RELEASES:
+                return None
+        if len(releases) < 1:
+            # no more versions available
+            break
+        result = requests.get('{}?after={}'.format(GITHUB_RELEASES.format(repo), releases[-1:][0]))
+    return None
+
+
 def do_switchver(version):
     """
     Switch to desired terraform version if different from current one.
@@ -283,21 +309,11 @@ def do_switchver(version):
         raise ValueError('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
     minor_version, patch = m.group('minor', 'patch')
 
-    # Checking version existence and getting latest patch version if not defined
-    found = False
-    releases = requests.get('https://api.github.com/repos/hashicorp/terraform/releases').json()
-    if type(releases) is list:
-        for release in releases:
-            if re.match(r'^v{}\.{}$'.format(minor_version, patch if patch else patch_regex), release['tag_name']):
-                found = True
-                patch = patch or release['tag_name'].split('.')[-1]
-                break
+    repo = 'hashicorp/terraform'
+    patch = search_on_github(repo, minor_version, patch_regex, patch)
 
-        if not found:
-            raise ValueError("The terraform version {} does not exist".format(version))
-    else:
-        message = releases.get('message', 'Unknown error')
-        logger.warning("Failed to retrieve terraform releases from github: {}".format(message))
+    if not patch:
+        raise ValueError("The release version {} for terraform does not exist".format(version))
 
     full_version = "{}.{}".format(minor_version, patch)
 
@@ -361,16 +377,9 @@ def download_custom_provider(provider_name, provider_version):
                          'it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
     minor_version, patch, custom = m.groups()
 
-    github_api = 'https://api.github.com/repos/{}/releases'.format(provider_name)
-    releases = requests.get(github_api).json()
-    found = False
-    for release in releases:
-        if re.match(r'^v{}\.{}'.format(minor_version, patch if patch else '[0-9]+'), release['tag_name']):
-            found = True
-            patch = patch or release['tag_name'].split('.')[-1]
-            break
+    patch = search_on_github(provider_name, minor_version, r'[0-9]+(-[a-z_-]+)?', patch, terraform=False)
 
-    if not found:
+    if not patch:
         raise ValueError("The provider version '{}-{}' does not exist".format(provider_name, provider_version))
 
     full_version = "{}.{}".format(minor_version, patch)
@@ -404,37 +413,37 @@ def download_custom_provider(provider_name, provider_version):
 
 
 def adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=None, region=None):
-        """Provision kubeconfig for a given GKE instance using ADC."""
-        cmd_env = deepcopy(os.environ)
-        cmd_env['CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS'] = 'true'
-        cmd_env['CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE'] = adc_path
-        cmd_env['KUBECONFIG'] = kubeconfig_path
+    """Provision kubeconfig for a given GKE instance using ADC."""
+    cmd_env = deepcopy(os.environ)
+    cmd_env['CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS'] = 'true'
+    cmd_env['CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE'] = adc_path
+    cmd_env['KUBECONFIG'] = kubeconfig_path
 
-        logger.info('Looking for {} GKE credentials.'.format(gke_name))
+    logger.info('Looking for {} GKE credentials.'.format(gke_name))
 
-        if zone is not None:
-            command = ['gcloud', 'container', 'clusters', 'get-credentials', gke_name,
-                       '--project', project,
-                       '--zone', zone]
-        elif region is not None:
-            command = ['gcloud', 'container', 'clusters', 'get-credentials', gke_name,
-                       '--project', project,
-                       '--region', region]
-        else:
-            logger.error('You must specify a zone or region for {} GKE instance.'.format(gke_name))
+    if zone is not None:
+        command = ['gcloud', 'container', 'clusters', 'get-credentials', gke_name,
+                   '--project', project,
+                   '--zone', zone]
+    elif region is not None:
+        command = ['gcloud', 'container', 'clusters', 'get-credentials', gke_name,
+                   '--project', project,
+                   '--region', region]
+    else:
+        logger.error('You must specify a zone or region for {} GKE instance.'.format(gke_name))
+        sys.exit(RC_KO)
+
+    if not Path(kubeconfig_path).is_file():
+        logger.warning('Could not find GKE credentials for {}, configuring new credentials.'.format(gke_name))
+
+        try:
+            subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env)
+        except subprocess.CalledProcessError:
+            logger.error('Could not configure {} GKE credentials.'.format(gke_name))
             sys.exit(RC_KO)
-
-        if not Path(kubeconfig_path).is_file():
-            logger.warning('Could not find GKE credentials for {}, configuring new credentials.'.format(gke_name))
-
-            try:
-                subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env)
-            except subprocess.CalledProcessError:
-                logger.error('Could not configure {} GKE credentials.'.format(gke_name))
-                sys.exit(RC_KO)
-            logger.info('{} GKE credentials configured.'.format(gke_name))
-        else:
-            logger.info('Found {} GKE credentials.'.format(gke_name))
+        logger.info('{} GKE credentials configured.'.format(gke_name))
+    else:
+        logger.info('Found {} GKE credentials.'.format(gke_name))
 
 
 def run_terraform(action, wrapper_config):
