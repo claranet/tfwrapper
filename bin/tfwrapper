@@ -641,6 +641,9 @@ def main():
 
     # argparse
     parser = argparse.ArgumentParser(description='Terraform wrapper.')
+    parser.add_argument("-d", "--debug",
+                        action='store_true', default=False,
+                        help="Enable debug output")
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
@@ -748,6 +751,9 @@ def main():
     parser_switchver.add_argument('version', nargs=1, help='terraform version to use')
 
     args = parser.parse_args()
+
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
 
     if args.subcommand not in ('switchver',):
         # process args
