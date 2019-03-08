@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import pickle
+import platform
 import random
 import re
 import shutil
@@ -39,6 +40,9 @@ LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = 'https://github.com/{}/releases'
 
 home_dir = str(Path.home())
+
+# platform
+platform_system = platform.system().lower()
 
 # setup logging parameters
 LOG_FORMAT = "{log_color}{levelname: <7}{reset} {purple}tfwrapper{reset} : {bold}{message}{reset}"
@@ -341,8 +345,8 @@ def do_switchver(version):
         logger.warning("Version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
         r = requests.get(
-            'https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_linux_amd64.zip'.format(
-                full_version=full_version),
+            'https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform_system}_amd64.zip'.format(
+                full_version=full_version, platform_system=platform_system),
             stream=True)
         with open(tmp_file, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=128):
@@ -385,7 +389,7 @@ def download_custom_provider(provider_name, provider_version):
     full_version = "{}.{}".format(minor_version, patch)
     # Getting current version
 
-    plugins_path = os.path.expanduser('~/.terraform.d/plugins/linux_amd64')
+    plugins_path = os.path.expanduser('~/.terraform.d/plugins/{platform_system}_amd64'.format(platform_system=platform_system))
     os.makedirs(plugins_path, exist_ok=True)
     provider_short_name = provider_name.split('/', 1)[1]
     bin_name = '{n}_{v}'.format(n=provider_short_name, v=full_version)
@@ -396,8 +400,8 @@ def download_custom_provider(provider_name, provider_version):
         logger.warning("Provider version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
         r = requests.get(
-            'https://github.com/{p}/releases/download/v{v}/{b}_linux_amd64.zip'.format(
-                p=provider_name, v=full_version, b=bin_name),
+            'https://github.com/{p}/releases/download/v{v}/{b}_{platform_system}_amd64.zip'.format(
+                p=provider_name, v=full_version, b=bin_name, platform_system=platform_system),
             stream=True)
         with open(tmp_file, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=128):
