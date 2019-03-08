@@ -32,17 +32,27 @@ from dateutil import parser as dateutil_parser
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
+
+def get_architecture():
+    """Get system architecture name normalized for terraform."""
+    platform_system = platform.machine()
+    if 'arm' in platform_system:
+        return 'arm'
+    if platform_system in ('x86_64', 'darwin'):
+        return 'amd64'
+    return '386'
+
+
 RC_OK = 0
 RC_KO = 1
 RC_UNK = 2
 LIMIT_TERRAFORM_VERSION = 'v0.7.13'
 LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = 'https://github.com/{}/releases'
+ARCH_NAME = get_architecture()
+PLATFORM_SYSTEM = platform.system().lower()
 
 home_dir = str(Path.home())
-
-# platform
-platform_system = platform.system().lower()
 
 # setup logging parameters
 LOG_FORMAT = "{log_color}{levelname: <7}{reset} {purple}tfwrapper{reset} : {bold}{message}{reset}"
@@ -345,8 +355,8 @@ def do_switchver(version):
         logger.warning("Version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
         r = requests.get(
-            'https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform_system}_amd64.zip'.format(
-                full_version=full_version, platform_system=platform_system),
+            'https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform}_{arch}.zip'.format(
+                full_version=full_version, platform=PLATFORM_SYSTEM, arch=ARCH_NAME),
             stream=True)
         with open(tmp_file, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=128):
@@ -389,7 +399,7 @@ def download_custom_provider(provider_name, provider_version):
     full_version = "{}.{}".format(minor_version, patch)
     # Getting current version
 
-    plugins_path = os.path.expanduser('~/.terraform.d/plugins/{platform_system}_amd64'.format(platform_system=platform_system))
+    plugins_path = os.path.expanduser('~/.terraform.d/plugins/{platform}_{arch}'.format(platform=PLATFORM_SYSTEM, arch=ARCH_NAME))
     os.makedirs(plugins_path, exist_ok=True)
     provider_short_name = provider_name.split('/', 1)[1]
     bin_name = '{n}_{v}'.format(n=provider_short_name, v=full_version)
@@ -400,8 +410,8 @@ def download_custom_provider(provider_name, provider_version):
         logger.warning("Provider version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
         r = requests.get(
-            'https://github.com/{p}/releases/download/v{v}/{b}_{platform_system}_amd64.zip'.format(
-                p=provider_name, v=full_version, b=bin_name, platform_system=platform_system),
+            'https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.zip'.format(
+                p=provider_name, v=full_version, b=bin_name, platform=PLATFORM_SYSTEM, arch=ARCH_NAME),
             stream=True)
         with open(tmp_file, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=128):
