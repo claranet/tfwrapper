@@ -1,3 +1,13 @@
+# 6.5.0 (Unreleased)
+
+UPDATES:
+
+  * TER-323: Do not use Github API to avoid rate limiting
+  * TER-347: Upgrade core pip dependencies and split Azure CLI dependencies
+  * TER-358: Support terraform and providers pre-releases with version switching feature
+  * TER-369: Refactoring
+  * TER-382: Add `-d`/`--debug` output option
+
 # 6.4.1 (25/01/2019)
 
 UPDATES:
