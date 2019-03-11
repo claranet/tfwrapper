@@ -26,7 +26,7 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 - python-virtualenv
 - Terraform `>= 0.10`
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
-- An Azure Storage blob container for state centralization in Azure.
+- An Azure Blob Storage container for state centralization in Azure.
 
 ## Installation
 
@@ -61,7 +61,7 @@ The `templates` directory is used to store the state backend configuration templ
 
 The following files are required:
 
-- `templates/{provider}/common/state.tf.jinja2`: AWS S3 or Azure Storage state backend configuration template.
+- `templates/{provider}/common/state.tf.jinja2`: AWS S3 or Azure Blob Storage state backend configuration template.
 - `templates/{provider}/basic/main.tf`: the default Terraform configuration for new stacks. The whole `template/{provider}/basic` directory is copied on stack initialization.
 
 For example with AWS:
@@ -116,7 +116,7 @@ cat << 'EOF' > templates/azure/common/state.tf.jinja2
 
 terraform {
   backend "azurerm" {
-    storage_account_name = "tfstatesprodclara"
+    storage_account_name = "my-centralized-terraform-states-account"
     container_name       = "terraform-states"
 
     key = "{{ client_name }}/{{ account }}/{{ environment }}{{ region }}{{ stack }}/terraform.state"
