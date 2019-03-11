@@ -262,7 +262,7 @@ def bootstrap(wrapper_config):
         else:
             template = wrapper_config['template'].lower()
             if not template.startswith(stack_type):
-                logger.error('Bad Cloud Provider: you cannot bootstrap a stack template "{}" with {} provider'.format(
+                logger.error('Unsupported Cloud Provider: you cannot bootstrap a stack template "{}" with {} provider'.format(
                              template, stack_type))
                 sys.exit(RC_KO)
 
