@@ -148,7 +148,7 @@ def load_wrapper_config(args):
 
     # load state configuration
     with open(os.path.join(wrapper_config['confdir'], 'state.yml'), 'r') as f:
-        state_config = yaml.load(f)
+        state_config = yaml.safe_load(f)
 
     if 'azure' in state_config:
         wrapper_config['state_backend_type'] = 'azure'
@@ -174,7 +174,7 @@ def load_stack_config(confdir, account, environment, region, stack):
         stack_config_file = '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
 
     with open(stack_config_file, 'r') as f:
-        stack_config = yaml.load(f)
+        stack_config = yaml.safe_load(f)
 
     try:
         stack_configuration_schema.validate(stack_config)
