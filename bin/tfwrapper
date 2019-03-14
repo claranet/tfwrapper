@@ -335,8 +335,11 @@ def bootstrap(wrapper_config):
     if not os.path.isfile('{}/state.tf'.format(stack_path)):
         client_name = stack_config['terraform']['vars'].get('client_name', account)
 
+        template_path = '{}/templates/{}/common'.format(rootdir, state_backend_type)
+        logger.debug("Using template path {}".format(template_path))
+
         jinja2_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader('{}/templates/{}/common'.format(rootdir, state_backend_type)),
+            loader=jinja2.FileSystemLoader(template_path),
             lstrip_blocks=True,
             trim_blocks=True
         )
