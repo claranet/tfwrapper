@@ -980,7 +980,8 @@ def main():
         state_credentials = state_session.get_credentials().get_frozen_credentials()
         os.environ['AWS_ACCESS_KEY_ID'] = state_credentials.access_key
         os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
-        os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
+        if state_credentials.token:
+            os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
     else:
         wrapper_config = deepcopy(vars(args))
 
