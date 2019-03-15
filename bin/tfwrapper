@@ -150,13 +150,13 @@ def load_wrapper_config(args):
     with open(os.path.join(wrapper_config['confdir'], 'state.yml'), 'r') as f:
         state_config = yaml.safe_load(f)
 
-    wrapper_config['state_backend_type'] = 'aws'
     if 'azure' in state_config:
         wrapper_config['state_backend_type'] = 'azure'
         wrapper_config['state_subscription'] = state_config['azure']['general']['subscription_uid']
         wrapper_config['state_rg'] = state_config['azure']['general']['resource_group_name']
         wrapper_config['state_storage'] = state_config['azure']['general']['storage_account_name']
     elif 'aws' in state_config:
+        wrapper_config['state_backend_type'] = 'aws'
         wrapper_config['state_account'] = state_config['aws']['general']['account']
         wrapper_config['state_region'] = state_config['aws']['general']['region']
         wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
@@ -242,7 +242,7 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
     return storage_keys['key1']
 
 
-def get_session(rootdir, account, region, profile, backend_type='aws', conf=None):
+def get_session(rootdir, account, region, profile, backend_type=None, conf=None):
     """Get/create session credentials for supported providers."""
     if backend_type == 'aws':
         # Get or create boto cached session.
@@ -296,7 +296,7 @@ def bootstrap(wrapper_config):
     environment = wrapper_config['environment']
     region = wrapper_config['region']
     stack = wrapper_config['stack']
-    state_backend_type = wrapper_config.get('state_backend_type', 'aws')
+    state_backend_type = wrapper_config.get('state_backend_type', None)
 
     stack_config = load_stack_config(confdir, account, environment, region, stack)
 
@@ -330,7 +330,7 @@ def bootstrap(wrapper_config):
         os.makedirs(stack_path)
 
     # boostrap state.tf from jinja2 template
-    if not os.path.isfile('{}/state.tf'.format(stack_path)):
+    if not os.path.isfile('{}/state.tf'.format(stack_path)) and state_backend_type:
         client_name = stack_config['terraform']['vars'].get('client_name', account)
 
         template_path = '{}/templates/{}/common'.format(rootdir, state_backend_type)
@@ -352,7 +352,7 @@ def bootstrap(wrapper_config):
         with open('{}/state.tf'.format(stack_path), "w") as f:
             f.write(state_conf)
 
-        return run_terraform('init', wrapper_config)
+    return run_terraform('init', wrapper_config)
 
 
 def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
@@ -866,7 +866,7 @@ def main():
 
         # get sessions
         logger.info('Getting state session')
-        state_backend_type = wrapper_config.get('state_backend_type', 'aws')
+        state_backend_type = wrapper_config.get('state_backend_type', None)
         state_session = get_session(wrapper_config['rootdir'],
                                     wrapper_config.get('state_account'),
                                     wrapper_config.get('state_region'),
@@ -882,7 +882,8 @@ def main():
             stack_session = get_session(wrapper_config['rootdir'],
                                         stack_config['aws']['general']['account'],
                                         stack_config['aws']['general']['region'],
-                                        stack_config['aws']['credentials']['profile'])
+                                        stack_config['aws']['credentials']['profile'],
+                                        'aws')
 
             # set terraform environment variables for AWS Stack
             stack_credentials = stack_session.get_credentials().get_frozen_credentials()
