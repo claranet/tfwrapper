@@ -1,6 +1,5 @@
 boto3
 colorlog
-python-dateutil
 jinja2
 pip-tools
 pyyaml
