@@ -4,12 +4,14 @@ UPDATES:
 
   * TER-323: Do not use Github API to avoid rate limiting
   * TER-347: Upgrade core pip dependencies and split Azure CLI dependencies
-  * TER-354: Support downloading terraform and providers binaries for other platforms and architectures
+  * TER-352: Update README
+  * TER-354: Support downloading terraform and providers binaries for other platforms (`darwin`, `freebsd`, `linux`, `openbsd` and `windows`) and architectures (`amd64`, `arm` and `386`)
   * TER-358: Support terraform and providers pre-releases with version switching feature
   * TER-364: Support Azure Blob Storage as a terraform state backend
   * TER-368: Split stack templates per cloud provider
   * TER-369: Refactoring
   * TER-377: Support AWS profiles without assume role
+  * TER-381: Update `pyyaml` to 5.1 and use `yaml.safe_load`
   * TER-382: Add `-d`/`--debug` output option
   * TER-383: Improve `version` and `providers` subcommands
 
