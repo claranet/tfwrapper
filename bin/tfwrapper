@@ -2,8 +2,6 @@
 """Python wrapper for Terraform."""
 
 import argparse
-import codecs
-import json
 import logging
 import os
 import pickle
@@ -19,7 +17,6 @@ import time
 import sys
 import zipfile
 from copy import deepcopy
-from datetime import datetime
 from pathlib import Path
 
 import boto3
@@ -28,7 +25,6 @@ import colorlog
 import jinja2
 import requests
 import yaml
-from dateutil import parser as dateutil_parser
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
@@ -148,11 +144,18 @@ def load_wrapper_config(args):
 
     # load state configuration
     with open(os.path.join(wrapper_config['confdir'], 'state.yml'), 'r') as f:
-        state_config = yaml.load(f)
+        state_config = yaml.safe_load(f)
 
-    wrapper_config['state_account'] = state_config['aws']['general']['account']
-    wrapper_config['state_region'] = state_config['aws']['general']['region']
-    wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
+    if 'azure' in state_config:
+        wrapper_config['state_backend_type'] = 'azure'
+        wrapper_config['state_subscription'] = state_config['azure']['general']['subscription_uid']
+        wrapper_config['state_rg'] = state_config['azure']['general']['resource_group_name']
+        wrapper_config['state_storage'] = state_config['azure']['general']['storage_account_name']
+    elif 'aws' in state_config:
+        wrapper_config['state_backend_type'] = 'aws'
+        wrapper_config['state_account'] = state_config['aws']['general']['account']
+        wrapper_config['state_region'] = state_config['aws']['general']['region']
+        wrapper_config['state_profile'] = state_config['aws']['credentials']['profile']
 
     return wrapper_config
 
@@ -165,7 +168,7 @@ def load_stack_config(confdir, account, environment, region, stack):
         stack_config_file = '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
 
     with open(stack_config_file, 'r') as f:
-        stack_config = yaml.load(f)
+        stack_config = yaml.safe_load(f)
 
     try:
         stack_configuration_schema.validate(stack_config)
@@ -176,10 +179,19 @@ def load_stack_config(confdir, account, environment, region, stack):
     return stack_config
 
 
-def get_session(rootdir, account, region, profile):
-    """Get or create cached session."""
-    session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, account, profile)
+def _check_azure_auth(subscription_id):
+    """Check if user is authenticated and have access to the subscription."""
+    from azure.common.credentials import get_cli_profile
+    try:
+        profile = get_cli_profile()
+        profile.get_raw_token(subscription=subscription_id)
+        return True
+    except Exception:
+        return False
 
+
+def _get_aws_session(session_cache_file, region, profile):
+    """Get or create boto cached session."""
     if (os.path.isfile(session_cache_file) and
             time.time() - os.stat(session_cache_file).st_mtime < 2700):
         with open(session_cache_file, 'rb') as f:
@@ -206,6 +218,39 @@ def get_session(rootdir, account, region, profile):
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT,
                                mode=0o600), 'wb') as f:
             pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
+    return session
+
+
+def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile, azure_storage):
+    """Retrieve Azure storage access keys."""
+    from azure.common.credentials import get_cli_profile
+    from azure.mgmt.storage import StorageManagementClient
+
+    if not _check_azure_auth(azure_subscription):
+        logger.error('Error while getting Azure token, try logging you in with "az login" and '
+                     'check that you are authorized on the Terraform state subscription.')
+        sys.exit(RC_KO)
+
+    profile = get_cli_profile()
+    credentials, current_sub, tenant = profile.get_login_credentials(subscription_id=azure_subscription)
+
+    storage_client = StorageManagementClient(credentials, azure_subscription)
+    storage_keys = storage_client.storage_accounts.list_keys(azure_rg_profile, azure_storage)
+    storage_keys = {v.key_name: v.value for v in storage_keys.keys}
+    return storage_keys['key1']
+
+
+def get_session(rootdir, account, region, profile, backend_type=None, conf=None):
+    """Get/create session credentials for supported providers."""
+    if backend_type == 'aws':
+        # Get or create boto cached session.
+        session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, account, profile)
+        session = _get_aws_session(session_cache_file, region, profile)
+    elif backend_type == 'azure':
+        session_cache_file = '{}/.run/session_cache_{}_{}.pickle'.format(rootdir, conf['state_subscription'], conf['state_rg'])
+        session = _get_azure_session(session_cache_file, conf['state_subscription'], conf['state_rg'], conf['state_storage'])
+    else:
+        session = None
 
     return session
 
@@ -249,6 +294,7 @@ def bootstrap(wrapper_config):
     environment = wrapper_config['environment']
     region = wrapper_config['region']
     stack = wrapper_config['stack']
+    state_backend_type = wrapper_config.get('state_backend_type', None)
 
     stack_config = load_stack_config(confdir, account, environment, region, stack)
 
@@ -282,11 +328,14 @@ def bootstrap(wrapper_config):
         os.makedirs(stack_path)
 
     # boostrap state.tf from jinja2 template
-    if not os.path.isfile('{}/state.tf'.format(stack_path)):
+    if not os.path.isfile('{}/state.tf'.format(stack_path)) and state_backend_type:
         client_name = stack_config['terraform']['vars'].get('client_name', account)
 
+        template_path = '{}/templates/{}/common'.format(rootdir, state_backend_type)
+        logger.debug("Using template path {}".format(template_path))
+
         jinja2_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader('{}/templates/common'.format(rootdir)),
+            loader=jinja2.FileSystemLoader(template_path),
             lstrip_blocks=True,
             trim_blocks=True
         )
@@ -301,7 +350,7 @@ def bootstrap(wrapper_config):
         with open('{}/state.tf'.format(stack_path), "w") as f:
             f.write(state_conf)
 
-        return run_terraform('init', wrapper_config)
+    return run_terraform('init', wrapper_config)
 
 
 def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
@@ -815,10 +864,12 @@ def main():
 
         # get sessions
         logger.info('Getting state session')
+        state_backend_type = wrapper_config.get('state_backend_type', None)
         state_session = get_session(wrapper_config['rootdir'],
-                                    wrapper_config['state_account'],
-                                    wrapper_config['state_region'],
-                                    wrapper_config['state_profile'])
+                                    wrapper_config.get('state_account'),
+                                    wrapper_config.get('state_region'),
+                                    wrapper_config.get('state_profile'),
+                                    state_backend_type, wrapper_config)
 
         terraform_vars = stack_config['terraform']['vars']
         terraform_vars['environment'] = wrapper_config['environment']
@@ -829,9 +880,10 @@ def main():
             stack_session = get_session(wrapper_config['rootdir'],
                                         stack_config['aws']['general']['account'],
                                         stack_config['aws']['general']['region'],
-                                        stack_config['aws']['credentials']['profile'])
+                                        stack_config['aws']['credentials']['profile'],
+                                        'aws')
 
-            # set terraform environment variables
+            # set terraform environment variables for AWS Stack
             stack_credentials = stack_session.get_credentials().get_frozen_credentials()
             terraform_vars['account'] = wrapper_config['account']
             terraform_vars['region'] = wrapper_config['region']
@@ -905,68 +957,9 @@ def main():
                     logger.error('Please set the `azure.general.directory_id` variable in your stack configuration.')
                     sys.exit(RC_KO)
 
-                azure_path = os.path.join(os.path.abspath(home_dir), '.azure')
-                if not os.path.exists(os.path.join(azure_path, 'accessTokens.json')):
-                    logger.error('Please run "az login"')
-                    sys.exit(RC_KO)
-
-                with open(os.path.join(azure_path, 'accessTokens.json'), 'r') as f1:
-                    try:
-                        access_token_obj = json.load(f1)
-                    except json.JSONDecodeError as errorloadjson:
-                        logger.error('Unexpected error while loading your accessTokens.json file: {}'.format(errorloadjson.msg))
-                        sys.exit(RC_KO)
-                    if access_token_obj is None or len(access_token_obj) == 0:
-                        logger.error('You do not have access to these resources.')
-                        sys.exit(RC_KO)
-
-                with codecs.open(os.path.join(azure_path, 'azureProfile.json'), 'r', 'utf-8-sig') as f2:
-                    try:
-                        azure_profile_obj = json.load(f2)
-                    except json.JSONDecodeError as errorloadprofile:
-                        logger.error('Unexpected error while loading your azureProfile.json file: '
-                                     '{}'.format(errorloadprofile.ms))
-                        sys.exit(RC_KO)
-                    if str(terraform_vars['azure_subscription_id']).lower() not in str(azure_profile_obj):
-                        logger.error('Your subscription did not match with your azure profiles, '
-                                     'you may not have access to the subscription or try running "az login".')
-                        sys.exit(RC_KO)
-
-                up_to_date_token = False
-                for token in access_token_obj:
-                    # Force TZ to None because token can be set with or without TZ (yes it's insane)
-                    if (dateutil_parser.parse(token['expiresOn']).replace(tzinfo=None)
-                            > datetime.now().replace(tzinfo=None)):
-                        up_to_date_token = True
-                        continue
-
-                if not up_to_date_token:
-                    logger.error('Your token is outdated, try running "az login".')
-                    sys.exit(RC_KO)
-
-                command = ['az', 'account', 'get-access-token']
-                az_token_process = subprocess.run(command,
-                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                                  universal_newlines=True)
-
-                if az_token_process.returncode == 0:
-                    result_json = str(az_token_process.stdout)
-                    az_token = json.loads(result_json)
-                    az_token_subscription = az_token['subscription']
-
-                    if az_token_subscription != terraform_vars['azure_subscription_id']:
-                        command = ['az', 'account', 'set', '--subscription', terraform_vars['azure_subscription_id']]
-                        az_account_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                        if az_account_process.returncode != 0:
-                            logger.error('Could not switch to {} subscription: {}'.format(
-                                         terraform_vars['azure_subscription_id'],
-                                         az_account_process.stderr.decode("utf-8")))
-                            sys.exit(RC_KO)
-                        else:
-                            logger.warning('Switched to {} subscription'.format(terraform_vars['azure_subscription_id']))
-                else:
-                    logger.error('Could not get an access token: {}'.format(az_token_process.stderr.decode("utf-8")))
+                if not _check_azure_auth(terraform_vars['azure_subscription_id']):
+                    logger.error('Error while getting Azure token, try logging you in with "az login" '
+                                 'and  check that you are authorized on this subscription.')
                     sys.exit(RC_KO)
             elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
                 logger.info('Using Azure Service Principal mode')
@@ -993,12 +986,19 @@ def main():
         set_terraform_vars(terraform_vars)
         os.environ['TF_PLUGIN_CACHE_DIR'] = wrapper_config['plugin_cache_dir']
 
-        # set AWS state centralization environment variables
-        state_credentials = state_session.get_credentials().get_frozen_credentials()
-        os.environ['AWS_ACCESS_KEY_ID'] = state_credentials.access_key
-        os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
-        if state_credentials.token:
-            os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
+        if state_backend_type == 'aws':
+            # set AWS state centralization environment variables
+            state_credentials = state_session.get_credentials().get_frozen_credentials()
+            os.environ['AWS_ACCESS_KEY_ID'] = state_credentials.access_key
+            os.environ['AWS_SECRET_ACCESS_KEY'] = state_credentials.secret_key
+            if state_credentials.token:
+                os.environ['AWS_SESSION_TOKEN'] = state_credentials.token
+        elif state_backend_type == 'azure':
+            # set Azure state centralization environment variables
+            os.environ['ARM_ACCESS_KEY'] = state_session
+            os.environ['TF_VAR_azure_state_access_key'] = state_session
+        else:
+            logger.info('Unsupported state backend type. Let terraform handle with its default behavior.')
     else:
         wrapper_config = deepcopy(vars(args))
 

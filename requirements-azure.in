@@ -1,0 +1,3 @@
+azure-common
+azure-cli==2.0.51 # Pinned version for now
+azure-mgmt-storage
