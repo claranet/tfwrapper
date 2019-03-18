@@ -16,7 +16,7 @@ jinja2==2.10
 jmespath==0.9.3           # via boto3, botocore
 markupsafe==1.1.0         # via jinja2
 pip-tools==3.3.2
-python-dateutil==2.7.5
+python-dateutil==2.7.5    # via botocore
 pyyaml==5.1
 requests==2.21.0
 s3transfer==0.1.13        # via boto3
