@@ -97,6 +97,11 @@ stack_configuration_schema = Schema({
 })
 
 
+def error(message):
+    """Raise a ValueError with an help message appended to the original message."""
+    raise ValueError("{}\n\nUse -h to show the help message".format(message))
+
+
 def load_wrapper_config(args):
     """Load wrapper config from args. Validate args and autodetect current stack."""
     # convert args to dict
@@ -107,13 +112,15 @@ def load_wrapper_config(args):
     while parents_count < 5:
         if os.path.isdir('../' * parents_count + wrapper_config['confdir']):
             wrapper_config['confdir'] = '../' * parents_count + wrapper_config['confdir']
+            logger.debug("Detected confdir at '{}'".format(wrapper_config['confdir']))
             break
         parents_count += 1
 
     if parents_count == 5:
-        raise ValueError("Cannot find configuration directory '{}' in this directory or above".format(wrapper_config['confdir']))
+        error("Cannot find configuration directory '{}' in this directory or above".format(wrapper_config['confdir']))
 
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
+    logger.debug("Detected rootdir at '{}'".format(wrapper_config['rootdir']))
 
     # detect parent dirs
     count_up = 0
@@ -136,14 +143,17 @@ def load_wrapper_config(args):
 
     for element in parents_list:
         if wrapper_config[element] is None:
-            raise ValueError("{} cannot be autodetected. Exiting...".format(element))
+            error("{} cannot be autodetected. Exiting...".format(element))
 
     # support both _global (fs) and global (param)
     if wrapper_config['environment'] == '_global':
         wrapper_config['environment'] = 'global'
+    logger.debug("Detected environment '{}'".format(wrapper_config['environment']))
 
     # load state configuration
-    with open(os.path.join(wrapper_config['confdir'], 'state.yml'), 'r') as f:
+    config_file = os.path.join(wrapper_config['confdir'], 'state.yml')
+    with open(config_file, 'r') as f:
+        logger.debug("Loading state config from '{}'".format(config_file))
         state_config = yaml.safe_load(f)
 
     if 'azure' in state_config:
@@ -386,14 +396,14 @@ def do_switchver(version):
     patch_regex = r'[0-9]+((-alpha|-beta)[0-9]+)?'
     m = re.match(r'^(?P<minor>{})(\.(?P<patch>{}))?$'.format(minor_version_regex, patch_regex), version)
     if not m:
-        raise ValueError('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
+        error('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
     minor_version, patch = m.group('minor', 'patch')
 
     repo = 'hashicorp/terraform'
     patch = search_on_github(repo, minor_version, patch_regex, patch)
 
     if not patch:
-        raise ValueError("The release version {} for terraform does not exist".format(version))
+        error("The release version {} for terraform does not exist".format(version))
 
     full_version = "{}.{}".format(minor_version, patch)
 
@@ -449,18 +459,18 @@ def download_custom_provider(provider_name, provider_version):
 
     r = requests.get(github_endpoint)
     if r.status_code != 200:
-        raise ValueError("The terraform provider {} does not exist ({})".format(provider_name, github_endpoint))
+        error("The terraform provider {} does not exist ({})".format(provider_name, github_endpoint))
 
     m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$', provider_version)
     if not m:
-        raise ValueError('The provider version does not seem correct, '
-                         'it should be a version number like "X.Y", "X.Y.Z" or "X.Y.Z-custom"')
+        error('The provider version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or '
+              '"X.Y.Z-custom"')
     minor_version, patch, custom = m.groups()
 
     patch = search_on_github(provider_name, minor_version, r'[0-9]+(-[a-z_-]+)?', patch, terraform=False)
 
     if not patch:
-        raise ValueError("The provider version '{}-{}' does not exist".format(provider_name, provider_version))
+        error("The provider version '{}-{}' does not exist".format(provider_name, provider_version))
 
     full_version = "{}.{}".format(minor_version, patch)
     # Getting current version
@@ -678,7 +688,6 @@ def terraform_plan(wrapper_config):
 
 def terraform_providers(wrapper_config):
     """Terraform providers wrapper function."""
-    bootstrap(wrapper_config)
     return run_terraform('providers', wrapper_config)
 
 
@@ -844,17 +853,17 @@ def main():
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    if args.subcommand not in ('switchver',):
-        # process args
-        try:
-            wrapper_config = load_wrapper_config(args)
-        except ValueError as e:
-            logger.error(e)
-            sys.exit(RC_KO)
-        except Exception:
-            logger.exception('Unknown error')
-            sys.exit(RC_UNK)
+    # process args
+    try:
+        wrapper_config = load_wrapper_config(args)
+    except ValueError as e:
+        logger.error(e)
+        sys.exit(RC_KO)
+    except Exception:
+        logger.exception('Unknown error')
+        sys.exit(RC_UNK)
 
+    if args.subcommand not in ('switchver', 'version',):
         # load config
         stack_config = load_stack_config(wrapper_config['confdir'],
                                          wrapper_config['account'],
@@ -999,14 +1008,12 @@ def main():
             os.environ['TF_VAR_azure_state_access_key'] = state_session
         else:
             logger.info('Unsupported state backend type. Let terraform handle with its default behavior.')
-    else:
-        wrapper_config = deepcopy(vars(args))
 
     returncode = None
 
     if hasattr(args, 'func'):
         # check terraform version
-        if args.subcommand != "switchver":
+        if args.subcommand not in ('providers', 'switchver', 'version',):
             tf_version = stack_config['terraform']['vars'].get('version')
             if tf_version:
                 do_switchver(tf_version)
