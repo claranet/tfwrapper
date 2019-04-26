@@ -562,6 +562,11 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
+    use_landscape = False
+    if action == "plan" and wrapper_config.get('pretty'):
+        use_landscape = True
+        command += ["|", "landscape"]
+
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
                    else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
 
@@ -569,7 +574,8 @@ def run_terraform(action, wrapper_config):
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
         path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
 
-    with subprocess.Popen(command, cwd=working_dir, env=cmd_env) as process:
+    with subprocess.Popen(" ".join(command) if use_landscape else command,
+                          cwd=working_dir, env=cmd_env, shell=use_landscape) as process:
         try:
             process.communicate()
         except KeyboardInterrupt:
@@ -751,6 +757,9 @@ def main():
     parser.add_argument("-d", "--debug",
                         action='store_true', default=False,
                         help="Enable debug output")
+    parser.add_argument("-l", "--pretty",
+                        action='store_true', default=False,
+                        help="Enable landscape pretty print output (for 'plan' action only)")
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
