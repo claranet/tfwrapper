@@ -1,6 +1,6 @@
 # tfwrapper
 
-tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
+`tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
 ## Features
 
@@ -21,11 +21,12 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 ## Dependencies
 
 - Make
-- Python `>= 3.5`
+- Python `>= 3.5` (3.6+ recommended)
 - python-pip
 - python-virtualenv
 - python3-dev
-- Terraform `>= 0.10`
+- Terraform `>= 0.10` (0.11+ recommended)
+- [Terraform landscape](https://github.com/coinbase/terraform-landscape) (optional, used with `--pretty` flag)
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 

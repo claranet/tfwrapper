@@ -759,7 +759,7 @@ def main():
                         help="Enable debug output")
     parser.add_argument("-l", "--pretty",
                         action='store_true', default=False,
-                        help="Enable landscape pretty print output (for 'plan' action only)")
+                        help="Enable landscape pretty print output (requires terraform-landscape installed in your env).")
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
