@@ -7,21 +7,26 @@ azure-cli==2.0.64
 #
 adal==1.2.1               # via msrestazure
 asn1crypto==0.24.0        # via cryptography
-azure-common==1.1.18
-azure-mgmt-storage==3.1.1
-certifi==2018.11.29       # via msrest, requests
-cffi==1.11.5              # via cryptography
+azure-common==1.1.21
+azure-mgmt-nspkg==3.0.2   # via azure-mgmt-storage
+azure-mgmt-storage==3.3.0
+azure-nspkg==3.0.2        # via azure-common, azure-mgmt-nspkg
+certifi==2019.3.9         # via msrest, requests
+cffi==1.12.3              # via cryptography
 chardet==3.0.4            # via requests
-cryptography==2.5         # via adal
+cryptography==2.7         # via adal
+enum34==1.1.6             # via cryptography, msrest
 idna==2.8                 # via requests
+ipaddress==1.0.22         # via cryptography
 isodate==0.6.0            # via msrest
-msrest==0.6.4             # via azure-mgmt-storage, msrestazure
+msrest==0.6.6             # via azure-mgmt-storage, msrestazure
 msrestazure==0.6.0        # via azure-mgmt-storage
 oauthlib==3.0.1           # via requests-oauthlib
 pycparser==2.19           # via cffi
 pyjwt==1.7.1              # via adal
 python-dateutil==2.8.0    # via adal
 requests-oauthlib==1.2.0  # via msrest
-requests==2.21.0          # via adal, msrest, requests-oauthlib
+requests==2.22.0          # via adal, msrest, requests-oauthlib
 six==1.12.0               # via cryptography, isodate, python-dateutil
-urllib3==1.24.1           # via requests
+typing==3.6.6             # via msrest
+urllib3==1.25.3           # via requests
