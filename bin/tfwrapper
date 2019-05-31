@@ -337,7 +337,7 @@ def bootstrap(wrapper_config):
     if not os.path.isdir(stack_path):
         os.makedirs(stack_path)
 
-    # boostrap state.tf from jinja2 template with a specified backend
+    # bootstrap state.tf from jinja2 template with a specified backend
     if not os.path.isfile('{}/state.tf'.format(stack_path)) and state_backend_type:
         client_name = stack_config['terraform']['vars'].get('client_name', account)
 
@@ -361,7 +361,7 @@ def bootstrap(wrapper_config):
             f.write(state_conf)
 
         logger.info('`state.tf` file generated with "%s" backend type configured.'.format(state_backend_type))
-        logger.info('Please run `init` to configure this stack.')
+        logger.info('Please run `tfwrapper init` to initialize this stack.')
 
 
 def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
