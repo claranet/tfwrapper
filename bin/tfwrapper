@@ -390,7 +390,7 @@ def do_switchver(version):
     :param version: string: desired terraform version
     """
     minor_version_regex = r'[0-9]+\.[0-9]+'
-    patch_regex = r'[0-9]+((-alpha|-beta)[0-9]+)?'
+    patch_regex = r'[0-9]+((-alpha|-beta|-rc)[0-9]+)?'
     m = re.match(r'^(?P<minor>{})(\.(?P<patch>{}))?$'.format(minor_version_regex, patch_regex), version)
     if not m:
         error('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
