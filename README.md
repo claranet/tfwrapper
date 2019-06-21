@@ -57,7 +57,7 @@ Stacks configurations are stored in the `conf` directory.
 
 #### templates
 
-The `templates` directory is used to store the state backend configuration template and the Terraform stack templates used to initialize new stack. Using a git submodule is recommended.
+The `templates` directory is used to store the state backend configuration template and the Terraform stack templates used to initialize new stacks. Using a git submodule is recommended.
 
 The following files are required:
 
@@ -195,7 +195,7 @@ Here is an example for a stack on Azure configuration using user mode:
 ---
 azure:
   general:
-    mode: user # Uses Claranet personal credentials with MFA
+    mode: user # Uses personal credentials with MFA
     directory_id: &directory_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Tenant/Directory UID
     subscription_id: &subscription_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Subscription UID
 
@@ -207,7 +207,7 @@ terraform:
     #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
-It is using your Claranet account linked to a Microsoft Account. You must have access to the Azure Subscription if you want to use Terraform.
+It is using your account linked to a Microsoft Account. You must have access to the Azure Subscription if you want to use Terraform.
 
 Here is an example for a stack on Azure configuration using Service Principal mode:
 
@@ -215,7 +215,7 @@ Here is an example for a stack on Azure configuration using Service Principal mo
 ---
 azure:
   general:
-    mode: service_principal # Uses a Azure tenant Service Principal account
+    mode: service_principal # Uses an Azure tenant Service Principal account
     directory_id: &directory_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Tenant/Directory UID
     subscription_id: &subscription_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Subscription UID
 
