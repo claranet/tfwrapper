@@ -47,6 +47,9 @@ LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
+TFWRAPPER_DEFAULT_CONFIG = {
+    'plan_pipe_binary': 'landscape',
+}
 
 home_dir = str(Path.home())
 
@@ -150,6 +153,15 @@ def load_wrapper_config(args):
     if wrapper_config['environment'] == '_global':
         wrapper_config['environment'] = 'global'
     logger.debug("Detected environment '{}'".format(wrapper_config['environment']))
+
+    # load wrapper config
+    wrapper_config_file = os.path.join(wrapper_config['confdir'], 'config.yml')
+    wrapper_config['config'] = TFWRAPPER_DEFAULT_CONFIG
+    if os.path.exists(wrapper_config_file):
+        with open(wrapper_config_file, 'r') as f:
+            logger.debug("Loading wrapper config from '{}'".format(wrapper_config_file))
+            w_config = yaml.safe_load(f)
+            wrapper_config['config'].update(w_config)
 
     # load state configuration
     config_file = os.path.join(wrapper_config['confdir'], 'state.yml')
@@ -562,10 +574,10 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    use_landscape = False
+    use_pipe_bin = False
     if action == "plan" and wrapper_config.get('pretty'):
-        use_landscape = True
-        command += ["|", "landscape"]
+        use_pipe_bin = True
+        command += ["|", wrapper_config['config']['plan_pipe_binary']]
 
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
                    else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
@@ -574,8 +586,8 @@ def run_terraform(action, wrapper_config):
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
         path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
 
-    with subprocess.Popen(" ".join(command) if use_landscape else command,
-                          cwd=working_dir, env=cmd_env, shell=use_landscape) as process:
+    with subprocess.Popen(" ".join(command) if use_pipe_bin else command,
+                          cwd=working_dir, env=cmd_env, shell=use_pipe_bin) as process:
         try:
             process.communicate()
         except KeyboardInterrupt:
@@ -759,7 +771,7 @@ def main():
                         help="Enable debug output")
     parser.add_argument("-l", "--pretty",
                         action='store_true', default=False,
-                        help="Enable landscape pretty print output (requires terraform-landscape installed in your env).")
+                        help="Enable pretty print by piping plan output to your formatter binary (landscape by default).")
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
