@@ -26,7 +26,6 @@
 - python-virtualenv
 - python3-dev
 - Terraform `>= 0.10` (0.11+ recommended)
-- [Terraform landscape](https://github.com/coinbase/terraform-landscape) (optional, used with `--pretty` flag)
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 

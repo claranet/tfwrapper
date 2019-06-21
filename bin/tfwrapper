@@ -48,7 +48,7 @@ GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
-    'plan_pipe_binary': 'landscape',
+    'plan_pipe_command': 'landscape',
 }
 
 home_dir = str(Path.home())
@@ -574,10 +574,8 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    use_pipe_bin = False
     if action == "plan" and wrapper_config.get('pretty'):
-        use_pipe_bin = True
-        command += ["|", wrapper_config['config']['plan_pipe_binary']]
+        command += ["|", wrapper_config['config']['plan_pipe_command']]
 
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
                    else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
@@ -586,8 +584,7 @@ def run_terraform(action, wrapper_config):
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
         path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
 
-    with subprocess.Popen(" ".join(command) if use_pipe_bin else command,
-                          cwd=working_dir, env=cmd_env, shell=use_pipe_bin) as process:
+    with subprocess.Popen(" ".join(command), cwd=working_dir, env=cmd_env, shell=True) as process:
         try:
             process.communicate()
         except KeyboardInterrupt:
