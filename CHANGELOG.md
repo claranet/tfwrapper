@@ -1,3 +1,9 @@
+# 6.6.0 (xx/06/2019)
+
+UPDATES:
+
+  * TER-388: Improve `bootstrap` behavior, no longer trigger `terraform init` automatically.
+
 # 6.5.0 (18/03/2019)
 
 UPDATES:
