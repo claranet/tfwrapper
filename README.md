@@ -176,6 +176,7 @@ Here is an example for an AWS stack configuration:
 
 ```yaml
 ---
+state_configuration_name: 'aws' # use "aws" backend state configuration
 aws:
   general:
     account: &aws_account 'xxxxxxxxxxx' # aws account for this stack
@@ -190,10 +191,11 @@ terraform:
     client_name: my-client-name # arbitrary client name  
 ```
 
-Here is an example for a stack on Azure configuration using user mode:
+Here is an example for a stack on Azure configuration using user mode and AWS S3 backend for state storage:
 
 ```yaml
 ---
+state_configuration_name: 'aws-demo' # use "aws" backend state configuration
 azure:
   general:
     mode: user # Uses personal credentials with MFA
@@ -260,16 +262,25 @@ terraform:
 
 ### States centralization configuration
 
-`conf/state.yml` defines the configuration used to connect to the S3 state backend's AWS account.
+`conf/state.yml` defines the configurations used to connect to state backend account.
+It can be an AWS (S3) or Azure (Storage Account) backend type.
 
 ```yaml
 ---
 aws:
+  name: 'aws-demo'
   general:
     account: 'xxxxxxxxxxx'
     region: eu-west-1
   credentials:
     profile: my-state-aws-profile # should be configured in .aws/config
+
+azure:
+  name: 'azure-alternative'
+  general:
+    subscription_uid: 'xxxxxxx' # the Azure account to use for state storage
+    resource_group_name: 'tfstates-xxxxx-rg' # The Azure resource group with state storage
+    storage_account_name: 'tfstatesxxxxx'
 ```
 
 ## Stacks file structure

@@ -47,7 +47,6 @@ LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
-STATE_BACKEND_MAP = {"s3": "aws", "azurerm": "azure"}
 
 home_dir = str(Path.home())
 
