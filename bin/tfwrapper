@@ -48,7 +48,7 @@ GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
-    'plan_pipe_command': 'landscape',
+    'pipe_plan_command': 'landscape',
 }
 
 home_dir = str(Path.home())
@@ -574,8 +574,11 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    if action == "plan" and wrapper_config.get('pretty'):
-        command += ["|", wrapper_config['config']['plan_pipe_command']]
+    if action == "plan":
+        if wrapper_config.get('pipe_plan'):
+            command += ["|", wrapper_config.get('pipe_plan')]
+        elif wrapper_config.get('pretty'):
+            command += ["|", wrapper_config['config']['pipe_plan_command']]
 
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
                    else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
@@ -765,13 +768,16 @@ def main():
     parser = argparse.ArgumentParser(description='Terraform wrapper.')
     parser.add_argument("-d", "--debug",
                         action='store_true', default=False,
-                        help="Enable debug output")
-    parser.add_argument("-l", "--pretty",
-                        action='store_true', default=False,
-                        help="Enable pretty print by piping plan output to your formatter binary (landscape by default).")
+                        help="Enable debug output.")
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
+    parser.add_argument("-l", "--pretty",
+                        action='store_true', default=False,
+                        help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
+    parser.add_argument("-I", "--pipe-plan",
+                        action='store', nargs='?',
+                        help="Pipe plan output to the command of your choice set as argument inline value.")
     parser.add_argument('-a', '--account',
                         help='Target account. Autodetected if none is provided.',
                         nargs='?')
