@@ -48,6 +48,7 @@ GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
+    'always_trigger_init': False,
     'pipe_plan_command': 'cat',
 }
 
@@ -601,7 +602,9 @@ def run_terraform(action, wrapper_config):
 
 def terraform_apply(wrapper_config):
     """Terraform apply wrapper function."""
-    bootstrap(wrapper_config)
+    if wrapper_config['config'].get('always_trigger_init', False):
+        logger.info('Init has been activated in config')
+        terraform_init(wrapper_config)
 
     # do not force plan if unsafe
     if wrapper_config['unsafe']:
@@ -709,7 +712,9 @@ def terraform_output(wrapper_config):
 
 def terraform_plan(wrapper_config):
     """Terraform plan wrapper function."""
-    bootstrap(wrapper_config)
+    if wrapper_config['config'].get('always_trigger_init', False):
+        logger.info('Init has been activated in config')
+        terraform_init(wrapper_config)
     return run_terraform('plan', wrapper_config)
 
 
