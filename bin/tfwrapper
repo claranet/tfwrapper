@@ -357,7 +357,7 @@ def bootstrap(wrapper_config):
         with open('{}/state.tf'.format(stack_path), "w") as f:
             f.write(state_conf)
 
-        logger.info('`state.tf` file generated with "%s" backend type configured.'.format(state_backend_type))
+        logger.info('`state.tf` file generated with "{}" backend type configured.'.format(state_backend_type))
         logger.info('Please run `tfwrapper init` to initialize this stack.')
 
 
