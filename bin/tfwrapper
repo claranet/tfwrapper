@@ -575,9 +575,9 @@ def run_terraform(action, wrapper_config):
         command += tf_params
 
     if action == "plan":
-        if wrapper_config.get('pipe_plan'):
-            command += ["|", wrapper_config.get('pipe_plan')]
-        elif wrapper_config.get('pretty'):
+        if wrapper_config.get('pipe_plan_command'):
+            command += ["|", wrapper_config.get('pipe_plan_command')]
+        elif wrapper_config.get('pipe_plan'):
             command += ["|", wrapper_config['config']['pipe_plan_command']]
 
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
@@ -772,10 +772,10 @@ def main():
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
-    parser.add_argument("-l", "--pretty",
+    parser.add_argument("-l", "--pipe-plan",
                         action='store_true', default=False,
                         help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
-    parser.add_argument("-I", "--pipe-plan",
+    parser.add_argument("--pipe-plan-command",
                         action='store', nargs='?',
                         help="Pipe plan output to the command of your choice set as argument inline value.")
     parser.add_argument('-a', '--account',
