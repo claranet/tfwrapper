@@ -24,6 +24,7 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 - Python `>= 3.5`
 - python-pip
 - python-virtualenv
+- python3-dev
 - Terraform `>= 0.10`
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
