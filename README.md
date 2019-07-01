@@ -164,6 +164,15 @@ EOF
 
 tfwrapper uses yaml files stored in the `conf` directory of the project.
 
+### tfwrapper configuration
+
+tfwrapper uses some default behaviors that can be overrided or modified via a `config.yml` file in the `conf` directory.
+
+```yaml
+---
+pipe_plan_command: 'landscape' # Default command used when you're invoking tfwrapper with `--pipe-plan`
+```
+
 ### Stacks configurations
 
 Stacks configuration files use the following naming convention:
