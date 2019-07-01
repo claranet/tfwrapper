@@ -602,7 +602,9 @@ def run_terraform(action, wrapper_config):
 
 def terraform_apply(wrapper_config):
     """Terraform apply wrapper function."""
-    if wrapper_config['config'].get('always_trigger_init', False):
+    always_trigger_init = wrapper_config['config'].get('always_trigger_init', False)
+    logger.debug("Checking 'always_trigger_init' option: {}".format(always_trigger_init))
+    if always_trigger_init:
         logger.info('Init has been activated in config')
         terraform_init(wrapper_config)
 
@@ -712,7 +714,9 @@ def terraform_output(wrapper_config):
 
 def terraform_plan(wrapper_config):
     """Terraform plan wrapper function."""
-    if wrapper_config['config'].get('always_trigger_init', False):
+    always_trigger_init = wrapper_config['config'].get('always_trigger_init', False)
+    logger.debug("Checking 'always_trigger_init' option: {}".format(always_trigger_init))
+    if always_trigger_init:
         logger.info('Init has been activated in config')
         terraform_init(wrapper_config)
     return run_terraform('plan', wrapper_config)
