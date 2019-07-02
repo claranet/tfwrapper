@@ -283,6 +283,41 @@ azure:
     storage_account_name: 'tfstatesxxxxx'
 ```
 
+### How to migrate from one backend to another for state centralization
+
+If for example you have both an AWS and Azure state backend configured in your `conf/state.yml` file,
+you can migrate your stack state from one backend to another.
+
+Here is a quick howto:
+
+  1. Make sure your stack is clean:
+
+```bash
+$ cd account/path/env/your_stack
+$ tfwrapper init
+$ tfwrapper plan
+# should return no changes
+```
+
+  2. Change your backend in the stack configuration yaml file:
+
+```yaml
+---
+#state_configuration_name: 'aws-demo' # previous backend
+state_configuration_name: 'azure-alternative' # new backend to use
+```
+
+  3. Back in your stack directory, you can perform the change:
+
+```bash
+$ cd account/path/env/your_stack
+$ rm -v state.tf # removing old state backend configuration
+$ tfwrapper bootstrap # regen a new state backend configuration based on the stack yaml config file
+$ tfwrapper init # Terraform will detect the new backend and propose to migrate it
+$ tfwrapper plan
+# should return the same changes diff as before
+```
+
 ## Stacks file structure
 
 Terraform stacks are organized based on their:
