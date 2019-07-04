@@ -799,6 +799,12 @@ def main():
     parser_apply.add_argument('-u', '--unsafe',
                               help='Do not force plan and human interaction before apply.',
                               action='store_true', default=False)
+    parser_apply.add_argument("-l", "--pipe-plan",
+                              action='store_true', default=False,
+                              help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
+    parser_apply.add_argument("--pipe-plan-command",
+                              action='store', nargs='?',
+                              help="Pipe plan output to the command of your choice set as argument inline value.")
     parser_apply.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_console = subparsers.add_parser('console', help='terraform console')
@@ -839,6 +845,12 @@ def main():
 
     parser_plan = subparsers.add_parser('plan', help='terraform plan')
     parser_plan.set_defaults(func=terraform_plan)
+    parser_plan.add_argument("-l", "--pipe-plan",
+                             action='store_true', default=False,
+                             help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
+    parser_plan.add_argument("--pipe-plan-command",
+                             action='store', nargs='?',
+                             help="Pipe plan output to the command of your choice set as argument inline value.")
     parser_plan.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_providers = subparsers.add_parser('providers', help='terraform providers')
