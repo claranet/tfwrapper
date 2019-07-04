@@ -48,7 +48,7 @@ GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
-    'pipe_plan_command': 'landscape',
+    'pipe_plan_command': 'cat',
 }
 
 home_dir = str(Path.home())
