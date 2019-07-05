@@ -774,7 +774,8 @@ def main():
                         default='conf')
     parser.add_argument("-l", "--pipe-plan",
                         action='store_true', default=False,
-                        help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
+                        help=("Pipe plan output to the command set in config"
+                              " or passed in --pipe-plan-command argument (cat by default)."))
     parser.add_argument("--pipe-plan-command",
                         action='store', nargs='?',
                         help="Pipe plan output to the command of your choice set as argument inline value.")
@@ -801,7 +802,8 @@ def main():
                               action='store_true', default=False)
     parser_apply.add_argument("-l", "--pipe-plan",
                               action='store_true', default=False,
-                              help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
+                              help=("Pipe plan output to the command set in config"
+                                    " or passed in --pipe-plan-command argument (cat by default)."))
     parser_apply.add_argument("--pipe-plan-command",
                               action='store', nargs='?',
                               help="Pipe plan output to the command of your choice set as argument inline value.")
@@ -847,7 +849,8 @@ def main():
     parser_plan.set_defaults(func=terraform_plan)
     parser_plan.add_argument("-l", "--pipe-plan",
                              action='store_true', default=False,
-                             help="Pipe plan output to the command set in config (landscape by default for pretty printing).")
+                             help=("Pipe plan output to the command set in config"
+                                   " or passed in --pipe-plan-command argument (cat by default)."))
     parser_plan.add_argument("--pipe-plan-command",
                              action='store', nargs='?',
                              help="Pipe plan output to the command of your choice set as argument inline value.")

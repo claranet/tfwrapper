@@ -170,7 +170,7 @@ tfwrapper uses some default behaviors that can be overrided or modified via a `c
 
 ```yaml
 ---
-pipe_plan_command: 'landscape' # Default command used when you're invoking tfwrapper with `--pipe-plan`
+pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
 ```
 
 ### Stacks configurations
