@@ -170,6 +170,7 @@ tfwrapper uses some default behaviors that can be overrided or modified via a `c
 
 ```yaml
 ---
+always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
 pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
 ```
 
