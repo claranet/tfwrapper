@@ -47,6 +47,9 @@ LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = 'https://github.com/{}/releases'
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
+TFWRAPPER_DEFAULT_CONFIG = {
+    'pipe_plan_command': 'cat',
+}
 
 home_dir = str(Path.home())
 
@@ -150,6 +153,15 @@ def load_wrapper_config(args):
     if wrapper_config['environment'] == '_global':
         wrapper_config['environment'] = 'global'
     logger.debug("Detected environment '{}'".format(wrapper_config['environment']))
+
+    # load wrapper config
+    wrapper_config_file = os.path.join(wrapper_config['confdir'], 'config.yml')
+    wrapper_config['config'] = TFWRAPPER_DEFAULT_CONFIG
+    if os.path.exists(wrapper_config_file):
+        with open(wrapper_config_file, 'r') as f:
+            logger.debug("Loading wrapper config from '{}'".format(wrapper_config_file))
+            w_config = yaml.safe_load(f)
+            wrapper_config['config'].update(w_config)
 
     # load state configuration
     config_file = os.path.join(wrapper_config['confdir'], 'state.yml')
@@ -562,6 +574,12 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
+    if action == "plan":
+        if wrapper_config.get('pipe_plan_command'):
+            command += ["|", wrapper_config.get('pipe_plan_command')]
+        elif wrapper_config.get('pipe_plan'):
+            command += ["|", wrapper_config['config']['pipe_plan_command']]
+
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
                    else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
 
@@ -569,7 +587,7 @@ def run_terraform(action, wrapper_config):
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
         path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
 
-    with subprocess.Popen(command, cwd=working_dir, env=cmd_env) as process:
+    with subprocess.Popen(" ".join(command), cwd=working_dir, env=cmd_env, shell=True) as process:
         try:
             process.communicate()
         except KeyboardInterrupt:
@@ -750,10 +768,17 @@ def main():
     parser = argparse.ArgumentParser(description='Terraform wrapper.')
     parser.add_argument("-d", "--debug",
                         action='store_true', default=False,
-                        help="Enable debug output")
+                        help="Enable debug output.")
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
+    parser.add_argument("-l", "--pipe-plan",
+                        action='store_true', default=False,
+                        help=("Pipe plan output to the command set in config"
+                              " or passed in --pipe-plan-command argument (cat by default)."))
+    parser.add_argument("--pipe-plan-command",
+                        action='store', nargs='?',
+                        help="Pipe plan output to the command of your choice set as argument inline value.")
     parser.add_argument('-a', '--account',
                         help='Target account. Autodetected if none is provided.',
                         nargs='?')
@@ -775,6 +800,13 @@ def main():
     parser_apply.add_argument('-u', '--unsafe',
                               help='Do not force plan and human interaction before apply.',
                               action='store_true', default=False)
+    parser_apply.add_argument("-l", "--pipe-plan",
+                              action='store_true', default=False,
+                              help=("Pipe plan output to the command set in config"
+                                    " or passed in --pipe-plan-command argument (cat by default)."))
+    parser_apply.add_argument("--pipe-plan-command",
+                              action='store', nargs='?',
+                              help="Pipe plan output to the command of your choice set as argument inline value.")
     parser_apply.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_console = subparsers.add_parser('console', help='terraform console')
@@ -815,6 +847,13 @@ def main():
 
     parser_plan = subparsers.add_parser('plan', help='terraform plan')
     parser_plan.set_defaults(func=terraform_plan)
+    parser_plan.add_argument("-l", "--pipe-plan",
+                             action='store_true', default=False,
+                             help=("Pipe plan output to the command set in config"
+                                   " or passed in --pipe-plan-command argument (cat by default)."))
+    parser_plan.add_argument("--pipe-plan-command",
+                             action='store', nargs='?',
+                             help="Pipe plan output to the command of your choice set as argument inline value.")
     parser_plan.add_argument('tf_params', nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_providers = subparsers.add_parser('providers', help='terraform providers')

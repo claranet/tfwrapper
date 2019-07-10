@@ -1,6 +1,6 @@
 # tfwrapper
 
-tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
+`tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
 ## Features
 
@@ -21,11 +21,11 @@ tfwrapper is a python wrapper for [Terraform](https://www.terraform.io/) which a
 ## Dependencies
 
 - Make
-- Python `>= 3.5`
+- Python `>= 3.5` (3.6+ recommended)
 - python-pip
 - python-virtualenv
 - python3-dev
-- Terraform `>= 0.10`
+- Terraform `>= 0.10` (0.11+ recommended)
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 
@@ -163,6 +163,15 @@ EOF
 ## Configuration
 
 tfwrapper uses yaml files stored in the `conf` directory of the project.
+
+### tfwrapper configuration
+
+tfwrapper uses some default behaviors that can be overrided or modified via a `config.yml` file in the `conf` directory.
+
+```yaml
+---
+pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
+```
 
 ### Stacks configurations
 
