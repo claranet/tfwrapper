@@ -1,10 +1,29 @@
-# 6.6.0 (xx/06/2019)
+# 7.0.0 (10/07/2019)
+
+ADDED:
+
+  * TER-391: New `-l`/`--pipe-plan` arguments to pipe the `plan` output to the command of your choice. That command can be specified with the new `--pipe-plan-command` argument or configured in the `config.yml` file as `pipe_plan_command: "my custom command"`.
+  * TER-396: Allow mutiple states backends. We can now choose per stack which state backend to use
 
 UPDATES:
 
-  * TER-388: Improve `bootstrap` behavior, no longer trigger `terraform init` automatically.
+  * TER-46: Bump Python dependencies
+  * TER-364: Upgrade `azure cli` pip package to .64
+  * TER-393: Support terraform release candidates
+  * TER-395: Prioritize bootstrap template parameter, allow to bootstrap a non cloud template
+  * TER-404: Make `init` optional via config when triggering `plan` or `apply`
+  * TER-406: Update README documentation
+
+BREAKING:
+
+  * TER-388: Improve `bootstrap` behavior, no longer trigger `terraform init` automatically (old behavior is available via TER-404, can be set in config)
 
 # 6.5.0 (18/03/2019)
+
+ADDED:
+
+  * TER-364: Support Azure Blob Storage as a terraform state backend
+  * TER-382: Add `-d`/`--debug` output option
 
 UPDATES:
 
@@ -13,12 +32,10 @@ UPDATES:
   * TER-352: Update README
   * TER-354: Support downloading terraform and providers binaries for other platforms (`darwin`, `freebsd`, `linux`, `openbsd` and `windows`) and architectures (`amd64`, `arm` and `386`)
   * TER-358: Support terraform and providers pre-releases with version switching feature
-  * TER-364: Support Azure Blob Storage as a terraform state backend
   * TER-368: Split stack templates per cloud provider
   * TER-369: Refactoring
   * TER-377: Support AWS profiles without assume role
   * TER-381: Update `pyyaml` to 5.1 and use `yaml.safe_load`
-  * TER-382: Add `-d`/`--debug` output option
   * TER-383: Improve `version` and `providers` subcommands
 
 # 6.4.1 (25/01/2019)
