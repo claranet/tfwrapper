@@ -575,12 +575,6 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    if action == "plan":
-        if wrapper_config.get('pipe_plan_command'):
-            command += ["|", wrapper_config.get('pipe_plan_command')]
-        elif wrapper_config.get('pipe_plan'):
-            command += ["|", wrapper_config['config']['pipe_plan_command']]
-
     working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
                    else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
 
@@ -588,7 +582,22 @@ def run_terraform(action, wrapper_config):
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
         path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get('PATH', ''))
 
-    with subprocess.Popen(" ".join(command), cwd=working_dir, env=cmd_env, shell=True) as process:
+    pipe_plan_command = wrapper_config.get('pipe_plan_command') or wrapper_config['config'].get('pipe_plan_command')
+    pipe_plan = action == "plan" and wrapper_config.get('pipe_plan') and pipe_plan_command
+    stdout = pipe_plan and subprocess.PIPE or None
+    with subprocess.Popen(command, cwd=working_dir, env=cmd_env, shell=False, stdout=stdout) as process:
+        if pipe_plan:
+            with subprocess.Popen(pipe_plan_command, cwd=working_dir, env=cmd_env,
+                                  shell=True, stdin=process.stdout) as pipe_process:
+                try:
+                    pipe_process.communicate()
+                except KeyboardInterrupt:
+                    logger.warning('Received Ctrl+C')
+                except:  # noqa
+                    pipe_process.kill()
+                    pipe_process.wait()
+                    raise
+                pipe_process.poll()
         try:
             process.communicate()
         except KeyboardInterrupt:
