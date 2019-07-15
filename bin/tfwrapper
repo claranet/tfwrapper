@@ -586,7 +586,9 @@ def run_terraform(action, wrapper_config):
     pipe_plan = action == "plan" and wrapper_config.get('pipe_plan') and pipe_plan_command
     stdout = pipe_plan and subprocess.PIPE or None
     with subprocess.Popen(command, cwd=working_dir, env=cmd_env, shell=False, stdout=stdout) as process:
+        logger.debug('Execute command "{}"'.format(command))
         if pipe_plan:
+            logger.debug('Piping command "{}"'.format(pipe_plan_command))
             with subprocess.Popen(pipe_plan_command, cwd=working_dir, env=cmd_env,
                                   shell=True, stdin=process.stdout) as pipe_process:
                 try:
@@ -790,13 +792,6 @@ def main():
     parser.add_argument('-c', '--confdir',
                         help='Configuration directory. Used to detect the project root. Defaults to conf.',
                         default='conf')
-    parser.add_argument("-l", "--pipe-plan",
-                        action='store_true', default=False,
-                        help=("Pipe plan output to the command set in config"
-                              " or passed in --pipe-plan-command argument (cat by default)."))
-    parser.add_argument("--pipe-plan-command",
-                        action='store', nargs='?',
-                        help="Pipe plan output to the command of your choice set as argument inline value.")
     parser.add_argument('-a', '--account',
                         help='Target account. Autodetected if none is provided.',
                         nargs='?')
