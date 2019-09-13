@@ -479,3 +479,16 @@ The stack path is passed to Terraform. This is especially useful for resource na
 - `TF_VAR_environment`
 - `TF_VAR_region`
 - `TF_VAR_stack`
+
+# Development
+
+To build and use development versions of terraform, manually put them in a `~/.terraform.d/versions/X.Y/X.Y.Z-dev/` folder:
+
+```bash
+# cd ~/go/src/github.com/hashicorp/terraform
+# make XC_ARCH=amd64 XC_OS=linux bin
+# ./bin/terraform version
+Terraform v0.12.9-dev
+# mkdir -p ~/.terraform.d/versions/0.12/0.12.9-dev
+# mv ./bin/terraform ~/.terraform.d/versions/0.12/0.12.9-dev/
+```
