@@ -415,14 +415,15 @@ def do_switchver(version):
     :param version: string: desired terraform version
     """
     minor_version_regex = r'[0-9]+\.[0-9]+'
-    patch_regex = r'[0-9]+((-alpha|-beta|-rc)[0-9]+)?'
+    patch_regex = r'[0-9]+(((-alpha|-beta|-rc)[0-9]+)|-dev)?'
     m = re.match(r'^(?P<minor>{})(\.(?P<patch>{}))?$'.format(minor_version_regex, patch_regex), version)
     if not m:
         error('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
     minor_version, patch = m.group('minor', 'patch')
 
     repo = 'hashicorp/terraform'
-    patch = search_on_github(repo, minor_version, patch_regex, patch)
+    if not patch.endswith("-dev"):
+        patch = search_on_github(repo, minor_version, patch_regex, patch)
 
     if not patch:
         error("The release version {} for terraform does not exist".format(version))
@@ -449,6 +450,9 @@ def do_switchver(version):
     os.makedirs(version_path, exist_ok=True)
 
     if not os.path.isfile(tf_bin_path):
+        if patch.endswith("-dev"):
+            error("The development version {} for terraform does not exist locally".format(version))
+
         # Download and extract in user's home if needed
         logger.warning("Version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
