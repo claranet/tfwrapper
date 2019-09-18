@@ -1,3 +1,14 @@
+# 7.1.0 (18/09/2019)
+
+ADDED:
+
+  * TER-415: Support custom development builds of terraform
+
+UPDATES:
+
+  * TER-347: Bump Python/boto dependencies
+  * TER-364: Bump `azure-cli` to `2.0.73`
+
 # 7.0.0 (10/07/2019)
 
 ADDED:
