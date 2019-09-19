@@ -27,6 +27,13 @@ ifeq ($(with_azure_deps),true)
 endif
 endif
 
+update:
+	@echo 'Updating virtualenv Python dependencies.'
+	@$(pip) install -r $(makefile_dir)/requirements.txt
+ifeq ($(with_azure_deps),true)
+	@$(pip) install -r $(makefile_dir)/requirements-azure.txt
+endif
+
 clean: clear
 clear:
 	@echo 'Removing virtualenv.'
