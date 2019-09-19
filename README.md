@@ -52,6 +52,13 @@ A `Makefile` symlink should point to tfwrapper's `Makefile`. this link allows us
 ln -s .wrapper/Makefile
 ```
 
+Available Makefile commands:
+
+ * `make` (default target, or `make work`): trigger `setup` and load the environment in your shell.
+ * `make setup`: create à Python3 virtualenv if no already there and install needed python (pip) dependencies.
+ * `make clear` or `make clean`: remove the virtualenv created by `setup`.
+ * `make update`: trigger a python (pip) dependencies update (if you have changed the version of `terraform-wrapper`) in the virtualenv created by `setup`.
+
 #### conf
 
 Stacks configurations are stored in the `conf` directory.
