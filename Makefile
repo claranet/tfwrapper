@@ -28,6 +28,9 @@ endif
 endif
 
 update:
+	@echo 'Cleaning up old dependencies.'
+	@$(pip) freeze | xargs $(pip) uninstall -y
+	@$(pip) install -U pip
 	@echo 'Updating virtualenv Python dependencies.'
 	@$(pip) install -r $(makefile_dir)/requirements.txt
 ifeq ($(with_azure_deps),true)
