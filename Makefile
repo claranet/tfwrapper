@@ -46,5 +46,9 @@ renew: clear setup
 	@echo 'Renew done.'
 
 work: setup
-	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" $(SHELL)
-	@echo 'terraform-wrapper env exited.'
+ifeq ($(shell test -z ${TERRAFORM_WRAPPER_SHELL}; echo $$?),0)
+	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
+	@echo 'terraform-wrapper env exited. ("$(wrapper_bin)")'
+else
+	@echo 'You already have a shell for "${TERRAFORM_WRAPPER_SHELL}" loaded.'
+endif
