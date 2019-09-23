@@ -42,8 +42,9 @@ clear:
 	@echo 'Removing virtualenv.'
 	@rm -Rf $(makefile_dir)/.virtualenv
 
-renew: clear work
+renew: clear setup
 	@echo 'Renew done.'
 
 work: setup
 	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" $(SHELL)
+	@echo 'terraform-wrapper env exited.'
