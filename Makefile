@@ -42,5 +42,8 @@ clear:
 	@echo 'Removing virtualenv.'
 	@rm -Rf $(makefile_dir)/.virtualenv
 
+renew: clear work
+	@echo 'Renew done.'
+
 work: setup
 	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" $(SHELL)
