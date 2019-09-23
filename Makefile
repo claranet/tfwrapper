@@ -39,8 +39,12 @@ endif
 
 clean: clear
 clear:
+ifeq ($(shell test -z ${TERRAFORM_WRAPPER_SHELL}; echo $$?),0)
 	@echo 'Removing virtualenv.'
 	@rm -Rf $(makefile_dir)/.virtualenv
+else
+	$(error 'Please exit the current shell before trying to clean.')
+endif
 
 renew: clear setup
 	@echo 'Renew done.'
@@ -50,5 +54,5 @@ ifeq ($(shell test -z ${TERRAFORM_WRAPPER_SHELL}; echo $$?),0)
 	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
 	@echo 'terraform-wrapper env exited. ("$(wrapper_bin)")'
 else
-	@echo 'You already have a shell for "${TERRAFORM_WRAPPER_SHELL}" loaded.'
+	$(error 'You already have a shell for "${TERRAFORM_WRAPPER_SHELL}" loaded.')
 endif

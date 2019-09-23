@@ -54,8 +54,8 @@ ln -s .wrapper/Makefile
 
 Available Makefile commands:
 
- * `make` (default target, or `make work`): spawns a new shell with the virtualenv `bin` directory prepended to its PATH.
- * `make setup`: create à Python3 virtualenv if no already there and install needed python (pip) dependencies.
+ * `make work` (default target): spawns a new shell with the virtualenv `bin` directory prepended to its PATH.
+ * `make setup`: create a Python3 virtualenv if not already there and install needed python (pip) dependencies.
  * `make clear` or `make clean`: remove the virtualenv created by `setup`.
  * `make update`: trigger a python (pip) dependencies update (if you have changed the version of `terraform-wrapper`) in the virtualenv created by `setup`.
  * `make renew`: trigger `make clean` + `make work` in order to setup a fresh virtualenv.
