@@ -1,3 +1,9 @@
+# 7.1.1 (25/09/2019)
+
+FIXED:
+
+  * TER-418: Fix switchver regression with short version (TER-415)
+
 # 7.1.0 (18/09/2019)
 
 ADDED:
