@@ -12,47 +12,35 @@ virtualenv_bin := $(makefile_dir)/.virtualenv/bin
 pip := $(virtualenv_bin)/pip
 with_azure_deps := true
 
+.PHONY := check clean clear renew work
 .DEFAULT_GOAL := work
 
-setup:
+check:
+ifneq ($(shell test -z ${TERRAFORM_WRAPPER_SHELL}; echo $$?),0)
+	$(error 'You already have a shell for "${TERRAFORM_WRAPPER_SHELL}" loaded.')
+endif
 ifeq ($(shell test $(python_version_minor) -le 4; echo $$?),0)
 	$(error Python 3 too old, use Python 3.5 or greater.)
 endif
-ifneq ($(shell test -d $(makefile_dir)/.virtualenv; echo $$?),0)
+
+$(makefile_dir)/.virtualenv: check
 	@echo 'Setting up virtualenv.'
-	@virtualenv -p python3 $(makefile_dir)/.virtualenv
-	@$(pip) install -r $(makefile_dir)/requirements.txt
-ifeq ($(with_azure_deps),true)
-	@$(pip) install -r $(makefile_dir)/requirements-azure.txt
-endif
-endif
+	@python3 -m venv $(makefile_dir)/.virtualenv
 
-update:
-	@echo 'Cleaning up old dependencies.'
-	@$(pip) freeze | xargs $(pip) uninstall -y
+setup: check $(makefile_dir)/.virtualenv
 	@$(pip) install -U pip
-	@echo 'Updating virtualenv Python dependencies.'
 	@$(pip) install -r $(makefile_dir)/requirements.txt
 ifeq ($(with_azure_deps),true)
 	@$(pip) install -r $(makefile_dir)/requirements-azure.txt
 endif
 
-clean: clear
-clear:
-ifeq ($(shell test -z ${TERRAFORM_WRAPPER_SHELL}; echo $$?),0)
+clean clear: check
 	@echo 'Removing virtualenv.'
 	@rm -Rf $(makefile_dir)/.virtualenv
-else
-	$(error 'Please exit the current shell before trying to clean.')
-endif
 
-renew: clear setup
+renew: check clear setup
 	@echo 'Renew done.'
 
-work: setup
-ifeq ($(shell test -z ${TERRAFORM_WRAPPER_SHELL}; echo $$?),0)
+work: check setup
 	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
 	@echo 'terraform-wrapper env exited. ("$(wrapper_bin)")'
-else
-	$(error 'You already have a shell for "${TERRAFORM_WRAPPER_SHELL}" loaded.')
-endif
