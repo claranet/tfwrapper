@@ -180,6 +180,7 @@ tfwrapper uses some default behaviors that can be overrided or modified via a `c
 ---
 always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
 pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
+use_local_azure_session_directory: True # Specify the `.run` directory to store `azure-cli` session and configuration
 ```
 
 ### Stacks configurations

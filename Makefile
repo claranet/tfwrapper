@@ -11,6 +11,7 @@ wrapper_bin := $(makefile_dir)/bin
 virtualenv_bin := $(makefile_dir)/.virtualenv/bin
 pip := $(virtualenv_bin)/pip
 with_azure_deps := true
+run_dir := $(realpath $(makefile_dir)/../.run)
 
 .PHONY := check clean clear renew work
 .DEFAULT_GOAL := work
@@ -42,5 +43,9 @@ renew: check clear setup
 	@echo 'Renew done.'
 
 work: check setup
+ifeq ($(with_azure_deps),true)
+	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" AZURE_CONFIG_DIR="$(run_dir)/azure-cli" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
+else
 	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
+endif
 	@echo 'terraform-wrapper env exited. ("$(wrapper_bin)")'
