@@ -1049,13 +1049,15 @@ def main():
 
         # Add support Azure
         if 'azure' in stack_config:
+            # ensure to use the AZ CLI version from Virtualenv
             az_cli_path = os.path.join(wrapper_config['rootdir'], '.wrapper', '.virtualenv', 'bin', 'az')
             logger.debug('Exporting `AzureCLIPath` to `{}`'.format(az_cli_path))
             os.environ['AzureCLIPath'] = az_cli_path
             if wrapper_config['config'].get('use_local_azure_session_directory'):
                 az_config_dir = os.path.join(wrapper_config['rootdir'], '.run', 'azure-cli')
-                logger.debug('Exporting `AZURE_CONFIG_DIR` to `{}` directory'.format(az_config_dir))
+                logger.debug('Exporting `AZURE_CONFIG_DIR` and `AZURE_ACCESS_TOKEN_FILE` to `{}` directory'.format(az_config_dir))
                 os.environ['AZURE_CONFIG_DIR'] = az_config_dir
+                os.environ['AZURE_ACCESS_TOKEN_FILE'] = os.path.join(az_config_dir, 'accessTokens.json')
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
             terraform_vars['azurerm_region'] = wrapper_config['region']  # Kept for retro-compat
