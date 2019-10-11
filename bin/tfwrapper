@@ -387,9 +387,12 @@ def bootstrap(wrapper_config):
 
 def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
     """Search release on github."""
-    result = requests.get(GITHUB_RELEASES.format(repo))
+    # Start search from the next incremented minor version
+    # Note: the github UI serves the first page if the requested version does not exist
+    release = 'v{}{}.0'.format(minor_version[:-1], int(minor_version[-1])+1)
     releases_count = 0
-    while result.status_code == 200:
+    while True:
+        result = requests.get('{}?after={}'.format(GITHUB_RELEASES.format(repo), release))
         releases = re.findall(r'<a href=\"/{}/releases/tag/.*\">(.*)</a>'.format(repo), result.text)
         releases_count += len(releases)
         for release in releases:
@@ -404,7 +407,8 @@ def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
         if len(releases) < 1:
             # no more versions available
             break
-        result = requests.get('{}?after={}'.format(GITHUB_RELEASES.format(repo), releases[-1:][0]))
+
+        release = releases[-1:][0]
     return None
 
 
