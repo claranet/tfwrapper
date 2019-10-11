@@ -50,7 +50,7 @@ PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
     'always_trigger_init': False,
     'pipe_plan_command': 'cat',
-    'use_local_azure_session_directory': True,
+    'use_local_azure_session_directory': False,
 }
 
 home_dir = str(Path.home())
