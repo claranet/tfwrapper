@@ -48,7 +48,8 @@ renew: check clear setup
 
 work: check setup
 ifeq ($(use_local_azure_session_directory),true)
-	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" AZURE_CONFIG_DIR="$(run_dir)/azure-cli" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
+	@echo 'Exporting AZURE_CONFIG_DIR="$(run_dir)/azure"'
+	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" AZURE_CONFIG_DIR="$(run_dir)/azure" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
 else
 	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
 endif
