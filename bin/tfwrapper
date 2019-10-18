@@ -1070,8 +1070,7 @@ def main():
                     logger.error('Please set the `azure.general.directory_id` variable in your stack configuration.')
                     sys.exit(RC_KO)
 
-                az_token = _get_azure_token(terraform_vars['azure_subscription_id'])
-                if not az_token:
+                if not _check_azure_auth(terraform_vars['azure_subscription_id']):
                     logger.error('Error while getting Azure token, try logging you in with "az login" '
                                  'and check that you are authorized on this subscription.')
                     sys.exit(RC_KO)
