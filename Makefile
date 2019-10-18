@@ -10,12 +10,12 @@ makefile_dir := $(patsubst %/,%,$(dir $(makefile_path)))
 wrapper_bin := $(makefile_dir)/bin
 virtualenv_bin := $(makefile_dir)/.virtualenv/bin
 pip := $(virtualenv_bin)/pip
-with_azure_deps := true
 run_dir := $(realpath $(makefile_dir)/../.run)
 conf_dir := $(realpath $(makefile_dir)/../conf)
 
 # Config parsing
 use_local_azure_session_directory := $(shell grep -i 'use_local_azure_session_directory' $(conf_dir)/config.yml 2>&1 | grep -i 'true' 2>&1 >/dev/null && echo 'true' || echo 'false')
+with_azure_deps := $(shell grep -i 'install_azure_dependencies' $(conf_dir)/config.yml 2>&1 | grep -i 'false' 2>&1 >/dev/null && echo 'false' || echo 'true')
 
 .PHONY := check clean clear renew work
 .DEFAULT_GOAL := work
