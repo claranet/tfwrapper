@@ -1,3 +1,17 @@
+# 7.2.0 (29/10/2019)
+
+ADDED:
+
+  * TER-423: Option to override `azure-cli` session and config directory
+
+UPDATES:
+
+  * TER-419: Always check if a `terraform-wrapper` env is already activated and always update virtualenv
+
+FIXED:
+
+  * TER-417: Start search from the next incremented minor version
+
 # 7.1.1 (25/09/2019)
 
 FIXED:
