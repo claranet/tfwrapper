@@ -212,13 +212,19 @@ def load_stack_config(confdir, account, environment, region, stack):
 
 def _check_azure_auth(subscription_id):
     """Check if user is authenticated and have access to the subscription."""
+    return _get_azure_token(subscription_id) is not None
+
+
+def _get_azure_token(subscription_id):
+    """Get Azure CLI token access to the subscription."""
     from azure.common.credentials import get_cli_profile
     try:
         profile = get_cli_profile()
-        profile.get_raw_token(subscription=subscription_id)
-        return True
+        token = profile.get_raw_token(subscription=subscription_id)
+        logger.debug('Azure profile token retrieved: {}'.format(token))
+        return token[0][2]
     except Exception:
-        return False
+        return None
 
 
 def _get_aws_session(session_cache_file, region, profile):
@@ -1042,6 +1048,12 @@ def main():
 
         # Add support Azure
         if 'azure' in stack_config:
+            az_config_dir = os.environ.get('AZURE_CONFIG_DIR')
+            if az_config_dir:
+                logger.debug('`AZURE_CONFIG_DIR` is set to `{}` directory'.format(az_config_dir))
+                az_token_file = os.path.join(az_config_dir, 'accessTokens.json')
+                logger.debug('Exporting `AZURE_ACCESS_TOKEN_FILE` to `{}`'.format(az_token_file))
+                os.environ['AZURE_ACCESS_TOKEN_FILE'] = az_token_file
             if 'client_name' not in terraform_vars:
                 terraform_vars['client_name'] = wrapper_config['account']
             terraform_vars['azurerm_region'] = wrapper_config['region']  # Kept for retro-compat
@@ -1060,7 +1072,7 @@ def main():
 
                 if not _check_azure_auth(terraform_vars['azure_subscription_id']):
                     logger.error('Error while getting Azure token, try logging you in with "az login" '
-                                 'and  check that you are authorized on this subscription.')
+                                 'and check that you are authorized on this subscription.')
                     sys.exit(RC_KO)
             elif az_login_mode.lower() in ['sp', 'serviceprincipal', 'service_principal']:
                 logger.info('Using Azure Service Principal mode')

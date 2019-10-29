@@ -174,12 +174,14 @@ tfwrapper uses yaml files stored in the `conf` directory of the project.
 
 ### tfwrapper configuration
 
-tfwrapper uses some default behaviors that can be overrided or modified via a `config.yml` file in the `conf` directory.
+tfwrapper uses some default behaviors that can be overridden or modified via a `config.yml` file in the `conf` directory.
 
 ```yaml
 ---
+install_azure_dependencies: True # Install all needed Azure dependencies in the loaded shell (azure-cli, azure python SDK)
 always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
 pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
+use_local_azure_session_directory: True # Specify the `.run` directory to store `azure-cli` session and configuration
 ```
 
 ### Stacks configurations
@@ -379,8 +381,8 @@ The following file structure is enforced:
 ```bash
 # this will initialize a virtualenv and update your PATH in a new instance of your current SHELL
 make
-# if you don't want to install Azure CLI dependencies for a non Azure repository, you may want to use:
-make -e with_azure_deps=false
+# if you don't want to install Azure CLI dependencies for a non Azure repository, you may want to specify it in your `config.yml`
+# see [tfwrapper configuration section](#tfwrapper-configuration)
 
 tfwrapper -h
 
