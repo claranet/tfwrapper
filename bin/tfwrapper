@@ -131,10 +131,11 @@ def detect_config_dir(wrapper_config):
     return parents_count
 
 
-def detect_stack(wrapper_config, parents_count):
+def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True):
     """
     Detect the stack from the current working directory.
 
+    By default, raises an error if any component required to identify a specific stack is missing.
     Updates the dict passed as a parameter.
     """
     # detect parent dirs
@@ -156,9 +157,10 @@ def detect_stack(wrapper_config, parents_count):
         count_down -= 1
         count_up += 1
 
-    for element in parents_list:
-        if wrapper_config[element] is None:
-            error("{} cannot be autodetected. Exiting...".format(element))
+    if raise_on_missing:
+        for element in parents_list:
+            if wrapper_config[element] is None:
+                error("{} cannot be autodetected. Exiting...".format(element))
 
     # support both _global (fs) and global (param)
     if wrapper_config['environment'] == '_global':

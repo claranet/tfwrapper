@@ -216,6 +216,95 @@ def test_detect_stack_global(tmp_working_dir_global, default_args):
     assert wrapper_config["stack"] == "teststack"
 
 
+def test_detect_stack_regional_no_error_if_missing(
+    tmp_working_dir_regional, default_args
+):
+    paths = tmp_working_dir_regional
+
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] is None
+    assert wrapper_config["environment"] is None
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["account_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] is None
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["environment_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "testenvironment"
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["region_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "testenvironment"
+    assert wrapper_config["region"] == "testregion"
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["stack_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "testenvironment"
+    assert wrapper_config["region"] == "testregion"
+    assert wrapper_config["stack"] == "teststack"
+
+
+def test_detect_stack_global_no_error_if_missing(tmp_working_dir_global, default_args):
+    paths = tmp_working_dir_global
+
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] is None
+    assert wrapper_config["environment"] is None
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["account_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] is None
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["environment_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "global"
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] is None
+
+    os.chdir(paths["stack_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "global"
+    assert wrapper_config["region"] is None
+    assert wrapper_config["stack"] == "teststack"
+
+
 def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
