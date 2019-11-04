@@ -143,6 +143,69 @@ def test_detect_config_dir_global(tmp_working_dir_global, default_args):
     assert parents_count == 3
 
 
+def test_detect_stack_regional(tmp_working_dir_regional, default_args):
+    paths = tmp_working_dir_regional
+
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "account cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["account_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "environment cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["environment_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "region cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["region_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "stack cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["stack_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_stack(wrapper_config)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "testenvironment"
+    assert wrapper_config["region"] == "testregion"
+    assert wrapper_config["stack"] == "teststack"
+
+
+def test_detect_stack_global(tmp_working_dir_global, default_args):
+    paths = tmp_working_dir_global
+
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "account cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["account_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "environment cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["environment_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    with pytest.raises(ValueError) as e:
+        tfwrapper.detect_stack(wrapper_config)
+    assert "stack cannot be autodetected" in str(e.value)
+
+    os.chdir(paths["stack_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_stack(wrapper_config)
+    assert wrapper_config["account"] == "testaccount"
+    assert wrapper_config["environment"] == "global"
+    assert wrapper_config["stack"] == "teststack"
+
+
 def test_load_wrapper_config_confdir_not_found(tmp_working_dir, default_args):
     with pytest.raises(ValueError) as e:
         wrapper_config = tfwrapper.load_wrapper_config(default_args)
