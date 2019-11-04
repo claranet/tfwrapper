@@ -14,7 +14,7 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 @pytest.fixture
 def default_args():
     parser = argparse.ArgumentParser()
-    args = parser.parse_args()
+    args = parser.parse_args([])
     args.confdir = "conf"
     args.account = None
     args.environment = None
