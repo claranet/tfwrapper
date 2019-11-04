@@ -1,6 +1,6 @@
 # Keep the user's current shell (say bash or zsh) instead of using the system's
 # default /bin/sh shell which can differ (e.g. dash by default on Ubuntu).
-SHELL := $(shell env | grep '^SHELL=' | cut -d '=' -f '2' )
+OUT_SHELL := $(shell env | grep '^SHELL=' | cut -d '=' -f '2' )
 
 python_version_full := $(wordlist 2,4,$(subst ., ,$(shell python3 --version 2>&1)))
 python_version_minor := $(word 2,${python_version_full})
@@ -49,8 +49,8 @@ renew: check clear setup
 work: check setup
 ifeq ($(use_local_azure_session_directory),true)
 	@echo 'Exporting AZURE_CONFIG_DIR="$(run_dir)/azure"'
-	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" AZURE_CONFIG_DIR="$(run_dir)/azure" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
+	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" AZURE_CONFIG_DIR="$(run_dir)/azure" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(OUT_SHELL)
 else
-	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(SHELL)
+	@PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)" TERRAFORM_WRAPPER_SHELL="$(wrapper_bin)" $(OUT_SHELL)
 endif
 	@echo 'terraform-wrapper env exited. ("$(wrapper_bin)")'
