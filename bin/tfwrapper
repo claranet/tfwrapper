@@ -131,7 +131,7 @@ def detect_config_dir(wrapper_config):
     return parents_count
 
 
-def detect_stack(wrapper_config):
+def detect_stack(wrapper_config, parents_count):
     """
     Detect the stack from the current working directory.
 
@@ -139,7 +139,7 @@ def detect_stack(wrapper_config):
     """
     # detect parent dirs
     count_up = 0
-    count_down = detect_config_dir(wrapper_config)
+    count_down = parents_count
 
     # check wether we are in global environment
     if (os.path.basename(os.path.abspath('.')) == '_global' or
@@ -166,18 +166,13 @@ def detect_stack(wrapper_config):
     logger.debug("Detected environment '{}'".format(wrapper_config['environment']))
 
 
-def load_wrapper_config(args):
+def load_wrapper_config(wrapper_config):
     """
     Load wrapper and state config from args.
 
     Validate args and autodetect current stack.
-    Returns a new dict containing wrapper configuration.
+    Updates the dict passed as a parameter.
     """
-    # convert args to dict
-    wrapper_config = deepcopy(vars(args))
-
-    detect_stack(wrapper_config)
-
     # load wrapper config
     wrapper_config_file = os.path.join(wrapper_config['confdir'], 'config.yml')
     wrapper_config['config'] = TFWRAPPER_DEFAULT_CONFIG
@@ -210,8 +205,6 @@ def load_wrapper_config(args):
 
     # The default backend is the first in the list
     wrapper_config['default_state_backend_type'] = next(iter(state_config), None)
-
-    return wrapper_config
 
 
 def load_stack_config(confdir, account, environment, region, stack):
@@ -951,9 +944,14 @@ def main():
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
+    # convert args to dict
+    wrapper_config = deepcopy(vars(args))
+
     # process args
     try:
-        wrapper_config = load_wrapper_config(args)
+        parents_count = detect_config_dir(wrapper_config)
+        detect_stack(wrapper_config, parents_count)
+        load_wrapper_config(wrapper_config)
     except ValueError as e:
         logger.error(e)
         sys.exit(RC_KO)
