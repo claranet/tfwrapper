@@ -1,6 +1,8 @@
 from importlib.machinery import SourceFileLoader
 from unittest.mock import MagicMock
 
+from copy import deepcopy
+
 import argparse
 import os
 import platform
@@ -66,6 +68,79 @@ def tmp_working_dir_global(tmp_working_dir_empty_conf, default_args):
     paths["stack_dir"].mkdir(parents=True)
 
     return paths
+
+
+def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):
+    wrapper_config = deepcopy(vars(default_args))
+
+    with pytest.raises(ValueError) as e:
+        wrapper_config = tfwrapper.detect_config_dir(wrapper_config)
+    assert "Cannot find configuration directory" in str(e.value)
+
+
+def test_detect_config_dir_empty(tmp_working_dir_empty_conf, default_args):
+    wrapper_config = deepcopy(vars(default_args))
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 0
+
+
+def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):
+    paths = tmp_working_dir_regional
+    wrapper_config = deepcopy(vars(default_args))
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 0
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["account_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 1
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["environment_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 2
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["region_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 3
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["stack_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 4
+
+
+def test_detect_config_dir_global(tmp_working_dir_global, default_args):
+    paths = tmp_working_dir_global
+    wrapper_config = deepcopy(vars(default_args))
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 0
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["account_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 1
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["environment_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 2
+
+    wrapper_config = deepcopy(vars(default_args))
+    os.chdir(paths["stack_dir"])
+
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 3
 
 
 def test_load_wrapper_config_confdir_not_found(tmp_working_dir, default_args):
