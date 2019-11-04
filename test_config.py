@@ -11,7 +11,7 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
 @pytest.fixture
-def tmp_working_dir_regional(tmp_working_dir_empty_conf, default_args):
+def tmp_working_dir_regional(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
     paths["environment_dir"] = paths["account_dir"] / "testenvironment"
@@ -23,7 +23,7 @@ def tmp_working_dir_regional(tmp_working_dir_empty_conf, default_args):
 
 
 @pytest.fixture
-def tmp_working_dir_global(tmp_working_dir_empty_conf, default_args):
+def tmp_working_dir_global(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
     paths["environment_dir"] = paths["account_dir"] / "_global"

@@ -209,12 +209,31 @@ def load_wrapper_config(wrapper_config):
     wrapper_config['default_state_backend_type'] = next(iter(state_config), None)
 
 
+def get_stack_dir(rootdir, account, environment, region, stack):
+    """
+    Get the path to a stack given its components.
+
+    Returns the stack dir.
+    """
+    if environment == 'global':
+        return '{}/{}/_global/{}'.format(rootdir, account, stack)
+    return '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
+
+
+def get_stack_config_path(confdir, account, environment, region, stack):
+    """
+    Get the path to a stack configuration file given its components.
+
+    Returns the stack config path.
+    """
+    if environment == 'global':
+        return '{}/{}_global_{}.yml'.format(confdir, account, stack)
+    return '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
+
+
 def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
-    if environment == 'global':
-        stack_config_file = '{}/{}_global_{}.yml'.format(confdir, account, stack)
-    else:
-        stack_config_file = '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
+    stack_config_file = get_stack_config_path(confdir, account, environment, region, stack)
 
     with open(stack_config_file, 'r') as f:
         stack_config = yaml.safe_load(f)
@@ -607,8 +626,7 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
-                   else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
+    working_dir = get_stack_dir(rootdir, account, environment, region, stack)
 
     cmd_env = deepcopy(os.environ)
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
