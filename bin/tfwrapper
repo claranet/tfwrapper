@@ -107,12 +107,13 @@ def error(message):
     raise ValueError("{}\n\nUse -h to show the help message".format(message))
 
 
-def load_wrapper_config(args):
-    """Load wrapper config from args. Validate args and autodetect current stack."""
-    # convert args to dict
-    wrapper_config = deepcopy(vars(args))
+def detect_config_dir(wrapper_config):
+    """
+    Detect the path to the wrapper config directory relative to the current working directory.
 
-    # detect confdir and rootdir locations
+    Updates the dict passed as a parameter.
+    Returns the number of directories traversed.
+    """
     parents_count = 0
     while parents_count < 5:
         if os.path.isdir('../' * parents_count + wrapper_config['confdir']):
@@ -127,9 +128,18 @@ def load_wrapper_config(args):
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
     logger.debug("Detected rootdir at '{}'".format(wrapper_config['rootdir']))
 
+    return parents_count
+
+
+def detect_stack(wrapper_config):
+    """
+    Detect the stack from the current working directory.
+
+    Updates the dict passed as a parameter.
+    """
     # detect parent dirs
     count_up = 0
-    count_down = parents_count
+    count_down = detect_config_dir(wrapper_config)
 
     # check wether we are in global environment
     if (os.path.basename(os.path.abspath('.')) == '_global' or
@@ -154,6 +164,19 @@ def load_wrapper_config(args):
     if wrapper_config['environment'] == '_global':
         wrapper_config['environment'] = 'global'
     logger.debug("Detected environment '{}'".format(wrapper_config['environment']))
+
+
+def load_wrapper_config(args):
+    """
+    Load wrapper and state config from args.
+
+    Validate args and autodetect current stack.
+    Returns a new dict containing wrapper configuration.
+    """
+    # convert args to dict
+    wrapper_config = deepcopy(vars(args))
+
+    detect_stack(wrapper_config)
 
     # load wrapper config
     wrapper_config_file = os.path.join(wrapper_config['confdir'], 'config.yml')
@@ -795,7 +818,7 @@ def switchver(wrapper_config):
 
 def main():
     """Execute tfwrapper."""
-    # terraforms params doc
+    # terraform params doc
     tf_params_help = 'Any Terraform parameters after a "--" delimiter'
 
     # argparse
