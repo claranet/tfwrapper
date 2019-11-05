@@ -104,11 +104,18 @@ def tmp_working_dir_multiple_stacks(tmp_working_dir_empty_conf, multiple_stacks)
             )
         ).write_text("{}")
 
+    # Stack with no matching directory
+    pathlib.Path(
+        tfwrapper.get_stack_config_path(
+            paths["conf_dir"], "account2", "global", None, "default"
+        )
+    ).write_text("{}")
+
     return paths
 
 
 def test_foreach_select_all_stacks(
-    tmp_working_dir_multiple_stacks, multiple_stacks, default_args
+    tmp_working_dir_multiple_stacks, multiple_stacks, default_args, caplog
 ):
     wrapper_config = deepcopy(vars(default_args))
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
@@ -117,8 +124,14 @@ def test_foreach_select_all_stacks(
     stacks = tfwrapper.foreach_select_stacks(wrapper_config)
 
     for i in range(len(stacks)):
-        assert stacks[i] == multiple_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *multiple_stacks[i]
+        )
     assert len(stacks) == len(multiple_stacks)
+    assert (
+        "Stack config conf/account2_global_default.yml has no matching directory at"
+        in caplog.text
+    )
 
 
 def test_foreach_select_from_dir_account0(
@@ -151,7 +164,9 @@ def test_foreach_select_from_dir_account0(
         ("account0", "test", "eu-west-3", "default"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -175,7 +190,9 @@ def test_foreach_select_from_dir_account0_prod(
         ("account0", "prod", "eu-west-4", "infra"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -197,7 +214,9 @@ def test_foreach_select_from_dir_account0_prod_euw1(
         ("account0", "prod", "eu-west-1", "infra"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -229,7 +248,9 @@ def test_foreach_select_from_args_account0(
         ("account0", "test", "eu-west-3", "default"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -255,7 +276,9 @@ def test_foreach_select_from_args_env_preprod(
         ("account1", "preprod", "eu-west-2", "infra"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -283,7 +306,9 @@ def test_foreach_select_from_args_region_euw1(
         ("account1", "prod", "eu-west-1", "infra"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -314,7 +339,9 @@ def test_foreach_select_from_args_stack_default(
         ("account1", "prod", "eu-west-4", "default"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)
 
 
@@ -337,5 +364,7 @@ def test_foreach_select_from_args_env_preprod_stack_default(
         ("account1", "preprod", "eu-west-2", "default"),
     ]
     for i in range(len(stacks)):
-        assert stacks[i] == expected_stacks[i]
+        assert str(stacks[i]) == tfwrapper.get_stack_dir(
+            wrapper_config["rootdir"], *expected_stacks[i]
+        )
     assert len(stacks) == len(expected_stacks)

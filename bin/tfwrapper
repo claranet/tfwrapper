@@ -245,7 +245,7 @@ def get_stack_from_config_path(config_path):
     """
     Get the components of a stack given its configuration file path.
 
-    Returns the stack dir.
+    Returns the stack components.
     """
     config_path_regex = r'(?P<confdir>.+)/(?P<account>[^/_]+)_(?P<environment>[^/_]+)(_(?P<region>[^/_]+))?_(?P<stack>[^/_]+).yml'
     m = re.match(config_path_regex, config_path)
@@ -279,9 +279,16 @@ def foreach_select_stacks(wrapper_config):
 
     stacks = sorted(list(stacks), key=lambda stack: str(stack))
 
-    for i in range(len(stacks)):
-        stacks[i] = get_stack_from_config_path(str(stacks[i]))
-    return stacks
+    filtered_stacks = []
+    for stack_config in stacks:
+        stack = get_stack_from_config_path(str(stack_config))
+        stack_dir = get_stack_dir(wrapper_config["rootdir"], *stack)
+        if not pathlib.Path(stack_dir).is_dir():
+            logger.warning("Stack config {} has no matching directory at {}, skipping.".format(stack_config, stack_dir))
+            continue
+        filtered_stacks.append(stack_dir)
+
+    return filtered_stacks
 
 
 def load_stack_config(confdir, account, environment, region, stack):
@@ -886,12 +893,10 @@ def foreach(wrapper_config):
     """Execute command foreach stack."""
     stacks = foreach_select_stacks(wrapper_config)
     for stack in stacks:
-        # TODO: check missing dir
-        cwd = pathlib.Path(get_stack_dir(wrapper_config["rootdir"], *stack))
         command = wrapper_config["command"]
         shell = wrapper_config["shell"]
-        with subprocess.Popen(command, cwd=cwd, shell=shell) as process:
-            logger.debug('Execute command "{}" in "{}"'.format(command, cwd))
+        with subprocess.Popen(command, cwd=stack, shell=shell) as process:
+            logger.debug('Execute command "{}" in "{}"'.format(command, stack))
             try:
                 process.communicate()
             except KeyboardInterrupt:
