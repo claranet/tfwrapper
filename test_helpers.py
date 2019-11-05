@@ -1,9 +1,5 @@
 from importlib.machinery import SourceFileLoader
 
-import os
-
-import pytest
-
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
