@@ -240,6 +240,20 @@ def get_stack_config_path(confdir, account, environment, region, stack):
     return '{}/{}'.format(confdir, get_stack_config_filename(account, environment, region, stack))
 
 
+def get_stack_from_config_path(config_path):
+    """
+    Get the components of a stack given its configuration file path.
+
+    Returns the stack dir.
+    """
+    config_path_regex = r'(?P<confdir>.+)/(?P<account>[^/_]+)_(?P<environment>[^/_]+)(_(?P<region>[^/_]+))?_(?P<stack>[^/_]+).yml'
+    m = re.match(config_path_regex, config_path)
+    if not m:
+        error("Failed to parse configuration filename {}. Exiting...".format(config_path))
+
+    return m.group('account', 'environment', 'region', 'stack')
+
+
 def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
     stack_config_file = get_stack_config_path(confdir, account, environment, region, stack)
