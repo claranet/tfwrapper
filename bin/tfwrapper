@@ -4,6 +4,7 @@
 import argparse
 import logging
 import os
+import pathlib
 import pickle
 import platform
 import random
@@ -252,6 +253,35 @@ def get_stack_from_config_path(config_path):
         error("Failed to parse configuration filename {}. Exiting...".format(config_path))
 
     return m.group('account', 'environment', 'region', 'stack')
+
+
+def foreach_select_stacks(wrapper_config):
+    """
+    Select the stacks to process with foreach. Treats unset stack components as wildcard.
+
+    :param wrapper_config: dict: the wrapper config
+    """
+    account = wrapper_config["account"] if wrapper_config["account"] else "*"
+    environment = wrapper_config["environment"] if wrapper_config["environment"] else "*"
+    region = wrapper_config["region"] if wrapper_config["region"] else "*"
+    stack = wrapper_config["stack"] if wrapper_config["stack"] else "*"
+
+    pattern = get_stack_config_filename(account, environment, region, stack)
+    logger.debug("Selecting stacks matching pattern '{}'", pattern)
+    stacks = list(pathlib.Path(wrapper_config["confdir"]).glob(pattern))
+
+    if environment == "*" and region == "*":
+        # Also select global stacks
+        environment = "global"
+        pattern = get_stack_config_filename(account, environment, region, stack)
+        logger.debug("Also selecting stacks matching pattern '{}'", pattern)
+        stacks.extend(list(pathlib.Path(wrapper_config["confdir"]).glob(pattern)))
+
+    stacks = sorted(list(stacks), key=lambda stack: str(stack))
+
+    for i in range(len(stacks)):
+        stacks[i] = get_stack_from_config_path(str(stacks[i]))
+    return stacks
 
 
 def load_stack_config(confdir, account, environment, region, stack):
