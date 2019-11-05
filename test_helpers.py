@@ -30,6 +30,28 @@ def test_get_stack_dir(tmp_working_dir):
         ) == str(expected)
 
 
+def test_get_stack_config_filename():
+    for account, environment, region, stack, expected in [
+        (
+            "testaccount",
+            "global",
+            None,
+            "teststack",
+            "testaccount_global_teststack.yml",
+        ),
+        (
+            "testaccount",
+            "testenvironment",
+            "testregion",
+            "teststack",
+            "testaccount_testenvironment_testregion_teststack.yml",
+        ),
+    ]:
+        assert tfwrapper.get_stack_config_filename(
+            account, environment, region, stack
+        ) == str(expected)
+
+
 def test_get_stack_config_path(tmp_working_dir_empty_conf):
     conf_dir = tmp_working_dir_empty_conf["conf_dir"]
     for account, environment, region, stack, expected in [

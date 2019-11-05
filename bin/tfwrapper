@@ -220,15 +220,24 @@ def get_stack_dir(rootdir, account, environment, region, stack):
     return '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
 
 
+def get_stack_config_filename(account, environment, region, stack):
+    """
+    Get the configuration filename of a stack given its components.
+
+    Returns the stack config path.
+    """
+    if environment == 'global':
+        return '{}_global_{}.yml'.format(account, stack)
+    return '{}_{}_{}_{}.yml'.format(account, environment, region, stack)
+
+
 def get_stack_config_path(confdir, account, environment, region, stack):
     """
     Get the path to a stack configuration file given its components.
 
     Returns the stack config path.
     """
-    if environment == 'global':
-        return '{}/{}_global_{}.yml'.format(confdir, account, stack)
-    return '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
+    return '{}/{}'.format(confdir, get_stack_config_filename(account, environment, region, stack))
 
 
 def load_stack_config(confdir, account, environment, region, stack):
