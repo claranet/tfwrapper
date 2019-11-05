@@ -886,9 +886,11 @@ def foreach(wrapper_config):
     """Execute command foreach stack."""
     stacks = foreach_select_stacks(wrapper_config)
     for stack in stacks:
+        # TODO: check missing dir
         cwd = pathlib.Path(get_stack_dir(wrapper_config["rootdir"], *stack))
         command = wrapper_config["command"]
-        with subprocess.Popen(command, cwd=cwd, shell=False) as process:
+        shell = wrapper_config["shell"]
+        with subprocess.Popen(command, cwd=cwd, shell=shell) as process:
             logger.debug('Execute command "{}" in "{}"'.format(command, cwd))
             try:
                 process.communicate()
@@ -904,13 +906,13 @@ def foreach(wrapper_config):
                 return
 
 
-def main():
-    """Execute tfwrapper."""
+def parse_args(args):
+    """Parse command line arguments."""
     # terraform params doc
     tf_params_help = 'Any Terraform parameters after a "--" delimiter'
 
     # argparse
-    parser = argparse.ArgumentParser(description='Terraform wrapper.')
+    parser = argparse.ArgumentParser(prog="tfwrapper", description='Terraform wrapper.')
     parser.add_argument("-d", "--debug",
                         action='store_true', default=False,
                         help="Enable debug output.")
@@ -1032,13 +1034,29 @@ def main():
 
     parser_foreach = subparsers.add_parser('foreach', help='execute command for each stack')
     parser_foreach.set_defaults(func=foreach)
-    parser_foreach.add_argument('command', nargs=argparse.REMAINDER, help='Command to execute after a "--" delimiter')
+    parser_foreach.add_argument('-c', dest='shell', action="store_true", help='execute command in a shell')
+    parser_foreach.add_argument('command', nargs=argparse.REMAINDER, help='command to execute after a "--" delimiter')
 
     parser_switchver = subparsers.add_parser('switchver', help='switch terraform version')
     parser_switchver.set_defaults(func=switchver)
     parser_switchver.add_argument('version', nargs=1, help='terraform version to use')
 
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
+
+    if parsed_args.func == foreach:
+        if len(parsed_args.command) > 0 and parsed_args.command[0] == '--':
+            parsed_args.command = parsed_args.command[1:]
+        if len(parsed_args.command) < 1:
+            raise ValueError("foreach: error: a command is required")
+        if parsed_args.shell and len(parsed_args.command) > 1:
+            raise ValueError("foreach: error: -c must be followed by a single argument (hint: use quotes)")
+
+    return parsed_args
+
+
+def main():
+    """Execute tfwrapper."""
+    args = parse_args(sys.argv[1:])
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
