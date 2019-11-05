@@ -267,14 +267,14 @@ def foreach_select_stacks(wrapper_config):
     stack = wrapper_config["stack"] if wrapper_config["stack"] else "*"
 
     pattern = get_stack_config_filename(account, environment, region, stack)
-    logger.debug("Selecting stacks matching pattern '{}'", pattern)
+    logger.debug("Selecting stacks matching pattern '{}'".format(pattern))
     stacks = list(pathlib.Path(wrapper_config["confdir"]).glob(pattern))
 
     if environment == "*" and region == "*":
         # Also select global stacks
         environment = "global"
         pattern = get_stack_config_filename(account, environment, region, stack)
-        logger.debug("Also selecting stacks matching pattern '{}'", pattern)
+        logger.debug("Also selecting stacks matching pattern '{}'".format(pattern))
         stacks.extend(list(pathlib.Path(wrapper_config["confdir"]).glob(pattern)))
 
     stacks = sorted(list(stacks), key=lambda stack: str(stack))
@@ -882,6 +882,28 @@ def switchver(wrapper_config):
     do_switchver(version)
 
 
+def foreach(wrapper_config):
+    """Execute command foreach stack."""
+    stacks = foreach_select_stacks(wrapper_config)
+    for stack in stacks:
+        cwd = pathlib.Path(get_stack_dir(wrapper_config["rootdir"], *stack))
+        command = wrapper_config["command"]
+        with subprocess.Popen(command, cwd=cwd, shell=False) as process:
+            logger.debug('Execute command "{}" in "{}"'.format(command, cwd))
+            try:
+                process.communicate()
+            except KeyboardInterrupt:
+                logger.warning('Received Ctrl+C')
+            except:  # noqa
+                process.kill()
+                process.wait()
+                raise
+            returncode = process.poll()
+            if returncode != 0:
+                # TODO: add option to collect errors and report at end?
+                return
+
+
 def main():
     """Execute tfwrapper."""
     # terraform params doc
@@ -1008,6 +1030,10 @@ def main():
     parser_bootstrap.set_defaults(func=bootstrap)
     parser_bootstrap.add_argument('template', nargs='?', help='template to use during bootstrap', default=None)
 
+    parser_foreach = subparsers.add_parser('foreach', help='execute command for each stack')
+    parser_foreach.set_defaults(func=foreach)
+    parser_foreach.add_argument('command', nargs=argparse.REMAINDER, help='Command to execute after a "--" delimiter')
+
     parser_switchver = subparsers.add_parser('switchver', help='switch terraform version')
     parser_switchver.set_defaults(func=switchver)
     parser_switchver.add_argument('version', nargs=1, help='terraform version to use')
@@ -1023,8 +1049,9 @@ def main():
     # process args
     try:
         parents_count = detect_config_dir(wrapper_config)
-        detect_stack(wrapper_config, parents_count)
-        load_wrapper_config(wrapper_config)
+        detect_stack(wrapper_config, parents_count, raise_on_missing=args.subcommand != 'foreach')
+        if args.subcommand != 'foreach':
+            load_wrapper_config(wrapper_config)
     except ValueError as e:
         logger.error(e)
         sys.exit(RC_KO)
@@ -1032,7 +1059,7 @@ def main():
         logger.exception('Unknown error')
         sys.exit(RC_UNK)
 
-    if args.subcommand not in ('switchver', 'version',):
+    if args.subcommand not in ('foreach', 'switchver', 'version',):
         # load config
         stack_config = load_stack_config(wrapper_config['confdir'],
                                          wrapper_config['account'],
@@ -1197,7 +1224,7 @@ def main():
 
     if hasattr(args, 'func'):
         # check terraform version
-        if args.subcommand not in ('providers', 'switchver', 'version',):
+        if args.subcommand not in ('foreach', 'providers', 'switchver', 'version',):
             tf_version = stack_config['terraform']['vars'].get('version')
             if tf_version:
                 do_switchver(tf_version)
