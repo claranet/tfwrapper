@@ -1043,6 +1043,10 @@ def parse_args(args):
 
     parsed_args = parser.parse_args(args)
 
+    if not hasattr(parsed_args, 'func'):
+        parser.print_help(file=sys.stderr)
+        raise SystemExit(0)
+
     if parsed_args.func == foreach:
         if len(parsed_args.command) > 0 and parsed_args.command[0] == '--':
             parsed_args.command = parsed_args.command[1:]
@@ -1240,21 +1244,18 @@ def main():
 
     returncode = None
 
-    if hasattr(args, 'func'):
-        # check terraform version
-        if args.subcommand not in ('foreach', 'providers', 'switchver', 'version',):
-            tf_version = stack_config['terraform']['vars'].get('version')
-            if tf_version:
-                do_switchver(tf_version)
-        # do we need a custom provider ?
-        if args.subcommand in ["init", "bootstrap"]:
-            for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
-                download_custom_provider(provider, provider_version)
+    # check terraform version
+    if args.subcommand not in ('foreach', 'providers', 'switchver', 'version',):
+        tf_version = stack_config['terraform']['vars'].get('version')
+        if tf_version:
+            do_switchver(tf_version)
+    # do we need a custom provider ?
+    if args.subcommand in ["init", "bootstrap"]:
+        for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
+            download_custom_provider(provider, provider_version)
 
-        # call subcommand
-        returncode = args.func(wrapper_config)
-    else:
-        parser.print_help(file=sys.stderr)
+    # call subcommand
+    returncode = args.func(wrapper_config)
 
     if returncode is not None:
         sys.exit(returncode)

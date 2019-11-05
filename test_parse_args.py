@@ -7,6 +7,22 @@ import pytest
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
+def test_parse_args_help(capsys):
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.parse_args([])
+    assert e.value.code == 0
+    captured = capsys.readouterr()
+    assert "usage: tfwrapper [-h] [-d] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
+
+
+def test_parse_args_no_args(capsys):
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.parse_args([])
+    assert e.value.code == 0
+    captured = capsys.readouterr()
+    assert "usage: tfwrapper [-h] [-d] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
+
+
 def test_parse_args_foreach_help(capsys):
     with pytest.raises(SystemExit) as e:
         tfwrapper.parse_args(["foreach", "-h"])
