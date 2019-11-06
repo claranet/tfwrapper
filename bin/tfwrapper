@@ -839,6 +839,10 @@ def run_terraform(action, wrapper_config):
 
     # support for custom parameters
     command = [TERRAFORM_LOCAL_BIN_PATH, action]
+
+    if action == "init" and not wrapper_config["backend"]:
+        command.append("-backend=false")
+
     if tf_params is not None:
         if tf_params and tf_params[0] == "--":
             tf_params = tf_params[1:]
@@ -1193,6 +1197,12 @@ def parse_args(args):
     parser_init = subparsers.add_parser("init", help="terraform init")
     parser_init.set_defaults(func=terraform_init)
     parser_init.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_init.add_argument(
+        "--backend",
+        choices=["true", "false"],
+        default="true",
+        help="configure the backend for this configuration.",
+    )
 
     parser_output = subparsers.add_parser("output", help="terraform output")
     parser_output.set_defaults(func=terraform_output)
@@ -1325,7 +1335,18 @@ def main(argv=None):
 
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
-        if wrapper_config["state"]:
+        load_backend = wrapper_config["backend"] = not (
+            (args.subcommand == "init" and args.backend == "false")
+            or args.subcommand
+            in (
+                "get",
+                "fmt",
+                "test",
+                "validate",
+                "version",
+            )
+        )
+        if load_backend and wrapper_config["state"]:
             state_config = (
                 wrapper_config["state"].get(state_backend_name)
                 if state_backend_name
@@ -1368,7 +1389,7 @@ def main(argv=None):
         terraform_vars["environment"] = wrapper_config["environment"]
         terraform_vars["stack"] = wrapper_config["stack"]
 
-        if "aws" in stack_config:
+        if load_backend and "aws" in stack_config:
             logger.info("Getting stack session")
             stack_session = get_session(
                 wrapper_config["rootdir"],
@@ -1387,7 +1408,7 @@ def main(argv=None):
             terraform_vars["aws_token"] = stack_credentials.token
 
         # GCP/GKE support
-        if "gcp" in stack_config:
+        if load_backend and "gcp" in stack_config:
             gcp_auth_mode = stack_config["gcp"]["general"].get("mode")
             if gcp_auth_mode.lower() == "adc-user":
                 # In this mode we are trying to use ADC credentials of type authorized_user.
@@ -1466,7 +1487,7 @@ def main(argv=None):
                 sys.exit(RC_KO)
 
         # Add support Azure
-        if "azure" in stack_config:
+        if load_backend and "azure" in stack_config:
             az_config_dir = os.environ.get("AZURE_CONFIG_DIR")
             if az_config_dir:
                 logger.debug("`AZURE_CONFIG_DIR` is set to `{}` directory".format(az_config_dir))
@@ -1532,8 +1553,6 @@ def main(argv=None):
 
         set_terraform_vars(terraform_vars)
         os.environ["TF_PLUGIN_CACHE_DIR"] = wrapper_config["plugin_cache_dir"]
-
-    returncode = None
 
     # check terraform version
     if args.subcommand not in (
