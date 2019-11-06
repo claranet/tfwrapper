@@ -895,7 +895,8 @@ def foreach(wrapper_config):
     for stack in stacks:
         command = wrapper_config["command"]
         shell = wrapper_config["shell"]
-        with subprocess.Popen(command, cwd=stack, shell=shell) as process:
+        executable = os.environ.get("SHELL", None)
+        with subprocess.Popen(command, cwd=stack, shell=shell, executable=executable) as process:
             logger.debug('Execute command "{}" in "{}"'.format(command, stack))
             try:
                 process.communicate()
