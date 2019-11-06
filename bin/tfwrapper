@@ -909,7 +909,8 @@ def foreach(wrapper_config):
             returncode = process.poll()
             if returncode != 0:
                 # TODO: add option to collect errors and report at end?
-                return
+                return returncode
+    return 0
 
 
 def parse_args(args):
