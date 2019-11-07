@@ -481,38 +481,16 @@ def set_terraform_vars(vars):
             os.environ["TF_VAR_{}".format(var)] = str(value)
 
 
-def get_stack_path(wrapper_config, local=False):
-    """Return stack path."""
-    rootdir = wrapper_config["rootdir"]
-    account = wrapper_config["account"]
-    environment = wrapper_config["environment"]
-    region = wrapper_config["region"]
-    stack = wrapper_config["stack"]
-
-    if local:
-        if environment == "global":
-            stack_path = "{}/{}/_global/{}".format(rootdir, account, stack)
-        else:
-            stack_path = "{}/{}/{}/{}/{}".format(rootdir, account, environment, region, stack)
-    else:
-        if environment == "global":
-            stack_path = "{}/_global/{}".format(account, stack)
-        else:
-            stack_path = "{}/{}/{}/{}".format(account, environment, region, stack)
-
-    return stack_path
-
-
 def bootstrap(wrapper_config):
     """Bootstrap project."""
     rootdir = wrapper_config["rootdir"]
     confdir = wrapper_config["confdir"]
-    stack_path = get_stack_path(wrapper_config, local=True)
-
     account = wrapper_config["account"]
     environment = wrapper_config["environment"]
     region = wrapper_config["region"]
     stack = wrapper_config["stack"]
+
+    stack_path = get_stack_dir(confdir, account, environment, region, stack)
     stack_config = load_stack_config(confdir, account, environment, region, stack)
     state_backend_name = stack_config.get("state_configuration_name", None)
     state_backend_type = (
