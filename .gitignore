@@ -1,2 +1,4 @@
+.tox
 .virtualenv
+__pycache__
 bin/terraform
