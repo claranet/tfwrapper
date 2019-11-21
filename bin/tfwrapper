@@ -895,7 +895,7 @@ def foreach(wrapper_config):
     for stack in stacks:
         command = wrapper_config["command"]
         shell = wrapper_config["shell"]
-        executable = os.environ.get("SHELL", None)
+        executable = wrapper_config["executable"]
         with subprocess.Popen(command, cwd=stack, shell=shell, executable=executable) as process:
             logger.debug('Execute command "{}" in "{}"'.format(command, stack))
             try:
@@ -1061,6 +1061,7 @@ def parse_args(args):
             raise ValueError("foreach: error: a command is required")
         if parsed_args.shell and len(parsed_args.command) > 1:
             raise ValueError("foreach: error: -c must be followed by a single argument (hint: use quotes)")
+        parsed_args.executable = os.environ.get("SHELL", None) if parsed_args.shell else None
 
     return parsed_args
 

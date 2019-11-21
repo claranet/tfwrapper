@@ -1,5 +1,7 @@
 from importlib.machinery import SourceFileLoader
 
+import os
+
 import pytest
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
@@ -51,16 +53,20 @@ def test_parse_args_foreach_command_shell_too_many_args():
 
 
 def test_parse_args_foreach_command():
+    os.environ["SHELL"] = "mybash"
     args = tfwrapper.parse_args(["foreach", "--", "ls", "-l"])
     assert args.subcommand == "foreach"
     assert args.func == tfwrapper.foreach
     assert args.shell is False
+    assert args.executable is None
     assert args.command == ["ls", "-l"]
 
 
 def test_parse_args_foreach_command_shell():
+    os.environ["SHELL"] = "mybash"
     args = tfwrapper.parse_args(["foreach", "-c", "ls -l | head -1"])
     assert args.subcommand == "foreach"
     assert args.func == tfwrapper.foreach
     assert args.shell is True
+    assert args.executable == "mybash"
     assert args.command == ["ls -l | head -1"]
