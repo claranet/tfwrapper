@@ -1,5 +1,14 @@
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  key: .gitlab-cache-tfwrapper
+  paths:
+    - .cache/pip
+
 stages:
   - lint
+  - test
 
 pycodestyle:
   stage: lint
@@ -21,3 +30,13 @@ pyflakes:
   tags:
     - default
   script: pyflakes bin/tfwrapper
+
+tox:
+  stage: test
+  image: python:3
+  script:
+    - python -V
+    - pip3 install -U virtualenv tox
+    - tox
+  tags:
+    - default
