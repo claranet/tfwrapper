@@ -97,7 +97,7 @@ stack_configuration_schema = Schema({
     },
     'terraform': {
         'vars': {str: str},
-        Optional('custom-providers'): {str: str},
+        Optional('custom-providers'): {str: Or(str, {'version': str, 'suffix': str})},
     },
 })
 
@@ -487,17 +487,21 @@ def do_switchver(version):
     logger.warning("Switch done, current terraform version is {}".format(full_version))
 
 
-def download_custom_provider(provider_name, provider_version):
+def download_custom_provider(provider_name, provider_version, suffix="zip"):
     """Download Terraform custom provider."""
     logger.info("Checking custom Terraform provider '{}' at version '{}'".format(provider_name, provider_version))
     github_base = 'https://github.com/'
     github_endpoint = "{g}{p}".format(g=github_base, p=provider_name)
+    supported_extensions = ["zip", "tar.gz", "tar.bz2"]
+
+    if suffix not in supported_extensions:
+        error("Extension {} is not supported. Only {} are.".format(suffix, ", ".join(supported_extensions)))
 
     r = requests.get(github_endpoint)
     if r.status_code != 200:
         error("The terraform provider {} does not exist ({})".format(provider_name, github_endpoint))
 
-    m = re.match(r'^([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$', provider_version)
+    m = re.match(r'^v?([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$', provider_version)
     if not m:
         error('The provider version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or '
               '"X.Y.Z-custom"')
@@ -515,21 +519,25 @@ def download_custom_provider(provider_name, provider_version):
     os.makedirs(plugins_path, exist_ok=True)
     provider_short_name = provider_name.split('/', 1)[1]
     bin_name = '{n}_{v}'.format(n=provider_short_name, v=full_version)
+    if provider_version.startswith('v'):
+        # Do it now so we keep full_version clean for building url
+        bin_name = '{n}_v{v}'.format(n=provider_short_name, v=full_version)
+    else:
+        bin_name = '{n}_{v}'.format(n=provider_short_name, v=full_version)
     tf_bin_path = os.path.join(plugins_path, '{n}_v{v}'.format(n=provider_short_name, v=full_version))
 
     if not os.path.isfile(tf_bin_path):
         # Download and extract in user's home if needed
         logger.warning("Provider version does not exist locally, downloading it")
-        handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix='.zip')
+        handle, tmp_file = tempfile.mkstemp(prefix='terraform-', suffix="." + suffix)
         r = requests.get(
-            'https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.zip'.format(
-                p=provider_name, v=full_version, b=bin_name, platform=PLATFORM_SYSTEM, arch=ARCH_NAME),
+            'https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.{suffix}'.format(
+                p=provider_name, v=full_version, b=bin_name, platform=PLATFORM_SYSTEM, arch=ARCH_NAME, suffix=suffix),
             stream=True)
         with open(tmp_file, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
-        with zipfile.ZipFile(tmp_file, 'r') as zip:
-            zip.extractall(path=plugins_path)
+        shutil.unpack_archive(tmp_file, plugins_path)
         # Permissions not preserved on extract https://bugs.python.org/issue15795
         os.chmod(tf_bin_path, os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         os.remove(tmp_file)
@@ -1109,9 +1117,13 @@ def main():
                 do_switchver(tf_version)
         # do we need a custom provider ?
         if args.subcommand in ["init", "bootstrap"]:
-            for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
-                download_custom_provider(provider, provider_version)
-
+            for provider, config in stack_config['terraform'].get('custom-providers', {}).items():
+                if type(config) == str:
+                    # This should be the version
+                    download_custom_provider(provider, config)
+                else:
+                    # config should be a hash of version / suffix
+                    download_custom_provider(provider, config['version'], config['suffix'])
         # call subcommand
         returncode = args.func(wrapper_config)
     else:
