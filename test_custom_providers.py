@@ -81,7 +81,7 @@ def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_con
                     claranet/terraform-provider-gitlab: '2.1'
                     custom/terraform-custom-provider:
                         version: '1.1.1'
-                        suffix: 'tar.gz'
+                        extension: 'tar.gz'
             """
         )
     )
@@ -92,7 +92,7 @@ def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_con
                 'claranet/terraform-provider-gitlab': '2.1',
                 'custom/terraform-custom-provider': {
                     'version': '1.1.1',
-                    'suffix': 'tar.gz'
+                    'extension': 'tar.gz'
                 }
             },
             'vars': {
@@ -108,7 +108,7 @@ def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_con
     assert(stack_config == expected_stack_result)
 
 
-def test_stack_config_parsing_invalid_custom_provider_missing_suffix(tmp_working_dir_empty_conf):
+def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
@@ -136,7 +136,7 @@ def test_stack_config_parsing_invalid_custom_provider_missing_suffix(tmp_working
                                                    'testenvironment', 'testregion',
                                                    'teststack')
         stack_configuration_schema_backup.validate(stack_config)
-    assert ("Missing key: 'suffix'" in str(e.value))
+    assert ("Missing key: 'extension'" in str(e.value))
 
 
 def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_working_dir_empty_conf):
@@ -154,7 +154,7 @@ def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_workin
                 custom-providers:
                     claranet/terraform-provider-gitlab: '2.1'
                     custom/terraform-custom-provider:
-                        suffix: '.zip'
+                        extension: '.zip'
             """
         )
     )
