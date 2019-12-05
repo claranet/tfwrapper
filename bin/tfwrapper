@@ -4,6 +4,7 @@
 import argparse
 import logging
 import os
+import pathlib
 import pickle
 import platform
 import random
@@ -107,12 +108,13 @@ def error(message):
     raise ValueError("{}\n\nUse -h to show the help message".format(message))
 
 
-def load_wrapper_config(args):
-    """Load wrapper config from args. Validate args and autodetect current stack."""
-    # convert args to dict
-    wrapper_config = deepcopy(vars(args))
+def detect_config_dir(wrapper_config):
+    """
+    Detect the path to the wrapper config directory relative to the current working directory.
 
-    # detect confdir and rootdir locations
+    Updates the dict passed as a parameter.
+    Returns the number of directories traversed.
+    """
     parents_count = 0
     while parents_count < 5:
         if os.path.isdir('../' * parents_count + wrapper_config['confdir']):
@@ -127,6 +129,16 @@ def load_wrapper_config(args):
     wrapper_config['rootdir'] = os.path.dirname(os.path.abspath(wrapper_config['confdir']))
     logger.debug("Detected rootdir at '{}'".format(wrapper_config['rootdir']))
 
+    return parents_count
+
+
+def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True):
+    """
+    Detect the stack from the current working directory.
+
+    By default, raises an error if any component required to identify a specific stack is missing.
+    Updates the dict passed as a parameter.
+    """
     # detect parent dirs
     count_up = 0
     count_down = parents_count
@@ -146,15 +158,24 @@ def load_wrapper_config(args):
         count_down -= 1
         count_up += 1
 
-    for element in parents_list:
-        if wrapper_config[element] is None:
-            error("{} cannot be autodetected. Exiting...".format(element))
+    if raise_on_missing:
+        for element in parents_list:
+            if wrapper_config[element] is None:
+                error("{} cannot be autodetected. Exiting...".format(element))
 
     # support both _global (fs) and global (param)
     if wrapper_config['environment'] == '_global':
         wrapper_config['environment'] = 'global'
     logger.debug("Detected environment '{}'".format(wrapper_config['environment']))
 
+
+def load_wrapper_config(wrapper_config):
+    """
+    Load wrapper and state config from args.
+
+    Validate args and autodetect current stack.
+    Updates the dict passed as a parameter.
+    """
     # load wrapper config
     wrapper_config_file = os.path.join(wrapper_config['confdir'], 'config.yml')
     wrapper_config['config'] = TFWRAPPER_DEFAULT_CONFIG
@@ -188,15 +209,91 @@ def load_wrapper_config(args):
     # The default backend is the first in the list
     wrapper_config['default_state_backend_type'] = next(iter(state_config), None)
 
-    return wrapper_config
+
+def get_stack_dir(rootdir, account, environment, region, stack):
+    """
+    Get the path to a stack given its components.
+
+    Returns the stack dir.
+    """
+    if environment == 'global':
+        return '{}/{}/_global/{}'.format(rootdir, account, stack)
+    return '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack)
+
+
+def get_stack_config_filename(account, environment, region, stack):
+    """
+    Get the configuration filename of a stack given its components.
+
+    Returns the stack config path.
+    """
+    if environment == 'global':
+        return '{}_global_{}.yml'.format(account, stack)
+    return '{}_{}_{}_{}.yml'.format(account, environment, region, stack)
+
+
+def get_stack_config_path(confdir, account, environment, region, stack):
+    """
+    Get the path to a stack configuration file given its components.
+
+    Returns the stack config path.
+    """
+    return '{}/{}'.format(confdir, get_stack_config_filename(account, environment, region, stack))
+
+
+def get_stack_from_config_path(config_path):
+    """
+    Get the components of a stack given its configuration file path.
+
+    Returns the stack components.
+    """
+    config_path_regex = r'(?P<confdir>.+)/(?P<account>[^/_]+)_(?P<environment>[^/_]+)(_(?P<region>[^/_]+))?_(?P<stack>[^/_]+).yml'
+    m = re.match(config_path_regex, config_path)
+    if not m:
+        error("Failed to parse configuration filename {}. Exiting...".format(config_path))
+
+    return m.group('account', 'environment', 'region', 'stack')
+
+
+def foreach_select_stacks(wrapper_config):
+    """
+    Select the stacks to process with foreach. Treats unset stack components as wildcard.
+
+    :param wrapper_config: dict: the wrapper config
+    """
+    account = wrapper_config["account"] if wrapper_config["account"] else "*"
+    environment = wrapper_config["environment"] if wrapper_config["environment"] else "*"
+    region = wrapper_config["region"] if wrapper_config["region"] else "*"
+    stack = wrapper_config["stack"] if wrapper_config["stack"] else "*"
+
+    pattern = get_stack_config_filename(account, environment, region, stack)
+    logger.debug("Selecting stacks matching pattern '{}'".format(pattern))
+    stacks = list(pathlib.Path(wrapper_config["confdir"]).glob(pattern))
+
+    if environment == "*" and region == "*":
+        # Also select global stacks
+        environment = "global"
+        pattern = get_stack_config_filename(account, environment, region, stack)
+        logger.debug("Also selecting stacks matching pattern '{}'".format(pattern))
+        stacks.extend(list(pathlib.Path(wrapper_config["confdir"]).glob(pattern)))
+
+    stacks = sorted(list(stacks), key=lambda stack: str(stack))
+
+    filtered_stacks = []
+    for stack_config in stacks:
+        stack = get_stack_from_config_path(str(stack_config))
+        stack_dir = get_stack_dir(wrapper_config["rootdir"], *stack)
+        if not pathlib.Path(stack_dir).is_dir():
+            logger.warning("Stack config {} has no matching directory at {}, skipping.".format(stack_config, stack_dir))
+            continue
+        filtered_stacks.append(stack_dir)
+
+    return filtered_stacks
 
 
 def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
-    if environment == 'global':
-        stack_config_file = '{}/{}_global_{}.yml'.format(confdir, account, stack)
-    else:
-        stack_config_file = '{}/{}_{}_{}_{}.yml'.format(confdir, account, environment, region, stack)
+    stack_config_file = get_stack_config_path(confdir, account, environment, region, stack)
 
     with open(stack_config_file, 'r') as f:
         stack_config = yaml.safe_load(f)
@@ -589,8 +686,7 @@ def run_terraform(action, wrapper_config):
             tf_params = tf_params[1:]
         command += tf_params
 
-    working_dir = ('{}/{}/_global/{}'.format(rootdir, account, stack) if environment == 'global'
-                   else '{}/{}/{}/{}/{}'.format(rootdir, account, environment, region, stack))
+    working_dir = get_stack_dir(rootdir, account, environment, region, stack)
 
     cmd_env = deepcopy(os.environ)
     cmd_env['PATH'] = "{path}{sep}{old_path}".format(
@@ -793,13 +889,37 @@ def switchver(wrapper_config):
     do_switchver(version)
 
 
-def main():
-    """Execute tfwrapper."""
-    # terraforms params doc
+def foreach(wrapper_config):
+    """Execute command foreach stack."""
+    stacks = foreach_select_stacks(wrapper_config)
+    for stack in stacks:
+        command = wrapper_config["command"]
+        shell = wrapper_config["shell"]
+        executable = wrapper_config["executable"]
+        with subprocess.Popen(command, cwd=stack, shell=shell, executable=executable) as process:
+            logger.debug('Execute command "{}" in "{}"'.format(command, stack))
+            try:
+                process.communicate()
+            except KeyboardInterrupt:
+                logger.warning('Received Ctrl+C')
+            except:  # noqa
+                process.kill()
+                process.wait()
+                raise
+            returncode = process.poll()
+            if returncode != 0:
+                # TODO: add option to collect errors and report at end?
+                return returncode
+    return 0
+
+
+def parse_args(args):
+    """Parse command line arguments."""
+    # terraform params doc
     tf_params_help = 'Any Terraform parameters after a "--" delimiter'
 
     # argparse
-    parser = argparse.ArgumentParser(description='Terraform wrapper.')
+    parser = argparse.ArgumentParser(prog="tfwrapper", description='Terraform wrapper.')
     parser.add_argument("-d", "--debug",
                         action='store_true', default=False,
                         help="Enable debug output.")
@@ -919,18 +1039,49 @@ def main():
     parser_bootstrap.set_defaults(func=bootstrap)
     parser_bootstrap.add_argument('template', nargs='?', help='template to use during bootstrap', default=None)
 
+    parser_foreach = subparsers.add_parser('foreach', help='execute command for each stack')
+    parser_foreach.set_defaults(func=foreach)
+    parser_foreach.add_argument('-c', dest='shell', action="store_true", help='execute command in a shell')
+    parser_foreach.add_argument('command', nargs=argparse.REMAINDER, help='command to execute after a "--" delimiter')
+
     parser_switchver = subparsers.add_parser('switchver', help='switch terraform version')
     parser_switchver.set_defaults(func=switchver)
     parser_switchver.add_argument('version', nargs=1, help='terraform version to use')
 
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
+
+    if not hasattr(parsed_args, 'func'):
+        parser.print_help(file=sys.stderr)
+        raise SystemExit(0)
+
+    if parsed_args.func == foreach:
+        if len(parsed_args.command) > 0 and parsed_args.command[0] == '--':
+            parsed_args.command = parsed_args.command[1:]
+        if len(parsed_args.command) < 1:
+            raise ValueError("foreach: error: a command is required")
+        if parsed_args.shell and len(parsed_args.command) > 1:
+            raise ValueError("foreach: error: -c must be followed by a single argument (hint: use quotes)")
+        parsed_args.executable = os.environ.get("SHELL", None) if parsed_args.shell else None
+
+    return parsed_args
+
+
+def main():
+    """Execute tfwrapper."""
+    args = parse_args(sys.argv[1:])
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
+    # convert args to dict
+    wrapper_config = deepcopy(vars(args))
+
     # process args
     try:
-        wrapper_config = load_wrapper_config(args)
+        parents_count = detect_config_dir(wrapper_config)
+        detect_stack(wrapper_config, parents_count, raise_on_missing=args.subcommand != 'foreach')
+        if args.subcommand != 'foreach':
+            load_wrapper_config(wrapper_config)
     except ValueError as e:
         logger.error(e)
         sys.exit(RC_KO)
@@ -938,7 +1089,7 @@ def main():
         logger.exception('Unknown error')
         sys.exit(RC_UNK)
 
-    if args.subcommand not in ('switchver', 'version',):
+    if args.subcommand not in ('foreach', 'switchver', 'version',):
         # load config
         stack_config = load_stack_config(wrapper_config['confdir'],
                                          wrapper_config['account'],
@@ -1101,21 +1252,18 @@ def main():
 
     returncode = None
 
-    if hasattr(args, 'func'):
-        # check terraform version
-        if args.subcommand not in ('providers', 'switchver', 'version',):
-            tf_version = stack_config['terraform']['vars'].get('version')
-            if tf_version:
-                do_switchver(tf_version)
-        # do we need a custom provider ?
-        if args.subcommand in ["init", "bootstrap"]:
-            for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
-                download_custom_provider(provider, provider_version)
+    # check terraform version
+    if args.subcommand not in ('foreach', 'providers', 'switchver', 'version',):
+        tf_version = stack_config['terraform']['vars'].get('version')
+        if tf_version:
+            do_switchver(tf_version)
+    # do we need a custom provider ?
+    if args.subcommand in ["init", "bootstrap"]:
+        for provider, provider_version in stack_config['terraform'].get('custom-providers', {}).items():
+            download_custom_provider(provider, provider_version)
 
-        # call subcommand
-        returncode = args.func(wrapper_config)
-    else:
-        parser.print_help(file=sys.stderr)
+    # call subcommand
+    returncode = args.func(wrapper_config)
 
     if returncode is not None:
         sys.exit(returncode)

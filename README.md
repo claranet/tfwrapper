@@ -402,9 +402,9 @@ tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap aws/foobar
 ```
 
-### Working on a stack
+### Working on stacks
 
-You can work on stacks from theirs root or from the root of the project.
+You can work on stacks from their directory or from the root of the project.
 
 ```bash
 # working from the root of the project
@@ -413,6 +413,38 @@ tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} plan
 # working from the root of a stack
 cd ${account}/${environment}/${region}/${stack}
 tfwrapper plan
+```
+
+You can also work on several stacks sequentially with the `foreach` subcommand from any directory under the root of the project.
+By default, `foreach` selects all stacks under the current directory,
+so if called from the root of the project without any filter,
+it will select all stacks and execute the specified command in them, one after another:
+
+```bash
+# working from the root of the project
+tfwrapper foreach -- tfwrapper init
+```
+
+Any combination of the `-a`, `-e`, `-r` and `-s` arguments can be used to select specific stacks,
+e.g. all stacks for an account across all environments but in a specific region:
+
+```bash
+# working from the root of the project
+tfwrapper -a ${account} -r ${region} foreach -- tfwrapper plan
+```
+
+The same can be achieved with:
+```bash
+# working from an account directory
+cd ${account}
+tfwrapper -r ${region} foreach -- tfwrapper plan
+```
+
+Complex commands can be executed in a sub-shell with the `-c` argument, e.g.:
+```bash
+# working from an environment directory
+cd ${account}/${environment}
+tfwrapper foreach -c 'pwd && tfwrapper init >/dev/null 2>&1 && tfwrapper plan 2>/dev/null -- -no-color | grep "^Plan: "'
 ```
 
 ### Passing options
