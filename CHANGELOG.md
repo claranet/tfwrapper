@@ -1,3 +1,12 @@
+# 7.3.0 (06/12/2019)
+
+ADDED:
+  * TER-35: Add `foreach` subcommand to execute arbitrary commands on several stacks at once
+
+FIXED:
+
+  * TER-35: fix foreach when -c is not specified
+
 # 7.2.0 (29/10/2019)
 
 ADDED:
