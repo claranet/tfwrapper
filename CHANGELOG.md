@@ -1,6 +1,17 @@
+# 7.4.0 (06/12/2019)
+
+ADDED:
+
+  * TER-438: Add support for .tar.gz, .tar.bz2 (not tested) and version number starting with "v"
+
+UPDATES:
+
+  * TER-343: Improve README documentation for kubeconfig management
+
 # 7.3.0 (06/12/2019)
 
 ADDED:
+
   * TER-35: Add `foreach` subcommand to execute arbitrary commands on several stacks at once
 
 FIXED:
