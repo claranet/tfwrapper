@@ -10,8 +10,8 @@ makefile_dir := $(patsubst %/,%,$(dir $(makefile_path)))
 wrapper_bin := $(makefile_dir)/bin
 virtualenv_bin := $(makefile_dir)/.virtualenv/bin
 pip := $(virtualenv_bin)/pip
-run_dir := $(realpath $(makefile_dir)/../.run)
-conf_dir := $(realpath $(makefile_dir)/../conf)
+run_dir := $(realpath $(makefile_dir)/..)/.run
+conf_dir := $(realpath $(makefile_dir)/..)/conf
 
 # Config parsing
 use_local_azure_session_directory := $(shell grep -i 'use_local_azure_session_directory' $(conf_dir)/config.yml 2>&1 | grep -i 'true' 2>&1 >/dev/null && echo 'true' || echo 'false')
