@@ -1,3 +1,9 @@
+# 7.4.1 (09/12/2019)
+
+FIXED:
+
+  * TER-423: Fix directories path detection in Makefile for exported variables
+
 # 7.4.0 (06/12/2019)
 
 ADDED:
