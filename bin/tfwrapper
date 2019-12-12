@@ -643,7 +643,7 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         logger.debug("Current provider version is already {}".format(full_version))
 
 
-def adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=None, region=None):
+def adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=None, region=None, refresh_kubeconfig=None):
     """Provision kubeconfig for a given GKE instance using ADC."""
     cmd_env = deepcopy(os.environ)
     cmd_env['CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS'] = 'true'
@@ -664,17 +664,18 @@ def adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone
         logger.error('You must specify a zone or region for {} GKE instance.'.format(gke_name))
         sys.exit(RC_KO)
 
-    if not Path(kubeconfig_path).is_file():
-        logger.warning('Could not find GKE credentials for {}, configuring new credentials.'.format(gke_name))
+    if refresh_kubeconfig not in ['always', 'never']:
+        logger.error('refresh_kubeconfig must be one of "always", "never" but is {}'.format(refresh_kubeconfig))
+        sys.exit(RC_KO)
 
+    if refresh_kubeconfig == "always" or not Path(kubeconfig_path).is_file():
+        logger.info('Refreshing {} GKE credentials.'.format(gke_name))
         try:
             subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env)
         except subprocess.CalledProcessError:
             logger.error('Could not configure {} GKE credentials.'.format(gke_name))
             sys.exit(RC_KO)
         logger.info('{} GKE credentials configured.'.format(gke_name))
-    else:
-        logger.info('Found {} GKE credentials.'.format(gke_name))
 
 
 def run_terraform(action, wrapper_config):
@@ -1191,11 +1192,14 @@ def main():
                                                                                      wrapper_config['region'],
                                                                                      wrapper_config['stack'],
                                                                                      gke_name)
+                        refresh_kubeconfig = "always"
+                        if 'refresh_kubeconfig' in cluster:
+                            refresh_kubeconfig = cluster['refresh_kubeconfig']
 
                         if 'zone' in cluster:
-                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=cluster['zone'])
+                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=cluster['zone'], refresh_kubeconfig=refresh_kubeconfig)
                         elif 'region' in cluster:
-                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, region=cluster['region'])
+                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, region=cluster['region'], refresh_kubeconfig=refresh_kubeconfig)
                         else:
                             logger.error('You must specify a zone or region for {} GKE instance.'.format(gke_name))
                             sys.exit(RC_KO)
