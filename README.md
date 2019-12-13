@@ -495,7 +495,8 @@ Each GKE instance has its own kubeconfig, the path to each configuration is avai
 - `TF_VAR_gke_kubeconfig_${gke_cluster_name}`
 
 kubeconfig is automatically fetched by the wrapper (using gcloud) and stored inside the `.run` directory of your project.
-Once retrieved, no refresh is automatically performed, you must remove the `your_stack.kubeconfig` file inside `.run` directory to trigger a config refresh (ex: when your cluster has been recreated and endpoint changed).
+It is refreshed automatically at every run to ensure you point to correct Kubernetes endpoint.
+You can disable this behaviour by setting `refresh_kubeconfig: never` in your cluster settings.
 
 ### Stack configurations and credentials
 
