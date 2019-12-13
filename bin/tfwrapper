@@ -668,6 +668,7 @@ def adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone
         logger.error('refresh_kubeconfig must be one of "always", "never" but is {}'.format(refresh_kubeconfig))
         sys.exit(RC_KO)
 
+    logger.debug("Using kubeconfig path {} .".format(kubeconfig_path))
     if refresh_kubeconfig == "always" or not Path(kubeconfig_path).is_file():
         logger.info('Refreshing {} GKE credentials.'.format(gke_name))
         try:
@@ -676,6 +677,8 @@ def adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone
             logger.error('Could not configure {} GKE credentials.'.format(gke_name))
             sys.exit(RC_KO)
         logger.info('{} GKE credentials configured.'.format(gke_name))
+    else:
+        logger.info('Using existing {} kubeconfig file.'.format(gke_name))
 
 
 def run_terraform(action, wrapper_config):
