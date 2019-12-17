@@ -92,7 +92,8 @@ stack_configuration_schema = Schema({
         Optional('gke'): [
             {
                 Or('zone', 'region'): str,
-                'name': str
+                'name': str,
+                Optional('refresh_kubeconfig'): Or('always', 'never')
             }
         ]
     },

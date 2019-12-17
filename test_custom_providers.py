@@ -108,7 +108,7 @@ def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_con
     assert(stack_config == expected_stack_result)
 
 
-def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_working_dir_empty_conf):
+def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_working_dir_empty_conf, caplog):
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
@@ -128,18 +128,15 @@ def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_work
         )
     )
 
-    # Mock validate() to bypass the exception catching in load_stack_config
-    tfwrapper.stack_configuration_schema.validate = MagicMock(return_value=True)
-    with pytest.raises(SchemaError) as e:
+    with pytest.raises(SystemExit):
         stack_config = tfwrapper.load_stack_config(paths['conf_dir'],
                                                    'testaccount',
                                                    'testenvironment', 'testregion',
                                                    'teststack')
-        stack_configuration_schema_backup.validate(stack_config)
-    assert ("Missing key: 'extension'" in str(e.value))
+    assert ("Missing key: 'extension'" in caplog.text)
 
 
-def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_working_dir_empty_conf):
+def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_working_dir_empty_conf, caplog):
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
@@ -159,12 +156,9 @@ def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_workin
         )
     )
 
-    # Mock validate() to bypass the exception catching in load_stack_config
-    tfwrapper.stack_configuration_schema.validate = MagicMock(return_value=True)
-    with pytest.raises(SchemaError) as e:
+    with pytest.raises(SystemExit):
         stack_config = tfwrapper.load_stack_config(paths['conf_dir'],
                                                    'testaccount',
                                                    'testenvironment', 'testregion',
                                                    'teststack')
-        stack_configuration_schema_backup.validate(stack_config)
-    assert ("Missing key: 'version'" in str(e.value))
+    assert ("Missing key: 'version'" in caplog.text)

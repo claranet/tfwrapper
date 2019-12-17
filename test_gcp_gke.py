@@ -1,17 +1,15 @@
 from importlib.machinery import SourceFileLoader
 from unittest.mock import MagicMock, patch
-import colorlog
 import subprocess
 import os
+import textwrap
+import pytest
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
 @patch('pathlib.Path.is_file')
-def test_dot_kubeconfig_refresh(mock_is_file):
-    logger = colorlog.getLogger()
-    logger.info = MagicMock()
-    logger.error = MagicMock()
+def test_dot_kubeconfig_refresh(mock_is_file, caplog):
     os.environ = {}
 
     adc_path = '/home/test/.config/gcloud/application_default_credentials.json'
@@ -57,5 +55,154 @@ def test_dot_kubeconfig_refresh(mock_is_file):
         tfwrapper.adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, region=region, refresh_kubeconfig=refresh_kubeconfig)
     except SystemExit:
         subprocess.run.assert_not_called()
-        logger.error.assert_called_with('refresh_kubeconfig must be one of "always", "never" but is invalid')
+        assert('refresh_kubeconfig must be one of "always", "never" but is invalid' in caplog.text)
 
+
+def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):
+    paths = tmp_working_dir_empty_conf
+    stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    stack_config_b.write_text(
+        textwrap.dedent(
+            """
+            ---
+            gcp:
+              general:
+                mode: adc-user
+                project: &gcp_project testproject
+              gke:
+              - nae: gke-testproject2
+                zone: europe-west1-b
+                refresh_kubeconfig: invalid
+            terraform:
+              vars:
+                client_name: claranet
+            """
+        )
+    )
+
+    with pytest.raises(SystemExit):
+        tfwrapper.load_stack_config(paths['conf_dir'], 'testaccount', 'testenvironment', 'testregion', 'teststack')
+    assert("Or('always', 'never') did not validate 'invalid'" in caplog.text)
+
+
+def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):
+    paths = tmp_working_dir_empty_conf
+    stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+
+    stack_config.write_text(
+        textwrap.dedent(
+            """
+            ---
+            gcp:
+              general:
+                mode: adc-user
+                project: &gcp_project testproject
+              gke:
+              - name: gke-testproject
+                zone: europe-west1-b
+            terraform:
+              vars:
+                client_name: claranet
+            """
+        )
+    )
+
+    expected_stack_result = {
+        'gcp': {
+            'general': {
+                'mode': 'adc-user',
+                'project': 'testproject'
+            },
+            'gke': [{
+                'name': 'gke-testproject',
+                'zone': 'europe-west1-b'
+            }]
+        },
+        'terraform': {
+            'vars': {
+                'client_name': 'claranet'
+            }
+        }
+    }
+    parsed_stack_config = tfwrapper.load_stack_config(paths['conf_dir'], 'testaccount', 'testenvironment', 'testregion', 'teststack')
+    assert(parsed_stack_config == expected_stack_result)
+
+    stack_config.write_text(
+        textwrap.dedent(
+            """
+            ---
+            gcp:
+              general:
+                mode: adc-user
+                project: &gcp_project testproject
+              gke:
+              - name: gke-testproject
+                zone: europe-west1-b
+                refresh_kubeconfig: always
+            terraform:
+              vars:
+                client_name: claranet
+            """
+        )
+    )
+
+    expected_stack_result = {
+        'gcp': {
+            'general': {
+                'mode': 'adc-user',
+                'project': 'testproject'
+            },
+            'gke': [{
+                'name': 'gke-testproject',
+                'zone': 'europe-west1-b',
+                'refresh_kubeconfig': 'always'
+            }]
+        },
+        'terraform': {
+            'vars': {
+                'client_name': 'claranet'
+            }
+        }
+    }
+    parsed_stack_config = tfwrapper.load_stack_config(paths['conf_dir'], 'testaccount', 'testenvironment', 'testregion', 'teststack')
+    assert(parsed_stack_config == expected_stack_result)
+
+    stack_config.write_text(
+        textwrap.dedent(
+            """
+            ---
+            gcp:
+              general:
+                mode: adc-user
+                project: &gcp_project testproject
+              gke:
+              - name: gke-testproject
+                zone: europe-west1-b
+                refresh_kubeconfig: never
+            terraform:
+              vars:
+                client_name: claranet
+            """
+        )
+    )
+
+    expected_stack_result = {
+        'gcp': {
+            'general': {
+                'mode': 'adc-user',
+                'project': 'testproject'
+            },
+            'gke': [{
+                'name': 'gke-testproject',
+                'zone': 'europe-west1-b',
+                'refresh_kubeconfig': 'never'
+            }]
+        },
+        'terraform': {
+            'vars': {
+                'client_name': 'claranet'
+            }
+        }
+    }
+    parsed_stack_config = tfwrapper.load_stack_config(paths['conf_dir'], 'testaccount', 'testenvironment', 'testregion', 'teststack')
+    assert(parsed_stack_config == expected_stack_result)
