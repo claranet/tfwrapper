@@ -2,6 +2,39 @@
 
 `tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
+## Table of contents
+<!--TOC-->
+
+- [tfwrapper](#tfwrapper)
+  - [Table Of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Drawbacks](#drawbacks)
+  - [Dependencies](#dependencies)
+  - [Installation](#installation)
+    - [Required files](#required-files)
+  - [Configuration](#configuration)
+    - [tfwrapper configuration](#tfwrapper-configuration)
+    - [Stacks configurations](#stacks-configurations)
+    - [States centralization configuration](#states-centralization-configuration)
+    - [How to migrate from one backend to another for state centralization](#how-to-migrate-from-one-backend-to-another-for-state-centralization)
+  - [Stacks file structure](#stacks-file-structure)
+  - [Usage](#usage)
+    - [tfwrapper activation](#tfwrapper-activation)
+    - [Stack bootstrap](#stack-bootstrap)
+    - [Working on stacks](#working-on-stacks)
+    - [Passing options](#passing-options)
+  - [Environment](#environment)
+    - [S3 state backend credentials](#s3-state-backend-credentials)
+    - [Azure storage state backend credentials](#azure-storage-state-backend-credentials)
+    - [Azure Service Principal credentials](#azure-service-principal-credentials)
+    - [GCP configuration](#gcp-configuration)
+    - [GKE configurations](#gke-configurations)
+    - [Stack configurations and credentials](#stack-configurations-and-credentials)
+    - [Stack path](#stack-path)
+- [Development](#development)
+
+<!--TOC-->
+
 ## Features
 
 - Terraform behaviour overriding
