@@ -1198,9 +1198,11 @@ def main():
                                                                                      gke_name)
                         refresh_kubeconfig = cluster.get("refresh_kubeconfig", "always")
                         if 'zone' in cluster:
-                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=cluster['zone'], refresh_kubeconfig=refresh_kubeconfig)
+                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, zone=cluster['zone'],
+                                                      refresh_kubeconfig=refresh_kubeconfig)
                         elif 'region' in cluster:
-                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, region=cluster['region'], refresh_kubeconfig=refresh_kubeconfig)
+                            adc_check_gke_credentials(adc_path, kubeconfig_path, gke_name, project, region=cluster['region'],
+                                                      refresh_kubeconfig=refresh_kubeconfig)
                         else:
                             logger.error('You must specify a zone or region for {} GKE instance.'.format(gke_name))
                             sys.exit(RC_KO)
