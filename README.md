@@ -497,6 +497,17 @@ Each GKE instance has its own kubeconfig, the path to each configuration is avai
 kubeconfig is automatically fetched by the wrapper (using gcloud) and stored inside the `.run` directory of your project.
 It is refreshed automatically at every run to ensure you point to correct Kubernetes endpoint.
 You can disable this behaviour by setting `refresh_kubeconfig: never` in your cluster settings.
+```yaml
+---
+gcp:
+  general:
+    mode: adc-user
+    project: &gcp_project project-name
+  gke:
+    - name: kubernetes-1
+      zone: europe-west1-c
+      refresh_kubeconfig: never
+ ```
 
 ### Stack configurations and credentials
 
