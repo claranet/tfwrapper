@@ -1,3 +1,14 @@
+# 7.5.0 (06/01/2020)
+
+ADDED:
+
+  * Add new wrapper option to refresh kubeconfig tokens
+
+UPDATES:
+
+  * Improve README with TOC
+  * TER-439: Bump `azure-cli` to `2.0.77`
+
 # 7.4.1 (09/12/2019)
 
 FIXED:
