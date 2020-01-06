@@ -8,7 +8,7 @@ azure-cli==2.0.77 # Pinned version for now
 adal==1.2.2               # via msrestazure
 asn1crypto==0.24.0        # via cryptography
 azure-common==1.1.23
-azure-mgmt-storage==4.0.0
+azure-mgmt-storage==5.0.0
 certifi==2019.6.16        # via msrest, requests
 cffi==1.12.3              # via cryptography
 chardet==3.0.4            # via requests
