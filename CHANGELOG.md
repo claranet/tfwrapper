@@ -1,3 +1,9 @@
+# 7.5.1 (08/01/2020)
+
+UPDATES:
+
+  * TER-347: Bump Python/boto dependencies
+
 # 7.5.0 (06/01/2020)
 
 ADDED:
