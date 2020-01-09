@@ -53,6 +53,8 @@ TFWRAPPER_DEFAULT_CONFIG = {
     "pipe_plan_command": "cat",
 }
 
+REQUESTS_SESSION = requests.Session()
+
 home_dir = str(Path.home())
 
 # setup logging parameters
@@ -563,7 +565,7 @@ def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
     release = "v{}{}.0".format(minor_version[:-1], int(minor_version[-1]) + 1)
     releases_count = 0
     while True:
-        result = requests.get(
+        result = REQUESTS_SESSION.get(
             "{}?after={}".format(GITHUB_RELEASES.format(repo), release)
         )
         releases = re.findall(
@@ -657,7 +659,7 @@ def do_switchver(version):
         # Download and extract in user's home if needed
         logger.warning("Version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix=".zip")
-        r = requests.get(
+        r = REQUESTS_SESSION.get(
             "https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform}_{arch}.zip".format(
                 full_version=full_version, platform=PLATFORM_SYSTEM, arch=ARCH_NAME
             ),
@@ -701,7 +703,7 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
             )
         )
 
-    r = requests.get(github_endpoint)
+    r = REQUESTS_SESSION.get(github_endpoint)
     if r.status_code != 200:
         error(
             "The terraform provider {} does not exist ({})".format(
@@ -752,7 +754,7 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         # Download and extract in user's home if needed
         logger.warning("Provider version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix="." + extension)
-        r = requests.get(
+        r = REQUESTS_SESSION.get(
             "https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.{extension}".format(
                 p=provider_name,
                 v=full_version,
