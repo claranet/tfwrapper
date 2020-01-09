@@ -2,7 +2,7 @@
 
 `tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
-## Table of contents
+## Table Of Contents
 <!--TOC-->
 
 - [tfwrapper](#tfwrapper)
@@ -32,6 +32,11 @@
     - [Stack configurations and credentials](#stack-configurations-and-credentials)
     - [Stack path](#stack-path)
 - [Development](#development)
+  - [Tests](#tests)
+  - [Python code formatting](#python-code-formatting)
+  - [Checks](#checks)
+  - [README TOC](#readme-toc)
+  - [Using terraform development builds](#using-terraform-development-builds)
 
 <!--TOC-->
 
@@ -571,6 +576,38 @@ The stack path is passed to Terraform. This is especially useful for resource na
 - `TF_VAR_stack`
 
 # Development
+
+## Tests
+
+All new code contributions should come with unit and/or integrations tests.
+
+To run those tests locally, use [tox](https://github.com/tox-dev/tox).
+
+## Python code formatting
+
+Our code is formatted with [black](https://github.com/psf/black/).
+
+Make sure to format all your code contributions with `black ${filename}`.
+
+Hint: enable auto-format on save with `black` in your favorite IDE.
+
+## Checks
+
+To run code and documentation style checks, run `tox -e lint`.
+
+In addition to `black --check`, code is also checked with:
+
+- [pycodestyle](https://github.com/PyCQA/pycodestyle)
+- [pydocstyle](https://github.com/PyCQA/pydocstyle)
+- [pyflakes](https://github.com/PyCQA/pyflakes)
+
+## README TOC
+
+This [README's table of content](#table-of-contents) is formatted with [md_toc](https://github.com/frnmst/md-toc).
+
+Keep in mind to update it with `md_toc --in-place README.md github`.
+
+## Using terraform development builds
 
 To build and use development versions of terraform, manually put them in a `~/.terraform.d/versions/X.Y/X.Y.Z-dev/` folder:
 
