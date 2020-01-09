@@ -200,25 +200,31 @@ def load_wrapper_config(wrapper_config):
         wrapper_config["state"][config_name] = {
             "state_backend_type": config_type,
             # Azure configuration
-            "state_subscription": state_config.get("azure", {})
-            .get("general", {})
-            .get("subscription_uid", None),
-            "state_rg": state_config.get("azure", {})
-            .get("general", {})
-            .get("resource_group_name", None),
-            "state_storage": state_config.get("azure", {})
-            .get("general", {})
-            .get("storage_account_name", None),
+            "state_subscription": (
+                state_config.get("azure", {})
+                .get("general", {})
+                .get("subscription_uid", None)
+            ),
+            "state_rg": (
+                state_config.get("azure", {})
+                .get("general", {})
+                .get("resource_group_name", None)
+            ),
+            "state_storage": (
+                state_config.get("azure", {})
+                .get("general", {})
+                .get("storage_account_name", None)
+            ),
             # AWS configuration
-            "state_account": state_config.get("aws", {})
-            .get("general", {})
-            .get("account", None),
-            "state_region": state_config.get("aws", {})
-            .get("general", {})
-            .get("region", None),
-            "state_profile": state_config.get("aws", {})
-            .get("credentials", {})
-            .get("profile", None),
+            "state_account": (
+                state_config.get("aws", {}).get("general", {}).get("account", None)
+            ),
+            "state_region": (
+                state_config.get("aws", {}).get("general", {}).get("region", None)
+            ),
+            "state_profile": (
+                state_config.get("aws", {}).get("credentials", {}).get("profile", None)
+            ),
         }
 
     # The default backend is the first in the list
