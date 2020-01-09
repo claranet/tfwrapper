@@ -589,7 +589,7 @@ Our code is formatted with [black](https://github.com/psf/black/).
 
 Make sure to format all your code contributions with `black ${filename}`.
 
-Hint: enable auto-format on save with `black` in your favorite IDE.
+Hint: enable auto-format on save with `black` in your [favorite IDE](https://black.readthedocs.io/en/stable/editor_integration.html).
 
 ## Checks
 
