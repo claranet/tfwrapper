@@ -7,20 +7,12 @@ import pytest
 import textwrap
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
-stack_configuration_schema_backup = deepcopy(tfwrapper.stack_configuration_schema)
 
-try:
-    pass
-finally:
-    # Work-around pycodestyle `E402 module level import not at top of file` as
-    # this cannot be moved above the dynamic module loading.
-    # TODO: replace pycodestyle and pyflakes by flake8 which wraps them and allows
-    # to ignore specific lines with `# noqa: E402`
+
+# Not used yet: this method will be used by the mock to replace requests.get
+def mocked_requests_get(*args, **kwargs):
     from tfwrapper import GITHUB_RELEASES
 
-
-# This method will be used by the mock to replace requests.get
-def mocked_requests_get(*args, **kwargs):
     class MockResponse:
         def __init__(self, text, status_code):
             self.text = text
