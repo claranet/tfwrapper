@@ -26,6 +26,9 @@ import colorlog
 import jinja2
 import requests
 import yaml
+from cachecontrol import CacheControl
+from cachecontrol.heuristics import ExpiresAfter
+from cachecontrol.caches import FileCache
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
@@ -53,7 +56,10 @@ TFWRAPPER_DEFAULT_CONFIG = {
     "pipe_plan_command": "cat",
 }
 
-REQUESTS_SESSION = requests.Session()
+# TODO: store cache in configurable location
+REQUESTS_SESSION = CacheControl(
+    requests.Session(), heuristic=ExpiresAfter(minutes=15), cache=FileCache(".webcache")
+)
 
 home_dir = str(Path.home())
 

@@ -1,68 +1,119 @@
+from email.utils import formatdate
 from importlib.machinery import SourceFileLoader
 
-import pytest
-import requests
+import pook
+import mock
+from pook.interceptors.urllib3 import io
+
+from test_search_on_github import terraform_releases_html_after_v0_13_0
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
-RESPONSE_TEXT_VALUE = """
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-    </head>
+# This test uses pook instead of requests_mock because:
+# - requests_mock intercepts requests at the Adapter level and thus prevents using
+#   CacheControl at the same time as it also works at the Adapter level.
+# - pook intercepts requests at a lower level by replacing urllib3.urlopen() by its
+#   own handler. This allows to actually verify what network requests would happen.
+# See https://github.com/h2non/pook/blob/v0.2.8/pook/interceptors/urllib3.py#L19-L20
 
-    <body>
-        <div class="release-header">
-            <a href="/hashicorp/terraform/releases/tag/v0.12.19">v0.12.19</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.18">v0.12.18</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.17">v0.12.17</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.16">v0.12.16</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.15">v0.12.15</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.14">v0.12.14</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.13">v0.12.13</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.12">v0.12.12</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.11">v0.12.11</a>
-            <a href="/hashicorp/terraform/releases/tag/v0.12.10">v0.12.10</a>
-        </div>
-    </body>
-</html>
+
+class AutoclosingBytesIO(io.BytesIO):
+    """
+    CacheControl only flushes its buffer into its cache when the underlying IO
+    is closed. pook uses io.BytesIO which does not automatically close itself when
+    consumed so we need to subclass it and just do this.
     """
 
+    def __init__(self, *args, **kwargs):
+        return super(io.BytesIO, self).__init__(*args, **kwargs)
 
-def test_search_on_github_terraform_releases(requests_mock):
-    request_invocations = 0
+    def read(self, size=-1):
+        data = super(AutoclosingBytesIO, self).read(size)
+        pos = self.tell()
+        if not super(AutoclosingBytesIO, self).read():
+            # If there is no more data to read, close the stream
+            self.close()
+        else:
+            # Otherwise restore position
+            self.seek(pos)
+        return data
 
-    def text_callback(request, context):
-        nonlocal request_invocations
-        request_invocations += 1
-        return RESPONSE_TEXT_VALUE
 
-    terraform_releases_response_200 = {
-        "status_code": 200,
-        "headers": {"Cache-Control": "max-age=0, private, must-revalidate"},
-        "text": text_callback,
-    }
+def test_search_on_github_cache_terraform_releases_200(
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,
+):
+    with mock.patch("io.BytesIO", AutoclosingBytesIO):
+        with pook.use():
+            repo = "hashicorp/terraform"
+            releases_url = "https://github.com/{}/releases?after=v0.13.0".format(repo)
 
-    repo = "hashicorp/terraform"
+            # A volatile mock that can only be invoked once
+            pook.get(
+                releases_url,
+                reply=200,
+                response_type="text/plain",
+                response_body=terraform_releases_html_after_v0_13_0,
+                response_headers={
+                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "Date": formatdate(usegmt=True),
+                },
+                times=1,
+            )
 
-    releases_url = "https://github.com/{}/releases".format(repo)
+            patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
 
-    requests_mock.get(releases_url, **terraform_releases_response_200)
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            assert patch == "14"
 
-    response = requests.get(releases_url)
-    assert terraform_releases_response_200["status_code"] == response.status_code
-    assert terraform_releases_response_200["headers"] == response.headers
-    assert RESPONSE_TEXT_VALUE == response.text
-    assert request_invocations == 1
-    request_invocations = 0
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "")
+            assert patch == "19"
 
-    patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
-    patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
-    assert patch == "14"
+            assert pook.isdone()
+            assert not pook.pending_mocks()
+            assert not pook.unmatched_requests()
 
-    patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "")
-    assert patch == "19"
 
-    assert request_invocations == 1
+def test_search_on_github_cache_terraform_releases_does_not_cache_errors(
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,
+):
+    with mock.patch("io.BytesIO", AutoclosingBytesIO):
+        with pook.use():
+            repo = "hashicorp/terraform"
+            releases_url = "https://github.com/{}/releases?after=v0.13.0".format(repo)
+
+            # volatile mocks that can only be invoked once each
+            pook.get(
+                releases_url,
+                reply=429,
+                response_headers={
+                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "Date": formatdate(usegmt=True),
+                    "Retry-After": "5",
+                },
+                times=1,
+            )
+            pook.get(
+                releases_url,
+                reply=200,
+                response_type="text/plain",
+                response_body=terraform_releases_html_after_v0_13_0,
+                response_headers={
+                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "Date": formatdate(usegmt=True),
+                },
+                times=1,
+            )
+
+            patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            # TODO: handle retries
+            assert patch is None
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            assert patch == "14"
+
+            assert pook.isdone()
+            assert not pook.pending_mocks()
+            assert not pook.unmatched_requests()

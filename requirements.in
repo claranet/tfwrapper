@@ -1,7 +1,9 @@
 boto3
+cachecontrol
 colorlog
 jinja2
-pip-tools
+lockfile
+pip-tools # TODO: remove this non-runtime dependency
 pyyaml
 requests
 schema
