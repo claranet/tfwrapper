@@ -55,6 +55,8 @@ def test_search_on_github_cache_terraform_releases_200(
                 response_type="text/plain",
                 response_body=terraform_releases_html_after_v0_13_0,
                 response_headers={
+                    "Status": "200 OK",
+                    "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
                     "Cache-Control": "max-age=0, private, must-revalidate",
                     "Date": formatdate(usegmt=True),
                 },
@@ -87,7 +89,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_errors(
                 releases_url,
                 reply=429,
                 response_headers={
-                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "Status": "429 Too Many Requests",
                     "Date": formatdate(usegmt=True),
                     "Retry-After": "5",
                 },
@@ -99,6 +101,8 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_errors(
                 response_type="text/plain",
                 response_body=terraform_releases_html_after_v0_13_0,
                 response_headers={
+                    "Status": "200 OK",
+                    "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
                     "Cache-Control": "max-age=0, private, must-revalidate",
                     "Date": formatdate(usegmt=True),
                 },

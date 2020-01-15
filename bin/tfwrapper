@@ -57,6 +57,7 @@ TFWRAPPER_DEFAULT_CONFIG = {
 }
 
 # TODO: store cache in configurable location
+# TODO: add option to clear cache
 REQUESTS_SESSION = CacheControl(
     requests.Session(), heuristic=ExpiresAfter(minutes=15), cache=FileCache(".webcache")
 )
