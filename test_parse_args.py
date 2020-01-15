@@ -70,3 +70,10 @@ def test_parse_args_foreach_command_shell():
     assert args.shell is True
     assert args.executable == "mybash"
     assert args.command == ["ls -l | head -1"]
+
+
+def test_parse_args_http_cache_dir():
+    args = tfwrapper.parse_args(["--http-cache-dir", ".webcache", "init"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.http_cache_dir == ".webcache"

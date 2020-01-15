@@ -106,13 +106,16 @@ class CachedRequestsSession:
     """
 
     _session = None
+    _cache_dir = ""
+
+    def set_cache_dir(cache_dir):
+        """Configure requests session's HTTP(S) cache directory."""
+        CachedRequestsSession._cache_dir = cache_dir
 
     def get(*args, **kwargs):
         """Wrap requests session's get after having initialized it if needed."""
         if not CachedRequestsSession._session:
-            # TODO: store cache in configurable location
-            # TODO: add option to clear cache
-            file_cache = FileCache(".webcache")
+            file_cache = FileCache(CachedRequestsSession._cache_dir)
             retries = Retry(
                 total=3, backoff_factor=0.3, respect_retry_after_header=True
             )
@@ -765,8 +768,8 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         )
 
     full_version = "{}.{}".format(minor_version, patch)
-    # Getting current version
 
+    # Getting current version
     plugins_path = os.path.expanduser(
         "~/.terraform.d/plugins/{platform}_{arch}".format(
             platform=PLATFORM_SYSTEM, arch=ARCH_NAME
@@ -1206,6 +1209,11 @@ def parse_args(args):
         help="Plugins cache directory.",
         default="{}/.terraform.d/plugin-cache".format(home_dir),
     )
+    parser.add_argument(
+        "--http-cache-dir",
+        help="HTTP(S) requests cache directory.",
+        default="{}/.terraform.d/http-cache".format(home_dir),
+    )
 
     subparsers = parser.add_subparsers(dest="subcommand", help="subcommands")
 
@@ -1412,6 +1420,9 @@ def main():
 
     # convert args to dict
     wrapper_config = deepcopy(vars(args))
+
+    # Configure requests session's cache directory
+    CachedRequestsSession.set_cache_dir(wrapper_config["http_cache_dir"])
 
     # process args
     try:
