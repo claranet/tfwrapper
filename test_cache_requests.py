@@ -76,7 +76,7 @@ def test_search_on_github_cache_terraform_releases_200(
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_errors(
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
     tmp_working_dir, terraform_releases_html_after_v0_13_0,
 ):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
@@ -91,7 +91,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_errors(
                 response_headers={
                     "Status": "429 Too Many Requests",
                     "Date": formatdate(usegmt=True),
-                    "Retry-After": "5",
+                    "Retry-After": "120",
                 },
                 times=1,
             )
@@ -111,12 +111,113 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_errors(
 
             patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
 
+            # pook does not implement urllib3's retry logic so this first request will always return None during tests
             patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
-            # TODO: handle retries
             assert patch is None
 
             patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
             assert patch == "14"
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "")
+            assert patch == "19"
+
+            assert pook.isdone()
+            assert not pook.pending_mocks()
+            assert not pook.unmatched_requests()
+
+
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,
+):
+    with mock.patch("io.BytesIO", AutoclosingBytesIO):
+        with pook.use():
+            repo = "hashicorp/terraform"
+            releases_url = "https://github.com/{}/releases?after=v0.13.0".format(repo)
+
+            # volatile mocks that can only be invoked once each
+            pook.get(
+                releases_url,
+                reply=403,
+                response_headers={
+                    "Status": "403 Forbidden",
+                    "Date": formatdate(usegmt=True),
+                },
+                times=1,
+            )
+            pook.get(
+                releases_url,
+                reply=200,
+                response_type="text/plain",
+                response_body=terraform_releases_html_after_v0_13_0,
+                response_headers={
+                    "Status": "200 OK",
+                    "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
+                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "Date": formatdate(usegmt=True),
+                },
+                times=1,
+            )
+
+            patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
+
+            # pook does not implement urllib3's retry logic so this first request will always return None during tests
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            assert patch is None
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            assert patch == "14"
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "")
+            assert patch == "19"
+
+            assert pook.isdone()
+            assert not pook.pending_mocks()
+            assert not pook.unmatched_requests()
+
+
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,
+):
+    with mock.patch("io.BytesIO", AutoclosingBytesIO):
+        with pook.use():
+            repo = "hashicorp/terraform"
+            releases_url = "https://github.com/{}/releases?after=v0.13.0".format(repo)
+
+            # volatile mocks that can only be invoked once each
+            pook.get(
+                releases_url,
+                reply=404,
+                response_headers={
+                    "Status": "404 Not found",
+                    "Date": formatdate(usegmt=True),
+                },
+                times=1,
+            )
+            pook.get(
+                releases_url,
+                reply=200,
+                response_type="text/plain",
+                response_body=terraform_releases_html_after_v0_13_0,
+                response_headers={
+                    "Status": "200 OK",
+                    "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
+                    "Cache-Control": "max-age=0, private, must-revalidate",
+                    "Date": formatdate(usegmt=True),
+                },
+                times=1,
+            )
+
+            patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
+
+            # pook does not implement urllib3's retry logic so this first request will always return None during tests
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            assert patch is None
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
+            assert patch == "14"
+
+            patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "")
+            assert patch == "19"
 
             assert pook.isdone()
             assert not pook.pending_mocks()
