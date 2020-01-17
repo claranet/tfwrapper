@@ -1,5 +1,5 @@
 [tool.black]
-# FIXME: match pycodestyle's max-line-length in setup.cfg.
+# FIXME: match flake8's max-line-length in tox.ini.
 line-length = 88 # black's default
 target-version = ['py36', 'py37', 'py38']
 exclude = '''
