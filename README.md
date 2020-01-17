@@ -37,6 +37,7 @@
   - [Checks](#checks)
   - [README TOC](#readme-toc)
   - [Using terraform development builds](#using-terraform-development-builds)
+  - [git pre-commit hooks](#git-pre-commit-hooks)
 
 <!--TOC-->
 
@@ -619,3 +620,23 @@ Terraform v0.12.9-dev
 # mkdir -p ~/.terraform.d/versions/0.12/0.12.9-dev
 # mv ./bin/terraform ~/.terraform.d/versions/0.12/0.12.9-dev/
 ```
+
+## git pre-commit hooks
+
+Some git pre-commit hooks are configured in `.pre-commit-config.yaml` for use with the [pre-commit tool](https://pre-commit.com).
+
+Using them helps avoiding to push changes that will fail the CI.
+
+They can be installed locally with:
+
+```bash
+# pre-commit install
+```
+
+If updating hooks configuration, run checks against all files to make sure everything is fine:
+
+```bash
+# pre-commit run --all-files --show-diff-on-failure
+```
+
+Note: the `pre-commit` tool itself can be installed with `pip` or `pipx`.
