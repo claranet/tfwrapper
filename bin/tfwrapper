@@ -19,6 +19,7 @@ import sys
 import zipfile
 from copy import deepcopy
 from pathlib import Path
+from urllib3.util.retry import Retry
 
 import boto3
 import botocore
@@ -26,6 +27,9 @@ import colorlog
 import jinja2
 import requests
 import yaml
+from cachecontrol import CacheControlAdapter
+from cachecontrol.heuristics import ExpiresAfter
+from cachecontrol.caches import FileCache
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
@@ -92,6 +96,41 @@ stack_configuration_schema = Schema(
         },
     }
 )
+
+
+class CachedRequestsSession:
+    """
+    The python-requests session to use in all HTTP/HTTPS requests.
+
+    It provides caching and retries.
+    """
+
+    _session = None
+    _cache_dir = ""
+
+    def set_cache_dir(cache_dir):
+        """Configure requests session's HTTP(S) cache directory."""
+        CachedRequestsSession._cache_dir = cache_dir
+
+    def get(*args, **kwargs):
+        """Wrap requests session's get after having initialized it if needed."""
+        if not CachedRequestsSession._session:
+            file_cache = FileCache(CachedRequestsSession._cache_dir)
+            retries = Retry(
+                total=3, backoff_factor=0.3, respect_retry_after_header=True
+            )
+            cache_adapter = CacheControlAdapter(
+                heuristic=ExpiresAfter(minutes=15),
+                cache=file_cache,
+                max_retries=retries,
+            )
+
+            session = requests.Session()
+            session.mount("http://", cache_adapter)
+            session.mount("https://", cache_adapter)
+
+            CachedRequestsSession._session = session
+        return CachedRequestsSession._session.get(*args, **kwargs)
 
 
 def error(message):
@@ -563,7 +602,7 @@ def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
     release = "v{}{}.0".format(minor_version[:-1], int(minor_version[-1]) + 1)
     releases_count = 0
     while True:
-        result = requests.get(
+        result = CachedRequestsSession.get(
             "{}?after={}".format(GITHUB_RELEASES.format(repo), release)
         )
         releases = re.findall(
@@ -657,7 +696,7 @@ def do_switchver(version):
         # Download and extract in user's home if needed
         logger.warning("Version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix=".zip")
-        r = requests.get(
+        r = CachedRequestsSession.get(
             "https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform}_{arch}.zip".format(
                 full_version=full_version, platform=PLATFORM_SYSTEM, arch=ARCH_NAME
             ),
@@ -701,7 +740,7 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
             )
         )
 
-    r = requests.get(github_endpoint)
+    r = CachedRequestsSession.get(github_endpoint)
     if r.status_code != 200:
         error(
             "The terraform provider {} does not exist ({})".format(
@@ -729,8 +768,8 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         )
 
     full_version = "{}.{}".format(minor_version, patch)
-    # Getting current version
 
+    # Getting current version
     plugins_path = os.path.expanduser(
         "~/.terraform.d/plugins/{platform}_{arch}".format(
             platform=PLATFORM_SYSTEM, arch=ARCH_NAME
@@ -752,7 +791,7 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         # Download and extract in user's home if needed
         logger.warning("Provider version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix="." + extension)
-        r = requests.get(
+        r = CachedRequestsSession.get(
             "https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.{extension}".format(
                 p=provider_name,
                 v=full_version,
@@ -1170,6 +1209,11 @@ def parse_args(args):
         help="Plugins cache directory.",
         default="{}/.terraform.d/plugin-cache".format(home_dir),
     )
+    parser.add_argument(
+        "--http-cache-dir",
+        help="HTTP(S) requests cache directory.",
+        default="{}/.terraform.d/http-cache".format(home_dir),
+    )
 
     subparsers = parser.add_subparsers(dest="subcommand", help="subcommands")
 
@@ -1376,6 +1420,9 @@ def main():
 
     # convert args to dict
     wrapper_config = deepcopy(vars(args))
+
+    # Configure requests session's cache directory
+    CachedRequestsSession.set_cache_dir(wrapper_config["http_cache_dir"])
 
     # process args
     try:
