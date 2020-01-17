@@ -1,18 +1,14 @@
+"""Test some helper functions."""
+
 from importlib.machinery import SourceFileLoader
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
-def test_get_stack_dir(tmp_working_dir):
+def test_get_stack_dir(tmp_working_dir):  # noqa: D103
     working_dir = tmp_working_dir["working_dir"]
     for account, environment, region, stack, expected in [
-        (
-            "testaccount",
-            "global",
-            None,
-            "teststack",
-            working_dir / "testaccount/_global/teststack",
-        ),
+        ("testaccount", "global", None, "teststack", working_dir / "testaccount/_global/teststack",),
         (
             "testaccount",
             "testenvironment",
@@ -21,45 +17,23 @@ def test_get_stack_dir(tmp_working_dir):
             working_dir / "testaccount/testenvironment/testregion/teststack",
         ),
     ]:
-        assert tfwrapper.get_stack_dir(
-            working_dir, account, environment, region, stack
-        ) == str(expected)
+        assert tfwrapper.get_stack_dir(working_dir, account, environment, region, stack) == str(expected)
 
 
-def test_get_stack_config_filename():
+def test_get_stack_config_filename():  # noqa: D103
     for account, environment, region, stack, expected in [
         ("*", "global", None, "*", "*_global_*.yml",),
         ("*", "*", "*", "*", "*_*_*_*.yml",),
-        (
-            "testaccount",
-            "global",
-            None,
-            "teststack",
-            "testaccount_global_teststack.yml",
-        ),
-        (
-            "testaccount",
-            "testenvironment",
-            "testregion",
-            "teststack",
-            "testaccount_testenvironment_testregion_teststack.yml",
-        ),
+        ("testaccount", "global", None, "teststack", "testaccount_global_teststack.yml",),
+        ("testaccount", "testenvironment", "testregion", "teststack", "testaccount_testenvironment_testregion_teststack.yml",),
     ]:
-        assert tfwrapper.get_stack_config_filename(
-            account, environment, region, stack
-        ) == str(expected)
+        assert tfwrapper.get_stack_config_filename(account, environment, region, stack) == str(expected)
 
 
-def test_get_stack_config_path(tmp_working_dir_empty_conf):
+def test_get_stack_config_path(tmp_working_dir_empty_conf):  # noqa: D103
     conf_dir = tmp_working_dir_empty_conf["conf_dir"]
     for account, environment, region, stack, expected in [
-        (
-            "testaccount",
-            "global",
-            None,
-            "teststack",
-            conf_dir / "testaccount_global_teststack.yml",
-        ),
+        ("testaccount", "global", None, "teststack", conf_dir / "testaccount_global_teststack.yml",),
         (
             "testaccount",
             "testenvironment",
@@ -68,26 +42,18 @@ def test_get_stack_config_path(tmp_working_dir_empty_conf):
             conf_dir / "testaccount_testenvironment_testregion_teststack.yml",
         ),
     ]:
-        assert tfwrapper.get_stack_config_path(
-            conf_dir, account, environment, region, stack
-        ) == str(expected)
+        assert tfwrapper.get_stack_config_path(conf_dir, account, environment, region, stack) == str(expected)
 
 
-def test_get_stack_from_config_path(tmp_working_dir_empty_conf):
+def test_get_stack_from_config_path(tmp_working_dir_empty_conf):  # noqa: D103
     conf_dir = tmp_working_dir_empty_conf["conf_dir"]
     for config_path, expected in [
-        (
-            conf_dir / "testaccount_global_teststack.yml",
-            ("testaccount", "global", None, "teststack"),
-        ),
+        (conf_dir / "testaccount_global_teststack.yml", ("testaccount", "global", None, "teststack"),),
         (
             conf_dir / "testaccount_testenvironment_testregion_teststack.yml",
             ("testaccount", "testenvironment", "testregion", "teststack"),
         ),
-        (
-            "conf/testaccount_global_teststack.yml",
-            ("testaccount", "global", None, "teststack"),
-        ),
+        ("conf/testaccount_global_teststack.yml", ("testaccount", "global", None, "teststack"),),
         (
             "conf/testaccount_testenvironment_testregion_teststack.yml",
             ("testaccount", "testenvironment", "testregion", "teststack"),

@@ -1,3 +1,5 @@
+"""Test HTTP(S) requests caching."""
+
 from email.utils import formatdate
 from importlib.machinery import SourceFileLoader
 
@@ -5,7 +7,7 @@ import pook
 import mock
 from pook.interceptors.urllib3 import io
 
-from test_search_on_github import terraform_releases_html_after_v0_13_0
+from test_search_on_github import terraform_releases_html_after_v0_13_0  # noqa: F401
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
@@ -20,15 +22,19 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 class AutoclosingBytesIO(io.BytesIO):
     """
+    AutoclosingBytesIO extends io.BytesIO to autoclose itself.
+
     CacheControl only flushes its buffer into its cache when the underlying IO
     is closed. pook uses io.BytesIO which does not automatically close itself when
     consumed so we need to subclass it and just do this.
     """
 
     def __init__(self, *args, **kwargs):
+        """Initialize the bytes I/O stream."""
         return super(io.BytesIO, self).__init__(*args, **kwargs)
 
     def read(self, size=-1):
+        """Read and, if at end, close the bytes I/O stream."""
         data = super(AutoclosingBytesIO, self).read(size)
         pos = self.tell()
         if not super(AutoclosingBytesIO, self).read():
@@ -41,8 +47,8 @@ class AutoclosingBytesIO(io.BytesIO):
 
 
 def test_search_on_github_cache_terraform_releases_200(
-    tmp_working_dir, terraform_releases_html_after_v0_13_0,
-):
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,  # noqa: F811
+):  # noqa: D103
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -77,8 +83,8 @@ def test_search_on_github_cache_terraform_releases_200(
 
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
-    tmp_working_dir, terraform_releases_html_after_v0_13_0,
-):
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,  # noqa: F811
+):  # noqa: D103
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -88,11 +94,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
             pook.get(
                 releases_url,
                 reply=429,
-                response_headers={
-                    "Status": "429 Too Many Requests",
-                    "Date": formatdate(usegmt=True),
-                    "Retry-After": "120",
-                },
+                response_headers={"Status": "429 Too Many Requests", "Date": formatdate(usegmt=True), "Retry-After": "120"},
                 times=1,
             )
             pook.get(
@@ -127,8 +129,8 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
 
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
-    tmp_working_dir, terraform_releases_html_after_v0_13_0,
-):
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,  # noqa: F811
+):  # noqa: D103
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -136,13 +138,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
 
             # volatile mocks that can only be invoked once each
             pook.get(
-                releases_url,
-                reply=403,
-                response_headers={
-                    "Status": "403 Forbidden",
-                    "Date": formatdate(usegmt=True),
-                },
-                times=1,
+                releases_url, reply=403, response_headers={"Status": "403 Forbidden", "Date": formatdate(usegmt=True)}, times=1,
             )
             pook.get(
                 releases_url,
@@ -176,8 +172,8 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
 
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
-    tmp_working_dir, terraform_releases_html_after_v0_13_0,
-):
+    tmp_working_dir, terraform_releases_html_after_v0_13_0,  # noqa: F811
+):  # noqa: D103
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -185,13 +181,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
 
             # volatile mocks that can only be invoked once each
             pook.get(
-                releases_url,
-                reply=404,
-                response_headers={
-                    "Status": "404 Not found",
-                    "Date": formatdate(usegmt=True),
-                },
-                times=1,
+                releases_url, reply=404, response_headers={"Status": "404 Not found", "Date": formatdate(usegmt=True)}, times=1,
             )
             pook.get(
                 releases_url,

@@ -1,6 +1,6 @@
 [tool.black]
-# FIXME: match flake8's max-line-length in tox.ini.
-line-length = 88 # black's default
+# Make sure to match flake8's max-line-length in tox.ini.
+line-length = 130 # black's default
 target-version = ['py36', 'py37', 'py38']
 exclude = '''
 /(

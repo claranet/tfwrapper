@@ -1,3 +1,5 @@
+"""Test github releases searching."""
+
 from importlib.machinery import SourceFileLoader
 
 import pytest
@@ -7,7 +9,7 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
 @pytest.fixture
-def terraform_releases_html_after_v0_13_0():
+def terraform_releases_html_after_v0_13_0():  # noqa: D103
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -34,7 +36,7 @@ def terraform_releases_html_after_v0_13_0():
 
 
 @pytest.fixture
-def terraform_releases_html_after_v0_12_10():
+def terraform_releases_html_after_v0_12_10():  # noqa: D103
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +63,7 @@ def terraform_releases_html_after_v0_12_10():
 
 
 @pytest.fixture
-def terraform_releases_html_after_v0_12_0():
+def terraform_releases_html_after_v0_12_0():  # noqa: D103
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +94,7 @@ def test_search_on_github_terraform_releases(
     terraform_releases_html_after_v0_13_0,
     terraform_releases_html_after_v0_12_10,
     terraform_releases_html_after_v0_12_0,
-):
+):  # noqa: D103
     repo = "hashicorp/terraform"
 
     releases_url = "https://github.com/{}/releases".format(repo)
@@ -101,33 +103,18 @@ def test_search_on_github_terraform_releases(
     releases_url_after_v0_12_0 = releases_url + "?after=v0.12.0"
 
     requests_mock.get(
-        releases_url_after_v0_13_0,
-        complete_qs=True,
-        text=terraform_releases_html_after_v0_13_0,
+        releases_url_after_v0_13_0, complete_qs=True, text=terraform_releases_html_after_v0_13_0,
     )
     requests_mock.get(
-        releases_url_after_v0_12_10,
-        complete_qs=True,
-        text=terraform_releases_html_after_v0_12_10,
+        releases_url_after_v0_12_10, complete_qs=True, text=terraform_releases_html_after_v0_12_10,
     )
     requests_mock.get(
-        releases_url_after_v0_12_0,
-        complete_qs=True,
-        text=terraform_releases_html_after_v0_12_0,
+        releases_url_after_v0_12_0, complete_qs=True, text=terraform_releases_html_after_v0_12_0,
     )
 
-    assert (
-        terraform_releases_html_after_v0_13_0
-        == requests.get(releases_url_after_v0_13_0).text
-    )
-    assert (
-        terraform_releases_html_after_v0_12_10
-        == requests.get(releases_url_after_v0_12_10).text
-    )
-    assert (
-        terraform_releases_html_after_v0_12_0
-        == requests.get(releases_url_after_v0_12_0).text
-    )
+    assert terraform_releases_html_after_v0_13_0 == requests.get(releases_url_after_v0_13_0).text
+    assert terraform_releases_html_after_v0_12_10 == requests.get(releases_url_after_v0_12_10).text
+    assert terraform_releases_html_after_v0_12_0 == requests.get(releases_url_after_v0_12_0).text
 
     patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
     patch = tfwrapper.search_on_github(repo, "0.12", patch_regex, "14")
@@ -144,7 +131,7 @@ def test_search_on_github_terraform_releases(
 
 
 @pytest.fixture
-def provider_releases_html_after_v2_6_0():
+def provider_releases_html_after_v2_6_0():  # noqa: D103
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -171,7 +158,7 @@ def provider_releases_html_after_v2_6_0():
 
 
 @pytest.fixture
-def provider_releases_html_after_v1_3_0():
+def provider_releases_html_after_v1_3_0():  # noqa: D103
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -198,10 +185,8 @@ def provider_releases_html_after_v1_3_0():
 
 
 def test_search_on_github_provider_releases(
-    requests_mock,
-    provider_releases_html_after_v2_6_0,
-    provider_releases_html_after_v1_3_0,
-):
+    requests_mock, provider_releases_html_after_v2_6_0, provider_releases_html_after_v1_3_0,
+):  # noqa: D103
     from tfwrapper import GITHUB_RELEASES
 
     repo = "claranet/terraform-provider-gitlab"
@@ -210,20 +195,13 @@ def test_search_on_github_provider_releases(
     releases_url_after_v1_3_0 = releases_url + "?after=v1.3.0"
 
     requests_mock.get(
-        releases_url_after_v2_6_0,
-        complete_qs=True,
-        text=provider_releases_html_after_v2_6_0,
+        releases_url_after_v2_6_0, complete_qs=True, text=provider_releases_html_after_v2_6_0,
     )
     requests_mock.get(
-        releases_url_after_v1_3_0,
-        complete_qs=True,
-        text=provider_releases_html_after_v1_3_0,
+        releases_url_after_v1_3_0, complete_qs=True, text=provider_releases_html_after_v1_3_0,
     )
 
-    assert (
-        provider_releases_html_after_v2_6_0
-        == requests.get(releases_url_after_v2_6_0).text
-    )
+    assert provider_releases_html_after_v2_6_0 == requests.get(releases_url_after_v2_6_0).text
 
     patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
     patch = tfwrapper.search_on_github(repo, "2.5", patch_regex, "")
