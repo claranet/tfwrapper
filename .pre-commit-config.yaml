@@ -7,6 +7,7 @@ repos:
                   - id: check-added-large-files
                   - id: check-toml
                   - id: check-yaml
+                  - id: flake8
         - repo: https://github.com/psf/black
           rev: 19.10b0
           hooks:

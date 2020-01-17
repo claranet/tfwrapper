@@ -6,14 +6,7 @@ import pytest
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
-try:
-    pass
-finally:
-    # Work-around pycodestyle `E402 module level import not at top of file` as
-    # this cannot be moved above the dynamic module loading.
-    # TODO: replace pycodestyle and pyflakes by flake8 which wraps them and allows
-    # to ignore specific lines with `# noqa: E402`
-    from tfwrapper import home_dir
+from tfwrapper import home_dir  # noqa: E402
 
 
 def test_parse_args_help(capsys):

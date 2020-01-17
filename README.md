@@ -598,9 +598,8 @@ To run code and documentation style checks, run `tox -e lint`.
 
 In addition to `black --check`, code is also checked with:
 
-- [pycodestyle](https://github.com/PyCQA/pycodestyle)
-- [pydocstyle](https://github.com/PyCQA/pydocstyle)
-- [pyflakes](https://github.com/PyCQA/pyflakes)
+- [flake8](https://gitlab.com/pycqa/flake8), a wrapper for [pycodestyle](https://github.com/PyCQA/pycodestyle) and [pyflakes](https://github.com/PyCQA/pyflakes).
+- [flake8-docstrings](https://gitlab.com/pycqa/flake8-docstrings), a wrapper for [pydocstyle](https://github.com/PyCQA/pydocstyle).
 
 ## README TOC
 
