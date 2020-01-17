@@ -1207,7 +1207,9 @@ def parse_args(args):
         "-p",
         "--plugin-cache-dir",
         help="Plugins cache directory.",
-        default="{}/.terraform.d/plugin-cache".format(home_dir),
+        default=os.environ.get(
+            "TF_PLUGIN_CACHE_DIR", "{}/.terraform.d/plugin-cache".format(home_dir)
+        ),
     )
     parser.add_argument(
         "--http-cache-dir",

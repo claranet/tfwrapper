@@ -6,6 +6,15 @@ import pytest
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
+try:
+    pass
+finally:
+    # Work-around pycodestyle `E402 module level import not at top of file` as
+    # this cannot be moved above the dynamic module loading.
+    # TODO: replace pycodestyle and pyflakes by flake8 which wraps them and allows
+    # to ignore specific lines with `# noqa: E402`
+    from tfwrapper import home_dir
+
 
 def test_parse_args_help(capsys):
     with pytest.raises(SystemExit) as e:
@@ -77,3 +86,37 @@ def test_parse_args_http_cache_dir():
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init
     assert args.http_cache_dir == ".webcache"
+
+
+def test_parse_args_init_plugin_cache_dir_default():
+    os.environ.pop("TF_PLUGIN_CACHE_DIR", None)
+    args = tfwrapper.parse_args(["init"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.plugin_cache_dir == "{}/.terraform.d/plugin-cache".format(home_dir)
+
+
+def test_parse_args_init_plugin_cache_dir_arg():
+    os.environ.pop("TF_PLUGIN_CACHE_DIR", None)
+    args = tfwrapper.parse_args(["--plugin-cache-dir=/tmp/plugin-cache-dir", "init"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.plugin_cache_dir == "/tmp/plugin-cache-dir"
+
+
+def test_parse_args_init_plugin_cache_dir_env():
+    os.environ["TF_PLUGIN_CACHE_DIR"] = "/tmp/plugin-cache-dir"
+    args = tfwrapper.parse_args(["init"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.plugin_cache_dir == "/tmp/plugin-cache-dir"
+
+
+def test_parse_args_init_plugin_cache_dir_arg_and_env():
+    os.environ["TF_PLUGIN_CACHE_DIR"] = "/tmp/plugin-cache-dir-env"
+    args = tfwrapper.parse_args(
+        ["--plugin-cache-dir=/tmp/plugin-cache-dir-arg", "init"]
+    )
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.plugin_cache_dir == "/tmp/plugin-cache-dir-arg"
