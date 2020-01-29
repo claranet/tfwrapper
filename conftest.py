@@ -1,3 +1,5 @@
+"""Provide fixtures to all test_*.py files."""
+
 import argparse
 import os
 
@@ -5,7 +7,7 @@ import pytest
 
 
 @pytest.fixture
-def default_args():
+def default_args():  # noqa: D103
     parser = argparse.ArgumentParser()
     args = parser.parse_args([])
     args.confdir = "conf"
@@ -17,7 +19,7 @@ def default_args():
 
 
 @pytest.fixture
-def tmp_working_dir(tmp_path):
+def tmp_working_dir(tmp_path):  # noqa: D103
     # use path with more than 5 directories to avoid getting an unrelated conf dir outside tmp_path
     working_dir = tmp_path / "a" / "b" / "c" / "d" / "e"
     working_dir.mkdir(parents=True)
@@ -28,7 +30,7 @@ def tmp_working_dir(tmp_path):
 
 
 @pytest.fixture
-def tmp_working_dir_empty_conf(tmp_working_dir, default_args):
+def tmp_working_dir_empty_conf(tmp_working_dir, default_args):  # noqa: D103
     paths = tmp_working_dir
     paths["conf_dir"] = paths["working_dir"] / default_args.confdir
     paths["conf_dir"].mkdir()

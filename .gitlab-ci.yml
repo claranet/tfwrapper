@@ -10,26 +10,15 @@ stages:
   - lint
   - test
 
-pycodestyle:
+lint:
   stage: lint
-  image: claranetfrcloudnative/pycodestyle:latest
+  image: python:3
+  script:
+    - python -V
+    - pip3 install -U virtualenv tox
+    - tox -e lint
   tags:
     - default
-  script: pycodestyle bin/tfwrapper
-
-pydocstyle:
-  stage: lint
-  image: claranetfrcloudnative/pydocstyle:latest
-  tags:
-    - default
-  script: pydocstyle
-
-pyflakes:
-  stage: lint
-  image: claranetfrcloudnative/pyflakes:latest
-  tags:
-    - default
-  script: pyflakes bin/tfwrapper
 
 tox:
   stage: test

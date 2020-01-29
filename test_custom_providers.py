@@ -1,7 +1,6 @@
+"""Test custom providers configuration parsing."""
+
 from importlib.machinery import SourceFileLoader
-from schema import SchemaError
-from unittest.mock import MagicMock
-from copy import deepcopy
 
 import pytest
 import textwrap
@@ -10,7 +9,7 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
 # Not used yet: this method will be used by the mock to replace requests.get
-def mocked_requests_get(*args, **kwargs):
+def mocked_requests_get(*args, **kwargs):  # noqa: D103
     from tfwrapper import GITHUB_RELEASES
 
     class MockResponse:
@@ -40,11 +39,9 @@ def mocked_requests_get(*args, **kwargs):
     return MockResponse("", 404)
 
 
-def test_stack_config_parsing(tmp_working_dir_empty_conf):
+def test_stack_config_parsing(tmp_working_dir_empty_conf):  # noqa: D103
     paths = tmp_working_dir_empty_conf
-    stack_config = (
-        paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
-    )
+    stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
     stack_config.write_text(
         textwrap.dedent(
@@ -66,17 +63,13 @@ def test_stack_config_parsing(tmp_working_dir_empty_conf):
             "vars": {"client_name": "claranet", "version": "0.11.14"},
         }
     }
-    stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    stack_config = tfwrapper.load_stack_config(paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack")
     assert stack_config == expected_stack_result
 
 
-def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_conf):
+def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_conf,):  # noqa: D103
     paths = tmp_working_dir_empty_conf
-    stack_config = (
-        paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
-    )
+    stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
     stack_config.write_text(
         textwrap.dedent(
@@ -99,27 +92,18 @@ def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_con
         "terraform": {
             "custom-providers": {
                 "claranet/terraform-provider-gitlab": "2.1",
-                "custom/terraform-custom-provider": {
-                    "version": "1.1.1",
-                    "extension": "tar.gz",
-                },
+                "custom/terraform-custom-provider": {"version": "1.1.1", "extension": "tar.gz"},
             },
             "vars": {"client_name": "claranet", "version": "0.11.14"},
         }
     }
-    stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    stack_config = tfwrapper.load_stack_config(paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack")
     assert stack_config == expected_stack_result
 
 
-def test_stack_config_parsing_invalid_custom_provider_missing_extension(
-    tmp_working_dir_empty_conf, caplog
-):
+def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_working_dir_empty_conf, caplog):  # noqa: D103
     paths = tmp_working_dir_empty_conf
-    stack_config = (
-        paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
-    )
+    stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
     stack_config.write_text(
         textwrap.dedent(
@@ -139,22 +123,14 @@ def test_stack_config_parsing_invalid_custom_provider_missing_extension(
 
     with pytest.raises(SystemExit):
         stack_config = tfwrapper.load_stack_config(
-            paths["conf_dir"],
-            "testaccount",
-            "testenvironment",
-            "testregion",
-            "teststack",
+            paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack",
         )
     assert "Missing key: 'extension'" in caplog.text
 
 
-def test_stack_config_parsing_invalid_custom_provider_missing_version(
-    tmp_working_dir_empty_conf, caplog
-):
+def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_working_dir_empty_conf, caplog):  # noqa: D103
     paths = tmp_working_dir_empty_conf
-    stack_config = (
-        paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
-    )
+    stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
     stack_config.write_text(
         textwrap.dedent(
@@ -174,10 +150,6 @@ def test_stack_config_parsing_invalid_custom_provider_missing_version(
 
     with pytest.raises(SystemExit):
         stack_config = tfwrapper.load_stack_config(
-            paths["conf_dir"],
-            "testaccount",
-            "testenvironment",
-            "testregion",
-            "teststack",
+            paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack",
         )
     assert "Missing key: 'version'" in caplog.text

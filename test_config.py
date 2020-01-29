@@ -1,3 +1,5 @@
+"""Test stack configuration selection based on working directory."""
+
 from importlib.machinery import SourceFileLoader
 
 from copy import deepcopy
@@ -11,7 +13,7 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
 @pytest.fixture
-def tmp_working_dir_regional(tmp_working_dir_empty_conf):
+def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
     paths["environment_dir"] = paths["account_dir"] / "testenvironment"
@@ -23,7 +25,7 @@ def tmp_working_dir_regional(tmp_working_dir_empty_conf):
 
 
 @pytest.fixture
-def tmp_working_dir_global(tmp_working_dir_empty_conf):
+def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
     paths["environment_dir"] = paths["account_dir"] / "_global"
@@ -33,7 +35,7 @@ def tmp_working_dir_global(tmp_working_dir_empty_conf):
     return paths
 
 
-def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):
+def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):  # noqa: D103
     wrapper_config = deepcopy(vars(default_args))
 
     with pytest.raises(ValueError) as e:
@@ -41,14 +43,14 @@ def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):
     assert "Cannot find configuration directory" in str(e.value)
 
 
-def test_detect_config_dir_empty(tmp_working_dir_empty_conf, default_args):
+def test_detect_config_dir_empty(tmp_working_dir_empty_conf, default_args):  # noqa: D103
     wrapper_config = deepcopy(vars(default_args))
 
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     assert parents_count == 0
 
 
-def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):
+def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):  # noqa: D103
     paths = tmp_working_dir_regional
     wrapper_config = deepcopy(vars(default_args))
 
@@ -80,7 +82,7 @@ def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):
     assert parents_count == 4
 
 
-def test_detect_config_dir_global(tmp_working_dir_global, default_args):
+def test_detect_config_dir_global(tmp_working_dir_global, default_args):  # noqa: D103
     paths = tmp_working_dir_global
     wrapper_config = deepcopy(vars(default_args))
 
@@ -106,7 +108,7 @@ def test_detect_config_dir_global(tmp_working_dir_global, default_args):
     assert parents_count == 3
 
 
-def test_detect_stack_regional(tmp_working_dir_regional, default_args):
+def test_detect_stack_regional(tmp_working_dir_regional, default_args):  # noqa: D103
     paths = tmp_working_dir_regional
 
     wrapper_config = deepcopy(vars(default_args))
@@ -146,7 +148,7 @@ def test_detect_stack_regional(tmp_working_dir_regional, default_args):
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_detect_stack_global(tmp_working_dir_global, default_args):
+def test_detect_stack_global(tmp_working_dir_global, default_args):  # noqa: D103
     paths = tmp_working_dir_global
 
     wrapper_config = deepcopy(vars(default_args))
@@ -179,9 +181,7 @@ def test_detect_stack_global(tmp_working_dir_global, default_args):
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_detect_stack_regional_no_error_if_missing(
-    tmp_working_dir_regional, default_args
-):
+def test_detect_stack_regional_no_error_if_missing(tmp_working_dir_regional, default_args):  # noqa: D103
     paths = tmp_working_dir_regional
 
     wrapper_config = deepcopy(vars(default_args))
@@ -229,7 +229,7 @@ def test_detect_stack_regional_no_error_if_missing(
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_detect_stack_global_no_error_if_missing(tmp_working_dir_global, default_args):
+def test_detect_stack_global_no_error_if_missing(tmp_working_dir_global, default_args):  # noqa: D103
     paths = tmp_working_dir_global
 
     wrapper_config = deepcopy(vars(default_args))
@@ -268,7 +268,7 @@ def test_detect_stack_global_no_error_if_missing(tmp_working_dir_global, default
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_args):
+def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_args):  # noqa: D103
     paths = tmp_working_dir_regional
 
     os.chdir(paths["stack_dir"])
@@ -299,9 +299,7 @@ def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_arg
     assert wrapper_config["state"] == {}
 
 
-def test_load_wrapper_config_autodetect_regional(
-    tmp_working_dir_regional, default_args
-):
+def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, default_args):  # noqa: D103
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text(
@@ -333,7 +331,7 @@ def test_load_wrapper_config_autodetect_regional(
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
 
 
-def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):
+def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):  # noqa: D103
     paths = tmp_working_dir_global
 
     paths["state_conf"].write_text(
