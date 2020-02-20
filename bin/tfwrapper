@@ -510,6 +510,9 @@ def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
         releases = re.findall(r"<a href=\"/{}/releases/tag/.*\">(.*)</a>".format(repo), result.text)
         releases_count += len(releases)
         for release in releases:
+            logger.debug(
+                'Release found: "{}", checking with "^v{}.{}$"'.format(release, minor_version, patch if patch else patch_regex)
+            )
             if re.match(r"^v{}\.{}$".format(minor_version, patch if patch else patch_regex), release,):
                 patch = patch or release.split(".")[-1]
                 return patch
@@ -614,14 +617,14 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
     if r.status_code != 200:
         error("The terraform provider {} does not exist ({})".format(provider_name, github_endpoint))
 
-    m = re.match(r"^v?([0-9]+.[0-9]+).?([0-9]+)?(-[a-z]+)?$", provider_version)
+    m = re.match(r"^v?([0-9]+.[0-9]+).?([0-9]+)?(-[a-z0-9]+)?$", provider_version)
     if not m:
         error(
             'The provider version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or ' '"X.Y.Z-custom"'
         )
     minor_version, patch, custom = m.groups()
 
-    patch = search_on_github(provider_name, minor_version, r"[0-9]+(-[a-z_-]+)?", patch, terraform=False)
+    patch = search_on_github(provider_name, minor_version, r"[0-9]+(-[a-z0-9_-]+)?", patch, terraform=False)
 
     if not patch:
         error("The provider version '{}-{}' does not exist".format(provider_name, provider_version))

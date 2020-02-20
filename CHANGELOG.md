@@ -1,3 +1,10 @@
+
+# 7.6.1
+
+FIXED:
+
+  * TER-331: Allow `<patch>[0-9]` suffixes to custom provider release version
+
 # 7.6.0 (20/02/2020)
 
 ADDED:
