@@ -1,3 +1,9 @@
+# xx
+
+UPDATES:
+
+  * TER-439: Bump `azure-cli` to `2.1.0`
+
 # 7.5.1 (08/01/2020)
 
 UPDATES:
