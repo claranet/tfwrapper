@@ -1,7 +1,14 @@
-# xx
+# 7.6.0 (20/02/2020)
+
+ADDED:
+
+  * TER-271: Cache github HTTP responses
+  * TER-443: Pass `TF_PLUGIN_CACHE_DIR` environment variable to terraform if available
+  * TER-444: Pre commit hooks and use `flake8`
 
 UPDATES:
 
+  * TER-442: Format code with black
   * TER-439: Bump `azure-cli` to `2.1.0`
 
 # 7.5.1 (08/01/2020)
