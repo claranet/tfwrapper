@@ -3,7 +3,6 @@ cachecontrol
 colorlog
 jinja2
 lockfile
-pip-tools # TODO: remove this non-runtime dependency
 pyyaml
 requests
 schema
