@@ -4,27 +4,25 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-boto3==1.10.48
+boto3==1.10.48            # via -r requirements.in
 botocore==1.13.48         # via boto3, s3transfer
-cachecontrol==0.12.6
+cachecontrol==0.12.6      # via -r requirements.in
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
-click==7.0                # via pip-tools
-colorlog==4.1.0
+colorlog==4.1.0           # via -r requirements.in
 contextlib2==0.5.5        # via schema
 docutils==0.15.2          # via botocore
 idna==2.8                 # via requests
-jinja2==2.10.3
+jinja2==2.10.3            # via -r requirements.in
 jmespath==0.9.4           # via boto3, botocore
-lockfile==0.12.2
+lockfile==0.12.2          # via -r requirements.in
 markupsafe==1.1.1         # via jinja2
 msgpack==0.6.2            # via cachecontrol
-pip-tools==4.3.0
 python-dateutil==2.8.1    # via botocore
-pyyaml==5.3
-requests==2.22.0
+pyyaml==5.3               # via -r requirements.in
+requests==2.22.0          # via -r requirements.in, cachecontrol
 s3transfer==0.2.1         # via boto3
-schema==0.7.1
-six==1.13.0               # via pip-tools, python-dateutil
-termcolor==1.1.0
+schema==0.7.1             # via -r requirements.in
+six==1.13.0               # via python-dateutil
+termcolor==1.1.0          # via -r requirements.in
 urllib3==1.25.7           # via botocore, requests
