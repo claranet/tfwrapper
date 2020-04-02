@@ -10,6 +10,8 @@ stages:
   - lint
   - test
 
+image: python:${PYTHON_VERSION}
+
 lint:
   stage: lint
   image: python:3
@@ -20,12 +22,29 @@ lint:
   tags:
     - default
 
-tox:
+.tox: &tox
   stage: test
-  image: python:3
   script:
     - python -V
     - pip3 install -U virtualenv tox
-    - tox
+    - tox -e ${TOX_ENV}
   tags:
     - default
+
+tox:python-3.6:
+  <<: *tox
+  variables:
+    PYTHON_VERSION: "3.6"
+    TOX_ENV: "py36"
+
+tox:python-3.7:
+  <<: *tox
+  variables:
+    PYTHON_VERSION: "3.7"
+    TOX_ENV: "py37"
+
+tox:python-3.8:
+  <<: *tox
+  variables:
+    PYTHON_VERSION: "3.8"
+    TOX_ENV: "py38"
