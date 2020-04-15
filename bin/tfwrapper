@@ -1165,9 +1165,13 @@ def main():
 
     # process args
     try:
+        wrapper_local_commands = (
+            "foreach",
+            "switchver",
+        )
         parents_count = detect_config_dir(wrapper_config)
-        detect_stack(wrapper_config, parents_count, raise_on_missing=args.subcommand != "foreach")
-        if args.subcommand != "foreach":
+        detect_stack(wrapper_config, parents_count, raise_on_missing=args.subcommand not in wrapper_local_commands)
+        if args.subcommand not in wrapper_local_commands:
             load_wrapper_config(wrapper_config)
     except ValueError as e:
         logger.error(e)
@@ -1176,7 +1180,7 @@ def main():
         logger.exception("Unknown error")
         sys.exit(RC_UNK)
 
-    if args.subcommand not in ("foreach", "switchver", "version",):
+    if args.subcommand not in wrapper_local_commands:
         # load config
         stack_config = load_stack_config(
             wrapper_config["confdir"],
