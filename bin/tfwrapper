@@ -1150,9 +1150,9 @@ def parse_args(args):
     return parsed_args
 
 
-def main():
+def main(argv=None):
     """Execute tfwrapper."""
-    args = parse_args(sys.argv[1:])
+    args = parse_args(argv or sys.argv[1:])
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
