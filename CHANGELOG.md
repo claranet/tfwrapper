@@ -1,3 +1,14 @@
+# 7.7.0 (29/04/2020)
+
+UPDATES:
+
+  *  TER-450: CI - add python 3.6 and 3.8 to tested versions
+  *  TER-451: Update dependencies
+
+FIXED:
+
+  * TER-453: Don't load stack config for wrapper local commands (like `switchver`)
+
 # 7.6.1 (20/02/2020)
 
 FIXED:
