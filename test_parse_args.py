@@ -27,6 +27,14 @@ def test_parse_args_no_args(capsys):  # noqa: D103
     assert "usage: tfwrapper [-h] [-d] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
 
 
+def test_parse_args_switchver_help(capsys):  # noqa: D103
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.parse_args(["switchver", "-h"])
+    assert e.value.code == 0
+    captured = capsys.readouterr()
+    assert "usage: tfwrapper switchver [-h] version" in captured.out
+
+
 def test_parse_args_foreach_help(capsys):  # noqa: D103
     with pytest.raises(SystemExit) as e:
         tfwrapper.parse_args(["foreach", "-h"])
