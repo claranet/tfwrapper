@@ -321,9 +321,15 @@ terraform:
 
 ### States centralization configuration
 
-`conf/state.yml` defines the configurations used to connect to state backend account.
+The `conf/state.yml` configuration file defines the configurations used to connect to state backend account.
 It can be an AWS (S3) or Azure (Storage Account) backend type.
 
+You can use other backends (e.g. Google GCS or Hashicorp Consul) not specifically supported by the wrapper if you them manage yourself and omit the `conf/state.yml` file or make it empty:
+```yaml
+---
+```
+
+Example configuration with both AWS and Azure backends defined:
 ```yaml
 ---
 aws:
@@ -341,6 +347,8 @@ azure:
     resource_group_name: 'tfstates-xxxxx-rg' # The Azure resource group with state storage
     storage_account_name: 'tfstatesxxxxx'
 ```
+
+Note: the first backend will be the default one for stacks not defining `state_backend_type`.
 
 ### How to migrate from one backend to another for state centralization
 

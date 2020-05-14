@@ -199,11 +199,19 @@ def load_wrapper_config(wrapper_config):
 
     # load state configuration
     config_file = os.path.join(wrapper_config["confdir"], "state.yml")
-    with open(config_file, "r") as f:
-        logger.debug("Loading state config from '{}'".format(config_file))
-        state_config = yaml.safe_load(f)
+    state_config = None
+    if os.path.exists(config_file):
+        with open(config_file, "r") as f:
+            logger.debug("Loading state config from '{}'".format(config_file))
+            state_config = yaml.safe_load(f)
+    else:
+        logger.debug("No state config file '{}'".format(config_file))
 
     wrapper_config["state"] = {}
+    if state_config is None:
+        logger.debug("Empty state config file '{}'".format(config_file))
+        return
+
     for config_type, config in state_config.items():
         config_name = config.get("name", config_type)
         wrapper_config["state"][config_name] = {
@@ -1192,40 +1200,42 @@ def main(argv=None):
 
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
-        state_config = (
-            wrapper_config["state"].get(state_backend_name)
-            if state_backend_name
-            else next(iter(wrapper_config["state"].values()))
-        )
-        state_backend_type = state_config["state_backend_type"]
-
-        logger.info("Getting state session ({})".format(state_backend_name or state_backend_type))
-        state_session = get_session(
-            wrapper_config["rootdir"],
-            state_config.get("state_account"),
-            state_config.get("state_region"),
-            state_config.get("state_profile"),
-            state_backend_type,
-            state_config,
-        )
-
-        if state_backend_type == "aws":
-            # set AWS state centralization environment variables
-            state_credentials = state_session.get_credentials().get_frozen_credentials()
-            os.environ["AWS_ACCESS_KEY_ID"] = state_credentials.access_key
-            os.environ["AWS_SECRET_ACCESS_KEY"] = state_credentials.secret_key
-            if state_credentials.token:
-                os.environ["AWS_SESSION_TOKEN"] = state_credentials.token
-            logger.info("AWS state backend initialized.")
-        elif state_backend_type == "azure":
-            # set Azure state centralization environment variables
-            os.environ["ARM_ACCESS_KEY"] = state_session
-            os.environ["TF_VAR_azure_state_access_key"] = state_session
-            logger.info("Azure state backend initialized.")
-        else:
-            logger.info(
-                'Unsupported state backend type "{}". Let terraform handle with its default behavior.'.format(state_backend_type)
+        if wrapper_config["state"]:
+            state_config = (
+                wrapper_config["state"].get(state_backend_name)
+                if state_backend_name
+                else next(iter(wrapper_config["state"].values()))
             )
+            state_backend_type = state_config["state_backend_type"]
+
+            state_session = get_session(
+                wrapper_config["rootdir"],
+                state_config.get("state_account"),
+                state_config.get("state_region"),
+                state_config.get("state_profile"),
+                state_backend_type,
+                state_config,
+            )
+
+            if state_backend_type == "aws":
+                # set AWS state centralization environment variables
+                state_credentials = state_session.get_credentials().get_frozen_credentials()
+                os.environ["AWS_ACCESS_KEY_ID"] = state_credentials.access_key
+                os.environ["AWS_SECRET_ACCESS_KEY"] = state_credentials.secret_key
+                if state_credentials.token:
+                    os.environ["AWS_SESSION_TOKEN"] = state_credentials.token
+                logger.info("AWS state backend initialized.")
+            elif state_backend_type == "azure":
+                # set Azure state centralization environment variables
+                os.environ["ARM_ACCESS_KEY"] = state_session
+                os.environ["TF_VAR_azure_state_access_key"] = state_session
+                logger.info("Azure state backend initialized.")
+            else:
+                logger.info(
+                    'Unsupported state backend type "{}". Let terraform handle with its default behavior.'.format(
+                        state_backend_type
+                    )
+                )
 
         terraform_vars = stack_config["terraform"]["vars"]
         terraform_vars["environment"] = wrapper_config["environment"]
