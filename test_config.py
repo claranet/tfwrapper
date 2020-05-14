@@ -13,18 +13,6 @@ tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
 
 @pytest.fixture
-def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
-    paths = tmp_working_dir_empty_conf
-    paths["account_dir"] = paths["working_dir"] / "testaccount"
-    paths["environment_dir"] = paths["account_dir"] / "testenvironment"
-    paths["region_dir"] = paths["environment_dir"] / "testregion"
-    paths["stack_dir"] = paths["region_dir"] / "teststack"
-    paths["stack_dir"].mkdir(parents=True)
-
-    return paths
-
-
-@pytest.fixture
 def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
@@ -274,25 +262,28 @@ def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_arg
     os.chdir(paths["stack_dir"])
     wrapper_config = deepcopy(vars(default_args))
     tfwrapper.detect_config_dir(wrapper_config)
-    with pytest.raises(FileNotFoundError) as e:
-        tfwrapper.load_wrapper_config(wrapper_config)
-    assert "No such file or directory: '../../../../conf/state.yml" in str(e.value)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
 
     paths["state_conf"].write_text("")
     wrapper_config = deepcopy(vars(default_args))
     tfwrapper.detect_config_dir(wrapper_config)
-    with pytest.raises(AttributeError) as e:
-        tfwrapper.load_wrapper_config(wrapper_config)
-    assert "'NoneType' object has no attribute 'items'" in str(e.value)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
 
-    paths["state_conf"].write_text("#")  # Invalid
+    paths["state_conf"].write_text("#")
     wrapper_config = deepcopy(vars(default_args))
     tfwrapper.detect_config_dir(wrapper_config)
-    with pytest.raises(AttributeError) as e:
-        tfwrapper.load_wrapper_config(wrapper_config)
-    assert "'NoneType' object has no attribute 'items'" in str(e.value)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
 
     paths["state_conf"].write_text("{}")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
+
+    paths["state_conf"].write_text("---")
     wrapper_config = deepcopy(vars(default_args))
     tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.load_wrapper_config(wrapper_config)

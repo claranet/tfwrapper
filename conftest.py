@@ -38,3 +38,15 @@ def tmp_working_dir_empty_conf(tmp_working_dir, default_args):  # noqa: D103
     paths["wrapper_conf"] = paths["conf_dir"] / "config.yml"
 
     return paths
+
+
+@pytest.fixture
+def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
+    paths = tmp_working_dir_empty_conf
+    paths["account_dir"] = paths["working_dir"] / "testaccount"
+    paths["environment_dir"] = paths["account_dir"] / "testenvironment"
+    paths["region_dir"] = paths["environment_dir"] / "testregion"
+    paths["stack_dir"] = paths["region_dir"] / "teststack"
+    paths["stack_dir"].mkdir(parents=True)
+
+    return paths
