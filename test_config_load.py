@@ -2,7 +2,11 @@
 
 from importlib.machinery import SourceFileLoader
 
+import os
+import textwrap
+
 import pytest
+import testpath
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
@@ -19,13 +23,60 @@ def test_config_load_switchver():  # noqa: D103
     assert e.value.code == 2
 
 
-def test_config_load_init(capsys):  # noqa: D103
+def test_config_load_init(tmp_working_dir_regional):  # noqa: D103
+    paths = tmp_working_dir_regional
+    os.chdir(paths["stack_dir"])
+
     with pytest.raises(FileNotFoundError) as e:
         tfwrapper.main(["init"])
     assert "No such file or directory" in str(e)
 
+    paths["state_conf"].write_text("---")
+    paths["state_conf"].write_text("---")
+    paths["stack_conf"] = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    paths["stack_conf"].write_text(
+        textwrap.dedent(
+            """
+            ---
+            terraform:
+              vars:
+                myvar: myvalue
+            """
+        )
+    )
+    paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
 
-def test_config_load_plan(capsys):  # noqa: D103
+    with testpath.assert_calls("terraform", ["init"]):
+        with pytest.raises(SystemExit) as e:
+            tfwrapper.main(["init"])
+        assert e.type == SystemExit
+        assert e.value.code == 0
+
+
+def test_config_load_plan(tmp_working_dir_regional):  # noqa: D103
+    paths = tmp_working_dir_regional
+    os.chdir(paths["stack_dir"])
+
     with pytest.raises(FileNotFoundError) as e:
         tfwrapper.main(["plan"])
     assert "No such file or directory" in str(e)
+
+    paths["state_conf"].write_text("---")
+    paths["stack_conf"] = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    paths["stack_conf"].write_text(
+        textwrap.dedent(
+            """
+            ---
+            terraform:
+              vars:
+                myvar: myvalue
+            """
+        )
+    )
+    paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
+
+    with testpath.assert_calls("terraform", ["plan"]):
+        with pytest.raises(SystemExit) as e:
+            tfwrapper.main(["plan"])
+            assert e.type == SystemExit
+            assert e.value.code == 0
