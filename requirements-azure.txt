@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements-azure.txt requirements-azure.in
 #
-adal==1.2.2               # via msrestazure
+adal==1.2.3               # via msrestazure
 asn1crypto==0.24.0        # via cryptography
 azure-common==1.1.24
 azure-mgmt-storage==9.0.0
@@ -25,4 +25,4 @@ requests==2.22.0          # via adal, msrest, requests-oauthlib
 six==1.13.0               # via cryptography, isodate, python-dateutil
 urllib3==1.25.7           # via requests
 # Fixed
-azure-cli==2.5.1 # Pinned version for now
+azure-cli==2.6.0 # Pinned version for now
