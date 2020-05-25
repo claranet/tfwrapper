@@ -1,9 +1,16 @@
+# 7.8.0 (25/05/2020)
+
+UPDATES:
+
+  * TER-454: support missing or empty state yml
+  * TER-439: Bump `azure-cli` to latest `2.6.0` and upgrade AWS/boto dependencies
+
 # 7.7.0 (29/04/2020)
 
 UPDATES:
 
-  *  TER-450: CI - add python 3.6 and 3.8 to tested versions
-  *  TER-451: Update dependencies
+  * TER-450: CI - add python 3.6 and 3.8 to tested versions
+  * TER-451: Update dependencies
 
 FIXED:
 
