@@ -363,12 +363,16 @@ def _get_azure_token(subscription_id=None, tenant_id=None):
     try:
         profile = get_cli_profile()
         if subscription_id:
+            logger.debug("Azure profile get with Subscription ID: {}".format(subscription_id))
             token = profile.get_raw_token(subscription=subscription_id)
         else:
+            logger.debug("Azure profile get with Tenant ID: {}".format(tenant_id))
             token = profile.get_raw_token(tenant=tenant_id)
-        logger.debug("Azure profile token retrieved: {}".format(token))
+        logger.debug("Azure profile token retrieved: {}".format(token[0]))
+        logger.debug("Azure profile token for SubID {} in Tenant ID {}".format(token[1], token[2]))
         return token[0][2]
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed retrieving Azure profile and token: {}", e)
         return None
 
 
