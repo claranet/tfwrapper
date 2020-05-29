@@ -351,18 +351,21 @@ def get_stack_envvars(stack_config, wrapper_stack_config):
     return envvars
 
 
-def _check_azure_auth(subscription_id):
+def _check_azure_auth(subscription_id=None, tenant_id=None):
     """Check if user is authenticated and have access to the subscription."""
-    return _get_azure_token(subscription_id) is not None
+    return _get_azure_token(subscription_id, tenant_id) is not None
 
 
-def _get_azure_token(subscription_id):
+def _get_azure_token(subscription_id=None, tenant_id=None):
     """Get Azure CLI token access to the subscription."""
     from azure.common.credentials import get_cli_profile
 
     try:
         profile = get_cli_profile()
-        token = profile.get_raw_token(subscription=subscription_id)
+        if subscription_id:
+            token = profile.get_raw_token(subscription=subscription_id)
+        else:
+            token = profile.get_raw_token(tenant=tenant_id)
         logger.debug("Azure profile token retrieved: {}".format(token))
         return token[0][2]
     except Exception:
@@ -407,7 +410,7 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
     from azure.common.credentials import get_cli_profile
     from azure.mgmt.storage import StorageManagementClient
 
-    if not _check_azure_auth(azure_subscription):
+    if not _check_azure_auth(subscription_id=azure_subscription):
         logger.error(
             'Error while getting Azure token, try logging you in with "az login" and '
             "check that you are authorized on the Terraform state subscription."
@@ -1388,7 +1391,7 @@ def main(argv=None):
                     logger.error("Please set the `azure.general.directory_id` variable in your stack configuration.")
                     sys.exit(RC_KO)
 
-                if not _check_azure_auth(terraform_vars["azure_subscription_id"]):
+                if not _check_azure_auth(tenant_id=terraform_vars["azure_tenant_id"]):
                     logger.error(
                         'Error while getting Azure token, try logging you in with "az login" '
                         "and check that you are authorized on this subscription."
