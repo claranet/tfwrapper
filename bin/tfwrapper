@@ -1399,11 +1399,18 @@ def main(argv=None):
                     sys.exit(RC_KO)
 
                 if not _check_azure_auth(tenant_id=terraform_vars["azure_tenant_id"]):
-                    logger.error(
-                        'Error while getting Azure token, try logging you in with "az login" '
-                        "and check that you are authorized on this subscription."
+                    logger.info(
+                        "Cannot retrieve Azure token via Tenant ID {}. Trying with Subscription ID".format(
+                            terraform_vars["azure_tenant_id"]
+                        )
                     )
-                    sys.exit(RC_KO)
+                    if not _check_azure_auth(subscription_id=terraform_vars["azure_subscription_id"]):
+                        logger.error(
+                            'Error while getting Azure token, try logging you in with "az login" '
+                            'or "az login --tenant xx" '
+                            "and check that you are authorized on this subscription."
+                        )
+                        sys.exit(RC_KO)
             elif az_login_mode.lower() in [
                 "sp",
                 "serviceprincipal",
