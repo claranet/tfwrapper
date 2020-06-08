@@ -360,6 +360,9 @@ def _get_azure_token(subscription_id=None, tenant_id=None):
     """Get Azure CLI token access to the subscription."""
     from azure.common.credentials import get_cli_profile
 
+    if subscription_id is None and tenant_id is None:
+        raise ValueError("`subscription_id` or `tenant_id` parameter must be set.")
+
     try:
         profile = get_cli_profile()
         if subscription_id:
