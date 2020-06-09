@@ -3,6 +3,7 @@
 UPDATES:
 
   * TER-456: Export TFWRAPPER env variables when using `foreach`
+  * TER-455: Handle Azure session check via Tenant ID
 
 # 7.8.0 (25/05/2020)
 
