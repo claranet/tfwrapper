@@ -280,6 +280,7 @@ def foreach_select_stacks(wrapper_config):
     Select the stacks to process with foreach. Treats unset stack components as wildcard.
 
     :param wrapper_config: dict: the wrapper config
+    :return dict: stack_path => stack_config
     """
     account = wrapper_config["account"] if wrapper_config["account"] else "*"
     environment = wrapper_config["environment"] if wrapper_config["environment"] else "*"
@@ -299,14 +300,16 @@ def foreach_select_stacks(wrapper_config):
 
     stacks = sorted(list(stacks), key=lambda stack: str(stack))
 
-    filtered_stacks = []
+    filtered_stacks = {}
     for stack_config in stacks:
+        logger.debug("Processing stack config {}".format(stack_config))
         stack = get_stack_from_config_path(str(stack_config))
         stack_dir = get_stack_dir(wrapper_config["rootdir"], *stack)
         if not pathlib.Path(stack_dir).is_dir():
             logger.warning("Stack config {} has no matching directory at {}, skipping.".format(stack_config, stack_dir))
             continue
-        filtered_stacks.append(stack_dir)
+        logger.debug("Added stack {} => {}".format(stack_dir, stack_config))
+        filtered_stacks[stack_dir] = _load_stack_config_from_file(stack_config)
 
     return filtered_stacks
 
@@ -314,7 +317,11 @@ def foreach_select_stacks(wrapper_config):
 def load_stack_config(confdir, account, environment, region, stack):
     """Load configuration from YAML file."""
     stack_config_file = get_stack_config_path(confdir, account, environment, region, stack)
+    return _load_stack_config_from_file(stack_config_file)
 
+
+def _load_stack_config_from_file(stack_config_file):
+    """Load configuration from YAML file."""
     with open(stack_config_file, "r") as f:
         stack_config = yaml.safe_load(f)
 
@@ -964,7 +971,7 @@ def switchver(wrapper_config):
 def foreach(wrapper_config):
     """Execute command foreach stack."""
     stacks = foreach_select_stacks(wrapper_config)
-    for stack in stacks:
+    for stack, stack_config in stacks:
         command = wrapper_config["command"]
         shell = wrapper_config["shell"]
         executable = wrapper_config["executable"]
