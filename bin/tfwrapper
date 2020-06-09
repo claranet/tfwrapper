@@ -971,7 +971,7 @@ def switchver(wrapper_config):
 def foreach(wrapper_config):
     """Execute command foreach stack."""
     stacks = foreach_select_stacks(wrapper_config)
-    for stack, stack_config in stacks:
+    for stack, stack_config in stacks.items():
         command = wrapper_config["command"]
         shell = wrapper_config["shell"]
         executable = wrapper_config["executable"]
