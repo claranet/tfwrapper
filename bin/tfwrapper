@@ -118,16 +118,16 @@ def error(message):
     raise ValueError("{}\n\nUse -h to show the help message".format(message))
 
 
-def detect_config_dir(wrapper_config):
+def detect_config_dir(wrapper_config, cwd="."):
     """
-    Detect the path to the wrapper config directory relative to the current working directory.
+    Detect the path to the wrapper config directory relative to the current working directory or given cwd directory.
 
     Updates the dict passed as a parameter.
     Returns the number of directories traversed.
     """
     parents_count = 0
     while parents_count < 5:
-        if os.path.isdir("../" * parents_count + wrapper_config["confdir"]):
+        if os.path.isdir("{}/".format(cwd) + "../" * parents_count + wrapper_config["confdir"]):
             wrapper_config["confdir"] = "../" * parents_count + wrapper_config["confdir"]
             logger.debug("Detected confdir at '{}'".format(wrapper_config["confdir"]))
             break
@@ -136,15 +136,15 @@ def detect_config_dir(wrapper_config):
     if parents_count == 5:
         error("Cannot find configuration directory '{}' in this directory or above".format(wrapper_config["confdir"]))
 
-    wrapper_config["rootdir"] = os.path.dirname(os.path.abspath(wrapper_config["confdir"]))
-    logger.debug("Detected rootdir at '{}'".format(wrapper_config["rootdir"]))
+    wrapper_config["rootdir"] = os.path.dirname(os.path.abspath("{}/".format(cwd) + wrapper_config["confdir"]))
+    logger.debug("Detected rootdir at '{}' with {} parents from {}".format(wrapper_config["rootdir"], parents_count, cwd))
 
     return parents_count
 
 
-def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True):
+def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, cwd="."):
     """
-    Detect the stack from the current working directory.
+    Detect the stack from the current working directory or the given cwd directory.
 
     By default, raises an error if any component required to identify a specific stack is missing.
     Updates the dict passed as a parameter.
@@ -155,8 +155,8 @@ def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True):
 
     # check wether we are in global environment
     if (
-        os.path.basename(os.path.abspath(".")) == "_global"
-        or os.path.basename(os.path.abspath("..")) == "_global"
+        os.path.basename(os.path.abspath(cwd)) == "_global"
+        or os.path.basename(os.path.abspath("{}/..".format(cwd))) == "_global"
         or wrapper_config["environment"] == "global"
     ):
         parents_list = ["account", "environment", "stack"]
@@ -166,7 +166,9 @@ def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True):
     # detect dirs
     while count_down > 0:
         if wrapper_config[parents_list[count_up]] is None:
-            wrapper_config[parents_list[count_up]] = os.path.basename(os.path.abspath("./" + "../" * (count_down - 1)))
+            wrapper_config[parents_list[count_up]] = os.path.basename(
+                os.path.abspath("{}/".format(cwd) + "../" * (count_down - 1))
+            )
         count_down -= 1
         count_up += 1
 
@@ -332,6 +334,20 @@ def _load_stack_config_from_file(stack_config_file):
         sys.exit(RC_KO)
 
     return stack_config
+
+
+def get_stack_envvars(stack_config, wrapper_stack_config):
+    """Generate TFWRAPPER environment variables to export."""
+    envvars = {}
+
+    for k, v in stack_config.get("terraform").get("vars").items():
+        envvars["TFWRAPPER_TF_{}".format(k)] = v
+
+    for v in ("account", "environment", "region", "stack"):
+        envvars["TFWRAPPER_{}".format(v)] = wrapper_stack_config.get(v) or ""
+
+    logger.debug("Environment variable generated: {}".format(envvars))
+    return envvars
 
 
 def _check_azure_auth(subscription_id):
@@ -975,7 +991,13 @@ def foreach(wrapper_config):
         command = wrapper_config["command"]
         shell = wrapper_config["shell"]
         executable = wrapper_config["executable"]
-        with subprocess.Popen(command, cwd=stack, shell=shell, executable=executable) as process:
+
+        wrapper_stack_config = deepcopy(wrapper_config)
+        parents_count = detect_config_dir(wrapper_stack_config, cwd=stack)
+        detect_stack(wrapper_stack_config, parents_count, raise_on_missing=True, cwd=stack)
+        stack_env = get_stack_envvars(stack_config, wrapper_stack_config)
+
+        with subprocess.Popen(command, cwd=stack, shell=shell, executable=executable, env=stack_env) as process:
             logger.debug('Execute command "{}" in "{}"'.format(command, stack))
             try:
                 process.communicate()
