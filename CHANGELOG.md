@@ -1,3 +1,9 @@
+# 7.9.0
+
+UPDATES:
+
+  * TER-456: Export TFWRAPPER env variables when using `foreach`
+
 # 7.8.0 (25/05/2020)
 
 UPDATES:
