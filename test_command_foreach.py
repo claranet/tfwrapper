@@ -120,8 +120,19 @@ def test_foreach_select_all_stacks(tmp_working_dir_multiple_stacks, multiple_sta
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
+    stacks_with_configs = tfwrapper.foreach_select_stacks(wrapper_config)
+    for stack_path, stack_config in stacks_with_configs.items():
+        wrapper_stack_config = deepcopy(wrapper_config)
+        parents_count = tfwrapper.detect_config_dir(wrapper_stack_config, cwd=stack_path)
+        tfwrapper.detect_stack(wrapper_stack_config, parents_count, raise_on_missing=False, cwd=stack_path)
+        stack_env = tfwrapper.get_stack_envvars(stack_config, wrapper_stack_config)
+        assert stack_env["TFWRAPPER_TF_myvar"] == "myvalue"
+        assert stack_env["TFWRAPPER_account"] == wrapper_stack_config["account"]
+        assert stack_env["TFWRAPPER_environment"] == wrapper_stack_config["environment"]
+        assert stack_env["TFWRAPPER_stack"] == wrapper_stack_config["stack"]
+        assert stack_env["TFWRAPPER_region"] == (wrapper_stack_config["region"] or "")
 
+    stacks = [*stacks_with_configs]
     for i in range(len(stacks)):
         assert str(stacks[i]) == tfwrapper.get_stack_dir(wrapper_config["rootdir"], *multiple_stacks[i])
     assert len(stacks) == len(multiple_stacks)
