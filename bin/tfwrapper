@@ -585,10 +585,12 @@ def do_switchver(version):
 
     # Getting current version
     try:
-        p = subprocess.run(["terraform", "-v"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(["terraform", "version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         current_version = re.match(
             r"^Terraform v({}\.{})".format(minor_version_regex, patch_regex), p.stdout.decode("ascii"),
         ).group(1)
+    except AttributeError:
+        current_version = "unknown"
     except FileNotFoundError:
         current_version = "not installed"
 
