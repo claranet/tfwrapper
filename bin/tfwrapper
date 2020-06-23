@@ -118,9 +118,9 @@ def error(message):
     raise ValueError("{}\n\nUse -h to show the help message".format(message))
 
 
-def detect_config_dir(wrapper_config, cwd="."):
+def detect_config_dir(wrapper_config, dir="."):
     """
-    Detect the path to the wrapper config directory relative to the current working directory or given cwd directory.
+    Detect the path to the wrapper config directory relative to the provided directory, defaulting to the current working directory.
 
     Updates the dict passed as a parameter.
     Returns the number of directories traversed.
@@ -142,9 +142,9 @@ def detect_config_dir(wrapper_config, cwd="."):
     return parents_count
 
 
-def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, cwd="."):
+def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, dir="."):
     """
-    Detect the stack from the current working directory or the given cwd directory.
+    Detect the stack from the provided directory, defaulting to the current working directory.
 
     By default, raises an error if any component required to identify a specific stack is missing.
     Updates the dict passed as a parameter.
@@ -346,7 +346,7 @@ def get_stack_envvars(stack_config, wrapper_stack_config):
     for v in ("account", "environment", "region", "stack"):
         envvars["TFWRAPPER_{}".format(v)] = wrapper_stack_config.get(v) or ""
 
-    logger.debug("Environment variable generated: {}".format(envvars))
+    logger.debug("Environment variables generated: {}".format(envvars))
     return envvars
 
 
