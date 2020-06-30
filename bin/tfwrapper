@@ -351,21 +351,31 @@ def get_stack_envvars(stack_config, wrapper_stack_config):
     return envvars
 
 
-def _check_azure_auth(subscription_id):
+def _check_azure_auth(subscription_id=None, tenant_id=None):
     """Check if user is authenticated and have access to the subscription."""
-    return _get_azure_token(subscription_id) is not None
+    return _get_azure_token(subscription_id, tenant_id) is not None
 
 
-def _get_azure_token(subscription_id):
+def _get_azure_token(subscription_id=None, tenant_id=None):
     """Get Azure CLI token access to the subscription."""
     from azure.common.credentials import get_cli_profile
 
+    if subscription_id is None and tenant_id is None:
+        raise ValueError("`subscription_id` or `tenant_id` parameter must be set.")
+
     try:
         profile = get_cli_profile()
-        token = profile.get_raw_token(subscription=subscription_id)
-        logger.debug("Azure profile token retrieved: {}".format(token))
+        if subscription_id:
+            logger.debug("Azure profile get with Subscription ID: {}".format(subscription_id))
+            token = profile.get_raw_token(subscription=subscription_id)
+        else:
+            logger.debug("Azure profile get with Tenant ID: {}".format(tenant_id))
+            token = profile.get_raw_token(tenant=tenant_id)
+        logger.debug("Azure profile token retrieved: {}".format(token[0]))
+        logger.debug("Azure profile token for SubID {} in Tenant ID {}".format(token[1], token[2]))
         return token[0][2]
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed retrieving Azure profile and token: {}", e)
         return None
 
 
@@ -407,7 +417,7 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
     from azure.common.credentials import get_cli_profile
     from azure.mgmt.storage import StorageManagementClient
 
-    if not _check_azure_auth(azure_subscription):
+    if not _check_azure_auth(subscription_id=azure_subscription):
         logger.error(
             'Error while getting Azure token, try logging you in with "az login" and '
             "check that you are authorized on the Terraform state subscription."
@@ -1388,12 +1398,19 @@ def main(argv=None):
                     logger.error("Please set the `azure.general.directory_id` variable in your stack configuration.")
                     sys.exit(RC_KO)
 
-                if not _check_azure_auth(terraform_vars["azure_subscription_id"]):
-                    logger.error(
-                        'Error while getting Azure token, try logging you in with "az login" '
-                        "and check that you are authorized on this subscription."
+                if not _check_azure_auth(tenant_id=terraform_vars["azure_tenant_id"]):
+                    logger.info(
+                        "Cannot retrieve Azure token via Tenant ID {}. Trying with Subscription ID".format(
+                            terraform_vars["azure_tenant_id"]
+                        )
                     )
-                    sys.exit(RC_KO)
+                    if not _check_azure_auth(subscription_id=terraform_vars["azure_subscription_id"]):
+                        logger.error(
+                            'Error while getting Azure token, try logging you in with "az login" '
+                            'or "az login --tenant xx" '
+                            "and check that you are authorized on this subscription."
+                        )
+                        sys.exit(RC_KO)
             elif az_login_mode.lower() in [
                 "sp",
                 "serviceprincipal",
