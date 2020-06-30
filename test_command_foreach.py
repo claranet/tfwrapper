@@ -6,6 +6,7 @@ from copy import deepcopy
 
 import os
 import pathlib
+import textwrap
 
 import pytest
 
@@ -93,13 +94,23 @@ def tmp_working_dir_multiple_stacks(tmp_working_dir_empty_conf, multiple_stacks)
     └── conf
     """
     paths = tmp_working_dir_empty_conf
+    dummy_conf = textwrap.dedent(
+        """
+            ---
+            terraform:
+              vars:
+                myvar: myvalue
+            """
+    )
 
     for account, environment, region, stack in multiple_stacks:
         pathlib.Path(tfwrapper.get_stack_dir(paths["working_dir"], account, environment, region, stack)).mkdir(parents=True)
-        pathlib.Path(tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)).write_text("{}")
+        pathlib.Path(tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)).write_text(
+            dummy_conf
+        )
 
     # Stack with no matching directory
-    pathlib.Path(tfwrapper.get_stack_config_path(paths["conf_dir"], "account2", "global", None, "default")).write_text("{}")
+    pathlib.Path(tfwrapper.get_stack_config_path(paths["conf_dir"], "account2", "global", None, "default")).write_text(dummy_conf)
 
     return paths
 
@@ -109,8 +120,19 @@ def test_foreach_select_all_stacks(tmp_working_dir_multiple_stacks, multiple_sta
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks_with_configs = tfwrapper.foreach_select_stacks(wrapper_config)
+    for stack_path, stack_config in stacks_with_configs.items():
+        wrapper_stack_config = deepcopy(wrapper_config)
+        parents_count = tfwrapper.detect_config_dir(wrapper_stack_config, dir=stack_path)
+        tfwrapper.detect_stack(wrapper_stack_config, parents_count, raise_on_missing=False, dir=stack_path)
+        stack_env = tfwrapper.get_stack_envvars(stack_config, wrapper_stack_config)
+        assert stack_env["TFWRAPPER_TF_myvar"] == "myvalue"
+        assert stack_env["TFWRAPPER_account"] == wrapper_stack_config["account"]
+        assert stack_env["TFWRAPPER_environment"] == wrapper_stack_config["environment"]
+        assert stack_env["TFWRAPPER_stack"] == wrapper_stack_config["stack"]
+        assert stack_env["TFWRAPPER_region"] == (wrapper_stack_config["region"] or "")
 
+    stacks = [*stacks_with_configs]
     for i in range(len(stacks)):
         assert str(stacks[i]) == tfwrapper.get_stack_dir(wrapper_config["rootdir"], *multiple_stacks[i])
     assert len(stacks) == len(multiple_stacks)
@@ -126,7 +148,7 @@ def test_foreach_select_from_dir_account0(tmp_working_dir_multiple_stacks, multi
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "global", None, "default"),
@@ -158,7 +180,7 @@ def test_foreach_select_from_dir_account0_prod(tmp_working_dir_multiple_stacks, 
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "prod", "eu-west-1", "default"),
@@ -180,7 +202,7 @@ def test_foreach_select_from_dir_account0_prod_euw1(tmp_working_dir_multiple_sta
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "prod", "eu-west-1", "default"),
@@ -198,7 +220,7 @@ def test_foreach_select_from_args_account0(tmp_working_dir_multiple_stacks, mult
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "global", None, "default"),
@@ -228,7 +250,7 @@ def test_foreach_select_from_args_env_preprod(tmp_working_dir_multiple_stacks, m
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "preprod", "eu-west-1", "default"),
@@ -252,7 +274,7 @@ def test_foreach_select_from_args_region_euw1(tmp_working_dir_multiple_stacks, m
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "preprod", "eu-west-1", "default"),
@@ -278,7 +300,7 @@ def test_foreach_select_from_args_stack_default(tmp_working_dir_multiple_stacks,
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "global", None, "default"),
@@ -310,7 +332,7 @@ def test_foreach_select_from_args_env_preprod_stack_default(
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
 
-    stacks = tfwrapper.foreach_select_stacks(wrapper_config)
+    stacks = [*tfwrapper.foreach_select_stacks(wrapper_config)]
 
     expected_stacks = [
         ("account0", "preprod", "eu-west-1", "default"),
