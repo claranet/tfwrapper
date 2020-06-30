@@ -1,9 +1,13 @@
-# 7.9.0
+# 7.9.0 (30/06/2020)
 
 UPDATES:
 
   * TER-456: Export TFWRAPPER env variables when using `foreach`
   * TER-455: Handle Azure session check via Tenant ID
+
+FIXED:
+
+  * TER-458: terraform 0.13 no longer supports -v, use version subcommand
 
 # 7.8.0 (25/05/2020)
 
