@@ -55,6 +55,7 @@ PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
     "always_trigger_init": False,
     "pipe_plan_command": "cat",
+    "aws_use_awsu": False,
 }
 
 home_dir = str(Path.home())
@@ -379,7 +380,20 @@ def _get_azure_token(subscription_id=None, tenant_id=None):
         return None
 
 
-def _get_aws_session(session_cache_file, region, profile):
+def _get_awsu_credentials(profile):
+    awsu_output = subprocess.run(["awsu", "-p", profile, "--", "printenv"], env=None, capture_output=True)
+    if awsu_output.returncode != 0:
+        print(awsu_output.stderr)
+        exit(1)
+
+    d = dict(s.split('=', 1) for s in awsu_output.stdout.decode('utf-8').split('\n') if "AWS_" in s)
+
+    return botocore.credentials.Credentials(d["AWS_ACCESS_KEY_ID"],
+                               d["AWS_SECRET_ACCESS_KEY"],
+                               d["AWS_SESSION_TOKEN"])
+
+
+def _get_aws_session(session_cache_file, region, profile, use_awsu=False):
     """Get or create boto cached session."""
     if os.path.isfile(session_cache_file) and time.time() - os.stat(session_cache_file).st_mtime < 2700:
         with open(session_cache_file, "rb") as f:
@@ -397,10 +411,14 @@ def _get_aws_session(session_cache_file, region, profile):
             logger.error("Profile {} not found. Exiting...".format(profile))
             sys.exit(RC_KO)
         try:
-            session_cache = {
-                "credentials": session.get_credentials().get_frozen_credentials(),
-                "region": session.region_name,
-            }
+            if use_awsu:
+
+                session_cache = {"credentials": _get_awsu_credentials(profile),
+                                 "region": session.region_name}
+            else:
+                session_cache = {"credentials": session.get_credentials().get_frozen_credentials(),
+                                 "region": session.region_name}
+
         except botocore.exceptions.ParamValidationError:
             logger.error("Error validating authentication. Maybe the wrong MFA code ?")
             sys.exit(RC_KO)
@@ -438,10 +456,10 @@ def get_session(rootdir, account, region, profile, backend_type=None, conf=None)
     if backend_type == "aws":
         # Get or create boto cached session.
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, account, profile)
-        session = _get_aws_session(session_cache_file, region, profile)
+        session = _get_aws_session(session_cache_file, region, profile, conf["aws_use_awsu"])
     elif backend_type == "azure":
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, conf["state_subscription"], conf["state_rg"])
-        session = _get_azure_session(session_cache_file, conf["state_subscription"], conf["state_rg"], conf["state_storage"],)
+        session = _get_azure_session(session_cache_file, conf["state_subscription"], conf["state_rg"], conf["state_storage"])
     else:
         session = None
 
@@ -1240,6 +1258,8 @@ def main(argv=None):
             wrapper_config["stack"],
         )
 
+        stack_config['aws_use_awsu'] = wrapper_config['config']['aws_use_awsu']
+
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
         if wrapper_config["state"]:
@@ -1249,19 +1269,23 @@ def main(argv=None):
                 else next(iter(wrapper_config["state"].values()))
             )
             state_backend_type = state_config["state_backend_type"]
+            state_config["aws_use_awsu"] = wrapper_config["config"]["aws_use_awsu"]
 
-            state_session = get_session(
-                wrapper_config["rootdir"],
-                state_config.get("state_account"),
-                state_config.get("state_region"),
-                state_config.get("state_profile"),
-                state_backend_type,
-                state_config,
-            )
+            logger.info("Getting state session ({})".format(state_backend_name or state_backend_type))
+            state_session = get_session(wrapper_config["rootdir"],
+                    state_config.get("state_account"),
+                    state_config.get("state_region"),
+                    state_config.get("state_profile"),
+                    state_backend_type,
+                    state_config,
+                )
 
             if state_backend_type == "aws":
                 # set AWS state centralization environment variables
-                state_credentials = state_session.get_credentials().get_frozen_credentials()
+                if wrapper_config["config"]["aws_use_awsu"]:
+                    state_credentials = _get_awsu_credentials(state_config.get("state_profile"))
+                else:
+                    state_credentials = state_session.get_credentials().get_frozen_credentials()
                 os.environ["AWS_ACCESS_KEY_ID"] = state_credentials.access_key
                 os.environ["AWS_SECRET_ACCESS_KEY"] = state_credentials.secret_key
                 if state_credentials.token:
@@ -1291,10 +1315,15 @@ def main(argv=None):
                 stack_config["aws"]["general"]["region"],
                 stack_config["aws"]["credentials"]["profile"],
                 "aws",
+                stack_config,
             )
 
             # set terraform environment variables for AWS Stack
-            stack_credentials = stack_session.get_credentials().get_frozen_credentials()
+            if wrapper_config["config"]["aws_use_awsu"]:
+                stack_credentials = _get_awsu_credentials(stack_config["aws"]["credentials"]["profile"])
+            else:
+                stack_credentials = stack_session.get_credentials().get_frozen_credentials()
+
             terraform_vars["account"] = wrapper_config["account"]
             terraform_vars["region"] = wrapper_config["region"]
             terraform_vars["aws_access_key"] = stack_credentials.access_key
