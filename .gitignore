@@ -2,6 +2,7 @@
 .tox
 .venv
 .virtualenv
+.zshtempdir
 .vscode
 .webcache
 __pycache__
