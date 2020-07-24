@@ -28,12 +28,14 @@ ifeq ($(shell test $(python_version_minor) -le 4; echo $$?),0)
 	$(error Python 3 too old, use Python 3.5 or greater.)
 endif
 
-$(makefile_dir)/.virtualenv: check
+venv: check
+ifneq ($(shell test -d $(makefile_dir)/.virtualenv; echo $$?),0)
 ifneq (,$(findstring zsh,$(OUT_SHELL)))
 	$(MAKE) $(makefile_dir)/.zshtempdir
 endif
 	@echo 'Setting up virtualenv.'
 	@python3 -m venv $(makefile_dir)/.virtualenv
+endif
 
 $(makefile_dir)/.zshtempdir: check 
 	@echo 'Setting up zshtempdir.'
@@ -45,7 +47,7 @@ else
 	@echo 'export PATH="$(wrapper_bin):$(virtualenv_bin):$(PATH)"\nTERRAFORM_WRAPPER_SHELL="$(wrapper_bin)"' >> $(makefile_dir)/.zshtempdir/.zshrc
 endif
 
-setup: check $(makefile_dir)/.virtualenv
+setup: check venv
 	@$(pip) install -U pip
 	@$(pip) install -r $(makefile_dir)/requirements.txt
 ifeq ($(with_azure_deps),true)
