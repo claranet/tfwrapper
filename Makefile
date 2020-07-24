@@ -64,9 +64,6 @@ renew: check clear setup
 	@echo 'Renew done.'
 
 work: check setup
-	echo $(conf_dir)/config.yml
-	echo $(use_local_azure_session_directory)
-
 ifneq (,$(findstring zsh,$(OUT_SHELL)))
 	ZDOTDIR=$(makefile_dir)/.zshtempdir $(OUT_SHELL)
 else
