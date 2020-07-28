@@ -1,3 +1,9 @@
+# 7.9.1 (28/07/2020)
+
+FIXED:
+
+  * TER-456: Fix env for "each" process when using `foreach` (we must extend current `os.environ`)
+
 # 7.9.0 (30/06/2020)
 
 UPDATES:
