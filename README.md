@@ -2,6 +2,45 @@
 
 `tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
+## Table Of Contents
+<!--TOC-->
+
+- [tfwrapper](#tfwrapper)
+  - [Table Of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Drawbacks](#drawbacks)
+  - [Dependencies](#dependencies)
+  - [Installation](#installation)
+    - [Required files](#required-files)
+  - [Configuration](#configuration)
+    - [tfwrapper configuration](#tfwrapper-configuration)
+    - [Stacks configurations](#stacks-configurations)
+    - [States centralization configuration](#states-centralization-configuration)
+    - [How to migrate from one backend to another for state centralization](#how-to-migrate-from-one-backend-to-another-for-state-centralization)
+  - [Stacks file structure](#stacks-file-structure)
+  - [Usage](#usage)
+    - [tfwrapper activation](#tfwrapper-activation)
+    - [Stack bootstrap](#stack-bootstrap)
+    - [Working on stacks](#working-on-stacks)
+    - [Passing options](#passing-options)
+  - [Environment](#environment)
+    - [S3 state backend credentials](#s3-state-backend-credentials)
+    - [Azure storage state backend credentials](#azure-storage-state-backend-credentials)
+    - [Azure Service Principal credentials](#azure-service-principal-credentials)
+    - [GCP configuration](#gcp-configuration)
+    - [GKE configurations](#gke-configurations)
+    - [Stack configurations and credentials](#stack-configurations-and-credentials)
+    - [Stack path](#stack-path)
+- [Development](#development)
+  - [Tests](#tests)
+  - [Python code formatting](#python-code-formatting)
+  - [Checks](#checks)
+  - [README TOC](#readme-toc)
+  - [Using terraform development builds](#using-terraform-development-builds)
+  - [git pre-commit hooks](#git-pre-commit-hooks)
+
+<!--TOC-->
+
 ## Features
 
 - Terraform behaviour overriding
@@ -208,7 +247,7 @@ terraform:
   vars:                         # variables passed to terraform
     aws_account: *aws_account
     aws_region: *aws_region
-    client_name: my-client-name # arbitrary client name  
+    client_name: my-client-name # arbitrary client name
 ```
 
 Here is an example for a stack on Azure configuration using user mode and AWS S3 backend for state storage:
@@ -282,9 +321,15 @@ terraform:
 
 ### States centralization configuration
 
-`conf/state.yml` defines the configurations used to connect to state backend account.
+The `conf/state.yml` configuration file defines the configurations used to connect to state backend account.
 It can be an AWS (S3) or Azure (Storage Account) backend type.
 
+You can use other backends (e.g. Google GCS or Hashicorp Consul) not specifically supported by the wrapper if you them manage yourself and omit the `conf/state.yml` file or make it empty:
+```yaml
+---
+```
+
+Example configuration with both AWS and Azure backends defined:
 ```yaml
 ---
 aws:
@@ -302,6 +347,8 @@ azure:
     resource_group_name: 'tfstates-xxxxx-rg' # The Azure resource group with state storage
     storage_account_name: 'tfstatesxxxxx'
 ```
+
+Note: the first backend will be the default one for stacks not defining `state_backend_type`.
 
 ### How to migrate from one backend to another for state centralization
 
@@ -402,9 +449,9 @@ tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap aws/foobar
 ```
 
-### Working on a stack
+### Working on stacks
 
-You can work on stacks from theirs root or from the root of the project.
+You can work on stacks from their directory or from the root of the project.
 
 ```bash
 # working from the root of the project
@@ -413,6 +460,38 @@ tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} plan
 # working from the root of a stack
 cd ${account}/${environment}/${region}/${stack}
 tfwrapper plan
+```
+
+You can also work on several stacks sequentially with the `foreach` subcommand from any directory under the root of the project.
+By default, `foreach` selects all stacks under the current directory,
+so if called from the root of the project without any filter,
+it will select all stacks and execute the specified command in them, one after another:
+
+```bash
+# working from the root of the project
+tfwrapper foreach -- tfwrapper init
+```
+
+Any combination of the `-a`, `-e`, `-r` and `-s` arguments can be used to select specific stacks,
+e.g. all stacks for an account across all environments but in a specific region:
+
+```bash
+# working from the root of the project
+tfwrapper -a ${account} -r ${region} foreach -- tfwrapper plan
+```
+
+The same can be achieved with:
+```bash
+# working from an account directory
+cd ${account}
+tfwrapper -r ${region} foreach -- tfwrapper plan
+```
+
+Complex commands can be executed in a sub-shell with the `-c` argument, e.g.:
+```bash
+# working from an environment directory
+cd ${account}/${environment}
+tfwrapper foreach -c 'pwd && tfwrapper init >/dev/null 2>&1 && tfwrapper plan 2>/dev/null -- -no-color | grep "^Plan: "'
 ```
 
 ### Passing options
@@ -462,6 +541,21 @@ Each GKE instance has its own kubeconfig, the path to each configuration is avai
 
 - `TF_VAR_gke_kubeconfig_${gke_cluster_name}`
 
+kubeconfig is automatically fetched by the wrapper (using gcloud) and stored inside the `.run` directory of your project.
+It is refreshed automatically at every run to ensure you point to correct Kubernetes endpoint.
+You can disable this behaviour by setting `refresh_kubeconfig: never` in your cluster settings.
+```yaml
+---
+gcp:
+  general:
+    mode: adc-user
+    project: &gcp_project project-name
+  gke:
+    - name: kubernetes-1
+      zone: europe-west1-c
+      refresh_kubeconfig: never
+ ```
+
 ### Stack configurations and credentials
 
 The `terraform['vars']` dictionary from the stack configuration is accessible as Terraform variables.
@@ -492,6 +586,37 @@ The stack path is passed to Terraform. This is especially useful for resource na
 
 # Development
 
+## Tests
+
+All new code contributions should come with unit and/or integrations tests.
+
+To run those tests locally, use [tox](https://github.com/tox-dev/tox).
+
+## Python code formatting
+
+Our code is formatted with [black](https://github.com/psf/black/).
+
+Make sure to format all your code contributions with `black ${filename}`.
+
+Hint: enable auto-format on save with `black` in your [favorite IDE](https://black.readthedocs.io/en/stable/editor_integration.html).
+
+## Checks
+
+To run code and documentation style checks, run `tox -e lint`.
+
+In addition to `black --check`, code is also checked with:
+
+- [flake8](https://gitlab.com/pycqa/flake8), a wrapper for [pycodestyle](https://github.com/PyCQA/pycodestyle) and [pyflakes](https://github.com/PyCQA/pyflakes).
+- [flake8-docstrings](https://gitlab.com/pycqa/flake8-docstrings), a wrapper for [pydocstyle](https://github.com/PyCQA/pydocstyle).
+
+## README TOC
+
+This [README's table of content](#table-of-contents) is formatted with [md_toc](https://github.com/frnmst/md-toc).
+
+Keep in mind to update it with `md_toc --in-place README.md github`.
+
+## Using terraform development builds
+
 To build and use development versions of terraform, manually put them in a `~/.terraform.d/versions/X.Y/X.Y.Z-dev/` folder:
 
 ```bash
@@ -502,3 +627,23 @@ Terraform v0.12.9-dev
 # mkdir -p ~/.terraform.d/versions/0.12/0.12.9-dev
 # mv ./bin/terraform ~/.terraform.d/versions/0.12/0.12.9-dev/
 ```
+
+## git pre-commit hooks
+
+Some git pre-commit hooks are configured in `.pre-commit-config.yaml` for use with the [pre-commit tool](https://pre-commit.com).
+
+Using them helps avoiding to push changes that will fail the CI.
+
+They can be installed locally with:
+
+```bash
+# pre-commit install
+```
+
+If updating hooks configuration, run checks against all files to make sure everything is fine:
+
+```bash
+# pre-commit run --all-files --show-diff-on-failure
+```
+
+Note: the `pre-commit` tool itself can be installed with `pip` or `pipx`.

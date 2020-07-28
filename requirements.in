@@ -1,7 +1,8 @@
 boto3
+cachecontrol
 colorlog
 jinja2
-pip-tools
+lockfile
 pyyaml
 requests
 schema

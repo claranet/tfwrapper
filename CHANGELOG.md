@@ -1,3 +1,94 @@
+# 7.9.0 (30/06/2020)
+
+UPDATES:
+
+  * TER-456: Export TFWRAPPER env variables when using `foreach`
+  * TER-455: Handle Azure session check via Tenant ID
+
+FIXED:
+
+  * TER-458: terraform 0.13 no longer supports -v, use version subcommand
+
+# 7.8.0 (25/05/2020)
+
+UPDATES:
+
+  * TER-454: support missing or empty state yml
+  * TER-439: Bump `azure-cli` to latest `2.6.0` and upgrade AWS/boto dependencies
+
+# 7.7.0 (29/04/2020)
+
+UPDATES:
+
+  * TER-450: CI - add python 3.6 and 3.8 to tested versions
+  * TER-451: Update dependencies
+
+FIXED:
+
+  * TER-453: Don't load stack config for wrapper local commands (like `switchver`)
+
+# 7.6.1 (20/02/2020)
+
+FIXED:
+
+  * TER-331: Allow `<patch>[0-9]` suffixes to custom provider release version
+
+# 7.6.0 (20/02/2020)
+
+ADDED:
+
+  * TER-271: Cache github HTTP responses
+  * TER-443: Pass `TF_PLUGIN_CACHE_DIR` environment variable to terraform if available
+  * TER-444: Pre commit hooks and use `flake8`
+
+UPDATES:
+
+  * TER-442: Format code with black
+  * TER-439: Bump `azure-cli` to `2.1.0`
+
+# 7.5.1 (08/01/2020)
+
+UPDATES:
+
+  * TER-347: Bump Python/boto dependencies
+
+# 7.5.0 (06/01/2020)
+
+ADDED:
+
+  * Add new wrapper option to refresh kubeconfig tokens
+
+UPDATES:
+
+  * Improve README with TOC
+  * TER-439: Bump `azure-cli` to `2.0.77`
+
+# 7.4.1 (09/12/2019)
+
+FIXED:
+
+  * TER-423: Fix directories path detection in Makefile for exported variables
+
+# 7.4.0 (06/12/2019)
+
+ADDED:
+
+  * TER-438: Add support for .tar.gz, .tar.bz2 (not tested) and version number starting with "v"
+
+UPDATES:
+
+  * TER-343: Improve README documentation for kubeconfig management
+
+# 7.3.0 (06/12/2019)
+
+ADDED:
+
+  * TER-35: Add `foreach` subcommand to execute arbitrary commands on several stacks at once
+
+FIXED:
+
+  * TER-35: fix foreach when -c is not specified
+
 # 7.2.0 (29/10/2019)
 
 ADDED:

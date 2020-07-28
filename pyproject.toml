@@ -1,0 +1,12 @@
+[tool.black]
+# Make sure to match flake8's max-line-length in tox.ini.
+line-length = 130 # black's default
+target-version = ['py36', 'py37', 'py38']
+exclude = '''
+/(
+  \.git
+  | \.pytest_cache
+  | \.tox
+  | \.venv
+)/
+'''

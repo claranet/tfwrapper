@@ -1,2 +1,9 @@
+.pytest_cache
+.tox
+.venv
 .virtualenv
+.zshtempdir
+.vscode
+.webcache
+__pycache__
 bin/terraform
