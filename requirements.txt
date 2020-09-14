@@ -4,12 +4,12 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-boto3==1.13.12            # via -r requirements.in
-botocore==1.16.12         # via boto3, s3transfer
+boto3==1.14.61            # via -r requirements.in
+botocore==1.17.61         # via boto3, s3transfer
 cachecontrol==0.12.6      # via -r requirements.in
-certifi==2019.11.28       # via requests
+certifi==2019.11.28        # via requests
 chardet==3.0.4            # via requests
-colorlog==4.1.0           # via -r requirements.in
+colorlog==4.2.1           # via -r requirements.in
 contextlib2==0.6.0.post1  # via schema
 docutils==0.15.2          # via botocore
 idna==2.8                 # via requests
