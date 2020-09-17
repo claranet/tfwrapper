@@ -1,3 +1,9 @@
+# 7.9.2 (17/09/2020)
+
+UPDATES:
+
+  * TER-439: Bump `azure-cli` to latest `2.11.1` and upgrade AWS/boto dependencies
+
 # 7.9.1 (28/07/2020)
 
 FIXED:
