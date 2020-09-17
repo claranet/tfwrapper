@@ -9,37 +9,36 @@ antlr4-python3-runtime==4.7.2  # via azure-cli
 applicationinsights==0.11.9  # via azure-cli-telemetry
 argcomplete==1.11.1       # via azure-cli-core, knack
 azure-batch==9.0.0        # via azure-cli
-azure-cli-command-modules-nspkg==2.0.3  # via azure-cli
-azure-cli-core==2.6.0     # via azure-cli
-azure-cli-nspkg==3.0.4    # via azure-cli, azure-cli-command-modules-nspkg, azure-cli-core, azure-cli-telemetry
-azure-cli-telemetry==1.0.4  # via azure-cli-core
-azure-cli==2.6.0          # via -r requirements-azure.in
-azure-common==1.1.24      # via -r requirements-azure.in, azure-batch, azure-graphrbac, azure-keyvault, azure-loganalytics, azure-mgmt-advisor, azure-mgmt-apimanagement, azure-mgmt-appconfiguration, azure-mgmt-applicationinsights, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-botservice, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-analytics, azure-mgmt-datalake-store, azure-mgmt-datamigration, azure-mgmt-deploymentmanager, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-hdinsight, azure-mgmt-imagebuilder, azure-mgmt-iotcentral, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-keyvault, azure-mgmt-kusto, azure-mgmt-loganalytics, azure-mgmt-managedservices, azure-mgmt-managementgroups, azure-mgmt-maps, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-netapp, azure-mgmt-network, azure-mgmt-policyinsights, azure-mgmt-privatedns, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redhatopenshift, azure-mgmt-redis, azure-mgmt-relay, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-security, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-signalr, azure-mgmt-sql, azure-mgmt-sqlvirtualmachine, azure-mgmt-storage, azure-mgmt-trafficmanager, azure-mgmt-web, azure-multiapi-storage, azure-storage-blob, azure-storage-common
-azure-core==1.5.0         # via azure-mgmt-core, azure-multiapi-storage
+azure-cli-core==2.11.1    # via azure-cli
+azure-cli-nspkg==3.0.4    # via azure-cli-telemetry
+azure-cli-telemetry==1.0.6  # via azure-cli-core
+azure-cli==2.11.1         # via -r requirements-azure.in
+azure-common==1.1.24      # via -r requirements-azure.in, azure-batch, azure-graphrbac, azure-keyvault, azure-loganalytics, azure-mgmt-advisor, azure-mgmt-apimanagement, azure-mgmt-appconfiguration, azure-mgmt-applicationinsights, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-botservice, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-analytics, azure-mgmt-datalake-store, azure-mgmt-datamigration, azure-mgmt-deploymentmanager, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-hdinsight, azure-mgmt-imagebuilder, azure-mgmt-iotcentral, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-keyvault, azure-mgmt-kusto, azure-mgmt-loganalytics, azure-mgmt-managedservices, azure-mgmt-managementgroups, azure-mgmt-maps, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-netapp, azure-mgmt-network, azure-mgmt-policyinsights, azure-mgmt-privatedns, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redhatopenshift, azure-mgmt-redis, azure-mgmt-relay, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-security, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-signalr, azure-mgmt-sql, azure-mgmt-sqlvirtualmachine, azure-mgmt-storage, azure-mgmt-synapse, azure-mgmt-trafficmanager, azure-mgmt-web, azure-multiapi-storage, azure-storage-common, azure-synapse-accesscontrol, azure-synapse-spark
+azure-core==1.8.1         # via azure-mgmt-core, azure-multiapi-storage, azure-synapse-accesscontrol, azure-synapse-spark
 azure-cosmos==3.1.2       # via azure-cli
-azure-datalake-store==0.0.48  # via azure-cli
+azure-datalake-store==0.0.50  # via azure-cli
 azure-functions-devops-build==0.0.22  # via azure-cli
 azure-graphrbac==0.60.0   # via azure-cli
 azure-keyvault==1.1.0     # via azure-cli
 azure-loganalytics==0.1.0  # via azure-cli
 azure-mgmt-advisor==2.0.1  # via azure-cli
 azure-mgmt-apimanagement==0.1.0  # via azure-cli
-azure-mgmt-appconfiguration==0.4.0  # via azure-cli
+azure-mgmt-appconfiguration==0.5.0  # via azure-cli
 azure-mgmt-applicationinsights==0.1.1  # via azure-cli
 azure-mgmt-authorization==0.52.0  # via azure-cli
-azure-mgmt-batch==7.0.0   # via azure-cli
+azure-mgmt-batch==9.0.0   # via azure-cli
 azure-mgmt-batchai==2.0.0  # via azure-cli
 azure-mgmt-billing==0.2.0  # via azure-cli
 azure-mgmt-botservice==0.2.0  # via azure-cli
-azure-mgmt-cdn==4.1.0rc1  # via azure-cli
-azure-mgmt-cognitiveservices==5.0.0  # via azure-cli
-azure-mgmt-compute==12.0.0  # via azure-cli
+azure-mgmt-cdn==5.0.0     # via azure-cli
+azure-mgmt-cognitiveservices==6.2.0  # via azure-cli
+azure-mgmt-compute==13.1.0  # via azure-cli
 azure-mgmt-consumption==2.0.0  # via azure-cli
 azure-mgmt-containerinstance==1.5.0  # via azure-cli
-azure-mgmt-containerregistry==3.0.0rc12  # via azure-cli
+azure-mgmt-containerregistry==3.0.0rc14  # via azure-cli
 azure-mgmt-containerservice==9.0.1  # via azure-cli
-azure-mgmt-core==1.0.0    # via azure-cli-core
-azure-mgmt-cosmosdb==0.14.0  # via azure-cli
+azure-mgmt-core==1.2.0    # via azure-cli-core, azure-mgmt-keyvault
+azure-mgmt-cosmosdb==0.15.0  # via azure-cli
 azure-mgmt-datalake-analytics==0.2.1  # via azure-cli
 azure-mgmt-datalake-nspkg==3.0.1  # via azure-mgmt-datalake-analytics, azure-mgmt-datalake-store
 azure-mgmt-datalake-store==0.5.0  # via azure-cli
@@ -47,27 +46,27 @@ azure-mgmt-datamigration==0.1.0  # via azure-cli
 azure-mgmt-deploymentmanager==0.2.0  # via azure-cli
 azure-mgmt-devtestlabs==4.0.0  # via azure-cli
 azure-mgmt-dns==2.1.0     # via azure-cli
-azure-mgmt-eventgrid==2.2.0  # via azure-cli
-azure-mgmt-eventhub==3.0.0  # via azure-cli
-azure-mgmt-hdinsight==1.4.0  # via azure-cli
-azure-mgmt-imagebuilder==0.2.1  # via azure-cli
+azure-mgmt-eventgrid==3.0.0rc7  # via azure-cli
+azure-mgmt-eventhub==4.0.0  # via azure-cli
+azure-mgmt-hdinsight==1.7.0  # via azure-cli
+azure-mgmt-imagebuilder==0.4.0  # via azure-cli
 azure-mgmt-iotcentral==3.0.0  # via azure-cli
 azure-mgmt-iothub==0.12.0  # via azure-cli
 azure-mgmt-iothubprovisioningservices==0.2.0  # via azure-cli
-azure-mgmt-keyvault==2.2.0  # via azure-cli
+azure-mgmt-keyvault==7.0.0b3  # via azure-cli
 azure-mgmt-kusto==0.3.0   # via azure-cli
-azure-mgmt-loganalytics==0.5.0  # via azure-cli
+azure-mgmt-loganalytics==0.7.0  # via azure-cli
 azure-mgmt-managedservices==1.0.0  # via azure-cli
 azure-mgmt-managementgroups==0.2.0  # via azure-cli
 azure-mgmt-maps==0.1.0    # via azure-cli
 azure-mgmt-marketplaceordering==0.2.1  # via azure-cli
 azure-mgmt-media==2.1.0   # via azure-cli
-azure-mgmt-monitor==0.9.0  # via azure-cli
+azure-mgmt-monitor==0.11.0  # via azure-cli
 azure-mgmt-msi==0.2.0     # via azure-cli
-azure-mgmt-netapp==0.8.0  # via azure-cli
-azure-mgmt-network==10.1.0  # via azure-cli
+azure-mgmt-netapp==0.12.0  # via azure-cli
+azure-mgmt-network==11.0.0  # via azure-cli
 azure-mgmt-nspkg==3.0.2   # via azure-mgmt-applicationinsights, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-consumption, azure-mgmt-datalake-nspkg, azure-mgmt-datamigration, azure-mgmt-dns, azure-mgmt-iothubprovisioningservices, azure-mgmt-maps, azure-mgmt-msi, azure-mgmt-relay
-azure-mgmt-policyinsights==0.4.0  # via azure-cli
+azure-mgmt-policyinsights==0.5.0  # via azure-cli
 azure-mgmt-privatedns==0.1.0  # via azure-cli
 azure-mgmt-rdbms==2.2.0   # via azure-cli
 azure-mgmt-recoveryservices==0.4.0  # via azure-cli
@@ -76,21 +75,23 @@ azure-mgmt-redhatopenshift==0.1.0  # via azure-cli
 azure-mgmt-redis==7.0.0rc1  # via azure-cli
 azure-mgmt-relay==0.1.0   # via azure-cli
 azure-mgmt-reservations==0.6.0  # via azure-cli
-azure-mgmt-resource==9.0.0  # via azure-cli-core
+azure-mgmt-resource==10.2.0  # via azure-cli-core
 azure-mgmt-search==2.1.0  # via azure-cli
-azure-mgmt-security==0.1.0  # via azure-cli
+azure-mgmt-security==0.4.1  # via azure-cli
 azure-mgmt-servicebus==0.6.0  # via azure-cli
 azure-mgmt-servicefabric==0.4.0  # via azure-cli
-azure-mgmt-signalr==0.3.0  # via azure-cli
-azure-mgmt-sql==0.18.0    # via azure-cli
+azure-mgmt-signalr==0.4.0  # via azure-cli
+azure-mgmt-sql==0.19.0    # via azure-cli
 azure-mgmt-sqlvirtualmachine==0.5.0  # via azure-cli
-azure-mgmt-storage==9.0.0  # via -r requirements-azure.in, azure-cli
+azure-mgmt-storage==11.1.0  # via -r requirements-azure.in, azure-cli
+azure-mgmt-synapse==0.3.0  # via azure-cli
 azure-mgmt-trafficmanager==0.51.0  # via azure-cli
-azure-mgmt-web==0.46.0    # via azure-cli
-azure-multiapi-storage==0.3.2  # via azure-cli
-azure-nspkg==3.0.2        # via azure-cli-nspkg, azure-keyvault, azure-loganalytics, azure-mgmt-nspkg, azure-multiapi-storage
-azure-storage-blob==1.5.0  # via azure-cli
-azure-storage-common==1.4.2  # via azure-storage-blob
+azure-mgmt-web==0.47.0    # via azure-cli
+azure-multiapi-storage==0.4.1  # via azure-cli
+azure-nspkg==3.0.2        # via azure-cli-nspkg, azure-keyvault, azure-loganalytics, azure-mgmt-nspkg
+azure-storage-common==1.4.2  # via azure-cli
+azure-synapse-accesscontrol==0.2.0  # via azure-cli
+azure-synapse-spark==0.2.0  # via azure-cli
 bcrypt==3.1.7             # via paramiko
 certifi==2019.11.28       # via msrest, requests, urllib3
 cffi==1.12.3              # via azure-datalake-store, bcrypt, cryptography, pynacl
@@ -100,7 +101,6 @@ cryptography==2.8         # via adal, azure-cli, azure-keyvault, azure-multiapi-
 fabric==2.5.0             # via azure-cli
 humanfriendly==8.2        # via azure-cli-core
 idna==2.8                 # via requests, urllib3
-importlib-metadata==1.6.0  # via argcomplete
 invoke==1.4.1             # via fabric
 isodate==0.6.0            # via msrest
 javaproperties==0.5.1     # via azure-cli
@@ -108,13 +108,13 @@ jinja2==2.11.2            # via azure-functions-devops-build
 jmespath==0.10.0          # via azure-cli-core, knack
 jsmin==2.2.2              # via azure-cli
 jsondiff==1.2.0           # via azure-cli
-knack==0.7.1              # via azure-cli-core
+knack==0.7.2              # via azure-cli-core
 markupsafe==1.1.1         # via jinja2
 mock==3.0.5               # via vsts-cd-manager
 msal-extensions==0.1.3    # via azure-cli-core
 msal==1.0.0               # via azure-cli-core, msal-extensions
-msrest==0.6.10            # via azure-batch, azure-cli-core, azure-functions-devops-build, azure-graphrbac, azure-keyvault, azure-loganalytics, azure-mgmt-advisor, azure-mgmt-apimanagement, azure-mgmt-appconfiguration, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-botservice, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-deploymentmanager, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-hdinsight, azure-mgmt-imagebuilder, azure-mgmt-iotcentral, azure-mgmt-iothub, azure-mgmt-keyvault, azure-mgmt-kusto, azure-mgmt-loganalytics, azure-mgmt-managedservices, azure-mgmt-managementgroups, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-netapp, azure-mgmt-network, azure-mgmt-policyinsights, azure-mgmt-privatedns, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redhatopenshift, azure-mgmt-redis, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-security, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-signalr, azure-mgmt-sql, azure-mgmt-sqlvirtualmachine, azure-mgmt-storage, azure-mgmt-trafficmanager, azure-mgmt-web, msrestazure, vsts, vsts-cd-manager
-msrestazure==0.6.3        # via azure-batch, azure-cli-core, azure-graphrbac, azure-keyvault, azure-mgmt-advisor, azure-mgmt-apimanagement, azure-mgmt-appconfiguration, azure-mgmt-applicationinsights, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-botservice, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-analytics, azure-mgmt-datalake-store, azure-mgmt-datamigration, azure-mgmt-deploymentmanager, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-hdinsight, azure-mgmt-imagebuilder, azure-mgmt-iotcentral, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-keyvault, azure-mgmt-kusto, azure-mgmt-loganalytics, azure-mgmt-managedservices, azure-mgmt-managementgroups, azure-mgmt-maps, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-netapp, azure-mgmt-network, azure-mgmt-policyinsights, azure-mgmt-privatedns, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redhatopenshift, azure-mgmt-redis, azure-mgmt-relay, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-security, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-signalr, azure-mgmt-sql, azure-mgmt-sqlvirtualmachine, azure-mgmt-storage, azure-mgmt-trafficmanager, azure-mgmt-web
+msrest==0.6.10            # via azure-batch, azure-cli-core, azure-functions-devops-build, azure-graphrbac, azure-keyvault, azure-loganalytics, azure-mgmt-advisor, azure-mgmt-apimanagement, azure-mgmt-appconfiguration, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-botservice, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-deploymentmanager, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-hdinsight, azure-mgmt-imagebuilder, azure-mgmt-iotcentral, azure-mgmt-iothub, azure-mgmt-keyvault, azure-mgmt-kusto, azure-mgmt-loganalytics, azure-mgmt-managedservices, azure-mgmt-managementgroups, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-netapp, azure-mgmt-network, azure-mgmt-policyinsights, azure-mgmt-privatedns, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redhatopenshift, azure-mgmt-redis, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-security, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-signalr, azure-mgmt-sql, azure-mgmt-sqlvirtualmachine, azure-mgmt-storage, azure-mgmt-synapse, azure-mgmt-trafficmanager, azure-mgmt-web, azure-synapse-accesscontrol, azure-synapse-spark, msrestazure, vsts, vsts-cd-manager
+msrestazure==0.6.3        # via azure-batch, azure-cli-core, azure-graphrbac, azure-keyvault, azure-mgmt-advisor, azure-mgmt-apimanagement, azure-mgmt-appconfiguration, azure-mgmt-applicationinsights, azure-mgmt-authorization, azure-mgmt-batch, azure-mgmt-batchai, azure-mgmt-billing, azure-mgmt-botservice, azure-mgmt-cdn, azure-mgmt-cognitiveservices, azure-mgmt-compute, azure-mgmt-consumption, azure-mgmt-containerinstance, azure-mgmt-containerregistry, azure-mgmt-containerservice, azure-mgmt-cosmosdb, azure-mgmt-datalake-analytics, azure-mgmt-datalake-store, azure-mgmt-datamigration, azure-mgmt-deploymentmanager, azure-mgmt-devtestlabs, azure-mgmt-dns, azure-mgmt-eventgrid, azure-mgmt-eventhub, azure-mgmt-hdinsight, azure-mgmt-imagebuilder, azure-mgmt-iotcentral, azure-mgmt-iothub, azure-mgmt-iothubprovisioningservices, azure-mgmt-kusto, azure-mgmt-loganalytics, azure-mgmt-managedservices, azure-mgmt-managementgroups, azure-mgmt-maps, azure-mgmt-marketplaceordering, azure-mgmt-media, azure-mgmt-monitor, azure-mgmt-msi, azure-mgmt-netapp, azure-mgmt-network, azure-mgmt-policyinsights, azure-mgmt-privatedns, azure-mgmt-rdbms, azure-mgmt-recoveryservices, azure-mgmt-recoveryservicesbackup, azure-mgmt-redhatopenshift, azure-mgmt-redis, azure-mgmt-relay, azure-mgmt-reservations, azure-mgmt-resource, azure-mgmt-search, azure-mgmt-security, azure-mgmt-servicebus, azure-mgmt-servicefabric, azure-mgmt-signalr, azure-mgmt-sql, azure-mgmt-sqlvirtualmachine, azure-mgmt-storage, azure-mgmt-synapse, azure-mgmt-trafficmanager, azure-mgmt-web
 oauthlib==3.1.0           # via requests-oauthlib
 paramiko==2.7.1           # via azure-cli-core, fabric, scp, sshtunnel
 pkginfo==1.5.0.1          # via azure-cli-core
@@ -138,4 +138,3 @@ vsts-cd-manager==1.0.2    # via azure-cli
 vsts==0.1.25              # via azure-functions-devops-build
 websocket-client==0.56.0  # via azure-cli
 xmltodict==0.12.0         # via azure-cli
-zipp==1.2.0               # via importlib-metadata
