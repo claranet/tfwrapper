@@ -1,3 +1,9 @@
+# 7.9.3 (29/09/2020)
+
+FIXED:
+
+  * TER-458: Fix `terraform version` ouput matching and parse
+
 # 7.9.2 (17/09/2020)
 
 UPDATES:
