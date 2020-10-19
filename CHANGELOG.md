@@ -1,3 +1,9 @@
+# 7.9.4 - Unreleased
+
+FIXED:
+
+  * TER-463: Fix yaml unsafe load warning when using Azure profile
+
 # 7.9.3 (29/09/2020)
 
 FIXED:
