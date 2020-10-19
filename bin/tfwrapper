@@ -1421,7 +1421,7 @@ def main(argv=None):
                 logger.info("Using Azure Service Principal mode")
 
                 azure_config = open(os.path.abspath(home_dir) + "/.azurerm/config.yml")
-                load_azure_config = yaml.load(azure_config)
+                load_azure_config = yaml.safe_load(azure_config)
                 if load_azure_config is None:
                     logger.error("Please configure your ~/.azurerm/config.yml configuration file")
                     sys.exit(RC_KO)
