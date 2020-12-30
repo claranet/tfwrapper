@@ -346,6 +346,9 @@ azure:
     subscription_uid: 'xxxxxxx' # the Azure account to use for state storage
     resource_group_name: 'tfstates-xxxxx-rg' # The Azure resource group with state storage
     storage_account_name: 'tfstatesxxxxx'
+
+backend_parameters: # Parameters or options which can be used by `state.j2.tf` template file
+  state_snaphot: "false" # Example of Azure storage backend option
 ```
 
 Note: the first backend will be the default one for stacks not defining `state_backend_type`.

@@ -220,7 +220,7 @@ def load_wrapper_config(wrapper_config):
         wrapper_config["state"][config_name] = {
             # Global
             "state_backend_type": config_type,
-            "state_backend_parameters": (state_config.get("parameters")),
+            "state_backend_parameters": (state_config.get("backend_parameters", {})),
             # Azure configuration
             "state_subscription": (state_config.get("azure", {}).get("general", {}).get("subscription_uid", None)),
             "state_rg": (state_config.get("azure", {}).get("general", {}).get("resource_group_name", None)),
@@ -532,13 +532,16 @@ def bootstrap(wrapper_config):
 
         jinja2_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_path), lstrip_blocks=True, trim_blocks=True,)
 
+        state_yml_parameters = wrapper_config["state"].get(state_backend_type) or next(iter(wrapper_config["state"]))
+        logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
+
         state_conf = jinja2_env.get_template("state.tf.jinja2").render(
             client_name=client_name,
             account=account,
             environment=environment,
             region=region,
             stack=stack,
-            config=wrapper_config["state"].get(state_backend_name),
+            state_parameters=state_yml_parameters,
         )
 
         with open("{}/state.tf".format(stack_path), "w") as f:
