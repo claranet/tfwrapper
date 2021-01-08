@@ -1,3 +1,9 @@
+# 7.9.5 (08/01/2021)
+
+UPDATES
+
+  * TER-464: Pass state.yml configuration object to state.j2.tf template
+
 # 7.9.4 (19/10/2020)
 
 FIXED:
