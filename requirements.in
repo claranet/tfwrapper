@@ -3,6 +3,7 @@ cachecontrol
 colorlog
 jinja2
 lockfile
+natsort
 pyyaml
 requests
 schema
