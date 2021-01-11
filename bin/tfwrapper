@@ -103,7 +103,11 @@ class CachedRequestsSession:
         if not CachedRequestsSession._session:
             file_cache = FileCache(CachedRequestsSession._cache_dir)
             retries = Retry(total=3, backoff_factor=0.3, respect_retry_after_header=True)
-            cache_adapter = CacheControlAdapter(heuristic=ExpiresAfter(minutes=15), cache=file_cache, max_retries=retries,)
+            cache_adapter = CacheControlAdapter(
+                heuristic=ExpiresAfter(minutes=15),
+                cache=file_cache,
+                max_retries=retries,
+            )
 
             session = requests.Session()
             session.mount("http://", cache_adapter)
@@ -443,7 +447,12 @@ def get_session(rootdir, account, region, profile, backend_type=None, conf=None)
         session = _get_aws_session(session_cache_file, region, profile)
     elif backend_type == "azure":
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, conf["state_subscription"], conf["state_rg"])
-        session = _get_azure_session(session_cache_file, conf["state_subscription"], conf["state_rg"], conf["state_storage"],)
+        session = _get_azure_session(
+            session_cache_file,
+            conf["state_subscription"],
+            conf["state_rg"],
+            conf["state_storage"],
+        )
     else:
         session = None
 
@@ -530,7 +539,11 @@ def bootstrap(wrapper_config):
         template_path = "{}/templates/{}/common".format(rootdir, state_backend_type)
         logger.debug("Using template path {}".format(template_path))
 
-        jinja2_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_path), lstrip_blocks=True, trim_blocks=True,)
+        jinja2_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(template_path),
+            lstrip_blocks=True,
+            trim_blocks=True,
+        )
 
         state_yml_parameters = wrapper_config["state"].get(state_backend_type) or next(iter(wrapper_config["state"]))
         logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
@@ -565,7 +578,10 @@ def search_on_github(repo, minor_version, patch_regex, patch, terraform=True):
             logger.debug(
                 'Release found: "{}", checking with "^v{}.{}$"'.format(release, minor_version, patch if patch else patch_regex)
             )
-            if re.match(r"^v{}\.{}$".format(minor_version, patch if patch else patch_regex), release,):
+            if re.match(
+                r"^v{}\.{}$".format(minor_version, patch if patch else patch_regex),
+                release,
+            ):
                 patch = patch or release.split(".")[-1]
                 return patch
             # hard limit or it will takes too long time and terraform versions older than 0.7 do not respect naming convention
@@ -589,7 +605,10 @@ def do_switchver(version):
     """
     minor_version_regex = r"[0-9]+\.[0-9]+"
     patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
-    m = re.match(r"^(?P<minor>{})(\.(?P<patch>{}))?$".format(minor_version_regex, patch_regex), version,)
+    m = re.match(
+        r"^(?P<minor>{})(\.(?P<patch>{}))?$".format(minor_version_regex, patch_regex),
+        version,
+    )
     if not m:
         error('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
     minor_version, patch, dev = m.group("minor", "patch", "dev")
@@ -647,7 +666,8 @@ def do_switchver(version):
             zip.extractall(path=version_path)
         # Permissions not preserved on extract https://bugs.python.org/issue15795
         os.chmod(
-            tf_bin_path, os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+            tf_bin_path,
+            os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
         )
         os.remove(tmp_file)
 
@@ -705,7 +725,12 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix="." + extension)
         r = CachedRequestsSession.get(
             "https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.{extension}".format(
-                p=provider_name, v=full_version, b=bin_name, platform=PLATFORM_SYSTEM, arch=ARCH_NAME, extension=extension,
+                p=provider_name,
+                v=full_version,
+                b=bin_name,
+                platform=PLATFORM_SYSTEM,
+                arch=ARCH_NAME,
+                extension=extension,
             ),
             stream=True,
         )
@@ -715,7 +740,8 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         shutil.unpack_archive(tmp_file, plugins_path)
         # Permissions not preserved on extract https://bugs.python.org/issue15795
         os.chmod(
-            tf_bin_path, os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+            tf_bin_path,
+            os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
         )
         os.remove(tmp_file)
         logger.info("Download done, current provider version is {}".format(full_version))
@@ -724,7 +750,13 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
 
 
 def adc_check_gke_credentials(
-    adc_path, kubeconfig_path, gke_name, project, zone=None, region=None, refresh_kubeconfig=None,
+    adc_path,
+    kubeconfig_path,
+    gke_name,
+    project,
+    zone=None,
+    region=None,
+    refresh_kubeconfig=None,
 ):
     """Provision kubeconfig for a given GKE instance using ADC."""
     cmd_env = deepcopy(os.environ)
@@ -771,7 +803,11 @@ def adc_check_gke_credentials(
         logger.info("Refreshing {} GKE credentials.".format(gke_name))
         try:
             subprocess.run(
-                command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env,
+                command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+                env=cmd_env,
             )
         except subprocess.CalledProcessError:
             logger.error("Could not configure {} GKE credentials.".format(gke_name))
@@ -813,7 +849,11 @@ def run_terraform(action, wrapper_config):
         if pipe_plan:
             logger.debug('Piping command "{}"'.format(pipe_plan_command))
             with subprocess.Popen(
-                pipe_plan_command, cwd=working_dir, env=cmd_env, shell=True, stdin=process.stdout,
+                pipe_plan_command,
+                cwd=working_dir,
+                env=cmd_env,
+                shell=True,
+                stdin=process.stdout,
             ) as pipe_process:
                 try:
                     pipe_process.communicate()
@@ -849,7 +889,8 @@ def terraform_apply(wrapper_config):
     else:
         # plan config
         plan_path = "{}/.run/plan_{}".format(
-            wrapper_config["rootdir"], "".join(random.choice(string.ascii_letters) for x in range(10)),
+            wrapper_config["rootdir"],
+            "".join(random.choice(string.ascii_letters) for x in range(10)),
         )
         plan_wrapper_config = deepcopy(wrapper_config)
         plan_wrapper_config["tf_params"][1:1] = ["-out", plan_path]
@@ -884,7 +925,8 @@ Environment : {}
             )
 
         print(
-            "\nDo you really want to apply this plan on the following stack ?\n", env_msg,
+            "\nDo you really want to apply this plan on the following stack ?\n",
+            env_msg,
         )
         apply_input = input("'yes' to confirm: ")
 
@@ -1048,19 +1090,34 @@ def parse_args(args):
     parser = argparse.ArgumentParser(prog="tfwrapper", description="Terraform wrapper.")
     parser.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output.")
     parser.add_argument(
-        "-c", "--confdir", help="Configuration directory. Used to detect the project root. Defaults to conf.", default="conf",
+        "-c",
+        "--confdir",
+        help="Configuration directory. Used to detect the project root. Defaults to conf.",
+        default="conf",
     )
     parser.add_argument(
-        "-a", "--account", help="Target account. Autodetected if none is provided.", nargs="?",
+        "-a",
+        "--account",
+        help="Target account. Autodetected if none is provided.",
+        nargs="?",
     )
     parser.add_argument(
-        "-e", "--environment", help="Target environment. Autodetected if none is provided.", nargs="?",
+        "-e",
+        "--environment",
+        help="Target environment. Autodetected if none is provided.",
+        nargs="?",
     )
     parser.add_argument(
-        "-r", "--region", help="Target region. Autodetected if none is provided.", nargs="?",
+        "-r",
+        "--region",
+        help="Target region. Autodetected if none is provided.",
+        nargs="?",
     )
     parser.add_argument(
-        "-s", "--stack", help="Target stack. Autodetected if none is provided.", nargs="?",
+        "-s",
+        "--stack",
+        help="Target stack. Autodetected if none is provided.",
+        nargs="?",
     )
     parser.add_argument(
         "-p",
@@ -1069,7 +1126,9 @@ def parse_args(args):
         default=os.environ.get("TF_PLUGIN_CACHE_DIR", "{}/.terraform.d/plugin-cache".format(home_dir)),
     )
     parser.add_argument(
-        "--http-cache-dir", help="HTTP(S) requests cache directory.", default="{}/.terraform.d/http-cache".format(home_dir),
+        "--http-cache-dir",
+        help="HTTP(S) requests cache directory.",
+        default="{}/.terraform.d/http-cache".format(home_dir),
     )
 
     subparsers = parser.add_subparsers(dest="subcommand", help="subcommands")
@@ -1077,7 +1136,11 @@ def parse_args(args):
     parser_apply = subparsers.add_parser("apply", help="terraform apply")
     parser_apply.set_defaults(func=terraform_apply)
     parser_apply.add_argument(
-        "-u", "--unsafe", help="Do not force plan and human interaction before apply.", action="store_true", default=False,
+        "-u",
+        "--unsafe",
+        help="Do not force plan and human interaction before apply.",
+        action="store_true",
+        default=False,
     )
     parser_apply.add_argument(
         "-l",
@@ -1187,7 +1250,9 @@ def parse_args(args):
     parser_foreach.set_defaults(func=foreach)
     parser_foreach.add_argument("-c", dest="shell", action="store_true", help="execute command in a shell")
     parser_foreach.add_argument(
-        "command", nargs=argparse.REMAINDER, help='command to execute after a "--" delimiter',
+        "command",
+        nargs=argparse.REMAINDER,
+        help='command to execute after a "--" delimiter',
     )
 
     parser_switchver = subparsers.add_parser("switchver", help="switch terraform version")
@@ -1331,7 +1396,10 @@ def main(argv=None):
                         "print-access-token",
                     ]
                     subprocess.run(
-                        command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True,
+                        command,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        check=True,
                     )
                 except FileNotFoundError:
                     logger.error("Please make sure that gcloud is available on this system.")
@@ -1349,7 +1417,10 @@ def main(argv=None):
 
                     for cluster in stack_config["gcp"]["gke"]:
                         gke_name = cluster["name"]
-                        adc_path = os.path.join(os.path.abspath(home_dir), ".config/gcloud/application_default_credentials.json",)
+                        adc_path = os.path.join(
+                            os.path.abspath(home_dir),
+                            ".config/gcloud/application_default_credentials.json",
+                        )
                         kubeconfig_path = "{}/.run/{}_{}_{}_{}_{}.kubeconfig".format(
                             wrapper_config["rootdir"],
                             wrapper_config["account"],
@@ -1457,7 +1528,12 @@ def main(argv=None):
     returncode = None
 
     # check terraform version
-    if args.subcommand not in ("foreach", "providers", "switchver", "version",):
+    if args.subcommand not in (
+        "foreach",
+        "providers",
+        "switchver",
+        "version",
+    ):
         tf_version = stack_config["terraform"]["vars"].get("version")
         if tf_version:
             do_switchver(tf_version)

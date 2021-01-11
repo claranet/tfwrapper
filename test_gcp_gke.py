@@ -40,17 +40,31 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     mock_is_file.return_value = True
     subprocess.run = MagicMock()
     tfwrapper.adc_check_gke_credentials(
-        adc_path, kubeconfig_path, gke_name, project, region=region, refresh_kubeconfig=refresh_kubeconfig,
+        adc_path,
+        kubeconfig_path,
+        gke_name,
+        project,
+        region=region,
+        refresh_kubeconfig=refresh_kubeconfig,
     )
     subprocess.run.assert_not_called()
 
     mock_is_file.return_value = False
     subprocess.run = MagicMock()
     tfwrapper.adc_check_gke_credentials(
-        adc_path, kubeconfig_path, gke_name, project, region=region, refresh_kubeconfig=refresh_kubeconfig,
+        adc_path,
+        kubeconfig_path,
+        gke_name,
+        project,
+        region=region,
+        refresh_kubeconfig=refresh_kubeconfig,
     )
     subprocess.run.assert_called_with(
-        command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env,
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True,
+        env=cmd_env,
     )
 
     # always => we refresh no matter if kubeconfig_path exists
@@ -58,26 +72,49 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     mock_is_file.return_value = True
     subprocess.run = MagicMock()
     tfwrapper.adc_check_gke_credentials(
-        adc_path, kubeconfig_path, gke_name, project, region=region, refresh_kubeconfig=refresh_kubeconfig,
+        adc_path,
+        kubeconfig_path,
+        gke_name,
+        project,
+        region=region,
+        refresh_kubeconfig=refresh_kubeconfig,
     )
     subprocess.run.assert_called_with(
-        command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env,
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True,
+        env=cmd_env,
     )
 
     mock_is_file.return_value = False
     subprocess.run = MagicMock()
     tfwrapper.adc_check_gke_credentials(
-        adc_path, kubeconfig_path, gke_name, project, region=region, refresh_kubeconfig=refresh_kubeconfig,
+        adc_path,
+        kubeconfig_path,
+        gke_name,
+        project,
+        region=region,
+        refresh_kubeconfig=refresh_kubeconfig,
     )
     subprocess.run.assert_called_with(
-        command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, env=cmd_env,
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True,
+        env=cmd_env,
     )
 
     refresh_kubeconfig = "invalid"
     subprocess.run = MagicMock()
     try:
         tfwrapper.adc_check_gke_credentials(
-            adc_path, kubeconfig_path, gke_name, project, region=region, refresh_kubeconfig=refresh_kubeconfig,
+            adc_path,
+            kubeconfig_path,
+            gke_name,
+            project,
+            region=region,
+            refresh_kubeconfig=refresh_kubeconfig,
         )
     except SystemExit:
         subprocess.run.assert_not_called()
@@ -108,7 +145,11 @@ def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):
 
     with pytest.raises(SystemExit):
         tfwrapper.load_stack_config(
-            paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack",
+            paths["conf_dir"],
+            "testaccount",
+            "testenvironment",
+            "testregion",
+            "teststack",
         )
     assert "Or('always', 'never') did not validate 'invalid'" in caplog.text
 

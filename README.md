@@ -616,7 +616,7 @@ In addition to `black --check`, code is also checked with:
 
 This [README's table of content](#table-of-contents) is formatted with [md_toc](https://github.com/frnmst/md-toc).
 
-Keep in mind to update it with `md_toc --in-place README.md github`.
+Keep in mind to update it with `md_toc --in-place github README.md`.
 
 ## Using terraform development builds
 

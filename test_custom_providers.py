@@ -67,7 +67,9 @@ def test_stack_config_parsing(tmp_working_dir_empty_conf):  # noqa: D103
     assert stack_config == expected_stack_result
 
 
-def test_stack_config_parsing_extended_custom_provider(tmp_working_dir_empty_conf,):  # noqa: D103
+def test_stack_config_parsing_extended_custom_provider(
+    tmp_working_dir_empty_conf,
+):  # noqa: D103
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
@@ -123,7 +125,11 @@ def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_work
 
     with pytest.raises(SystemExit):
         stack_config = tfwrapper.load_stack_config(
-            paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack",
+            paths["conf_dir"],
+            "testaccount",
+            "testenvironment",
+            "testregion",
+            "teststack",
         )
     assert "Missing key: 'extension'" in caplog.text
 
@@ -150,6 +156,10 @@ def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_workin
 
     with pytest.raises(SystemExit):
         stack_config = tfwrapper.load_stack_config(
-            paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack",
+            paths["conf_dir"],
+            "testaccount",
+            "testenvironment",
+            "testregion",
+            "teststack",
         )
     assert "Missing key: 'version'" in caplog.text

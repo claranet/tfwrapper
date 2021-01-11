@@ -103,13 +103,19 @@ def test_search_on_github_terraform_releases(
     releases_url_after_v0_12_0 = releases_url + "?after=v0.12.0"
 
     requests_mock.get(
-        releases_url_after_v0_13_0, complete_qs=True, text=terraform_releases_html_after_v0_13_0,
+        releases_url_after_v0_13_0,
+        complete_qs=True,
+        text=terraform_releases_html_after_v0_13_0,
     )
     requests_mock.get(
-        releases_url_after_v0_12_10, complete_qs=True, text=terraform_releases_html_after_v0_12_10,
+        releases_url_after_v0_12_10,
+        complete_qs=True,
+        text=terraform_releases_html_after_v0_12_10,
     )
     requests_mock.get(
-        releases_url_after_v0_12_0, complete_qs=True, text=terraform_releases_html_after_v0_12_0,
+        releases_url_after_v0_12_0,
+        complete_qs=True,
+        text=terraform_releases_html_after_v0_12_0,
     )
 
     assert terraform_releases_html_after_v0_13_0 == requests.get(releases_url_after_v0_13_0).text
@@ -185,7 +191,9 @@ def provider_releases_html_after_v1_3_0():  # noqa: D103
 
 
 def test_search_on_github_provider_releases(
-    requests_mock, provider_releases_html_after_v2_6_0, provider_releases_html_after_v1_3_0,
+    requests_mock,
+    provider_releases_html_after_v2_6_0,
+    provider_releases_html_after_v1_3_0,
 ):  # noqa: D103
     from tfwrapper import GITHUB_RELEASES
 
@@ -195,10 +203,14 @@ def test_search_on_github_provider_releases(
     releases_url_after_v1_3_0 = releases_url + "?after=v1.3.0"
 
     requests_mock.get(
-        releases_url_after_v2_6_0, complete_qs=True, text=provider_releases_html_after_v2_6_0,
+        releases_url_after_v2_6_0,
+        complete_qs=True,
+        text=provider_releases_html_after_v2_6_0,
     )
     requests_mock.get(
-        releases_url_after_v1_3_0, complete_qs=True, text=provider_releases_html_after_v1_3_0,
+        releases_url_after_v1_3_0,
+        complete_qs=True,
+        text=provider_releases_html_after_v1_3_0,
     )
 
     assert provider_releases_html_after_v2_6_0 == requests.get(releases_url_after_v2_6_0).text
