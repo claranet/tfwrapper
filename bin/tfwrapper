@@ -677,6 +677,11 @@ def do_switchver(version):
             ),
             stream=True,
         )
+        if r.status_code != 200:
+            raise ValueError(
+                "Failed to download terraform version {}, it probably does not exist: {}".format(full_version, r.status_code)
+            )
+
         with open(tmp_file, "wb") as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
