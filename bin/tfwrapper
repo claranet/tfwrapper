@@ -604,7 +604,7 @@ def search_on_github(repo, minor_version, patch_regex, patch):
 
 def get_terraform_last_patch(minor_version):
     """Get last terraform patch of a given minor version."""
-    releases = requests.get(TERRAFORM_RELEASES_URL).json()
+    releases = CachedRequestsSession.get(TERRAFORM_RELEASES_URL).json()
     if type(releases) is dict and type(releases["versions"]) is dict:
         for release in natsorted(releases["versions"].keys(), reverse=True):
             if re.match(r"^{}\.{}$".format(minor_version, TERRAFORM_PATCH_REGEX), release):
