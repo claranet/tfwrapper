@@ -48,10 +48,17 @@ def get_architecture():
 RC_OK = 0
 RC_KO = 1
 RC_UNK = 2
+
 LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = "https://github.com/{}/releases"
+
+TERRAFORM_RELEASES_URL = "https://releases.hashicorp.com/terraform/index.json"
+TERRAFORM_MINOR_VERSION_REGEX = r"[0-9]+\.[0-9]+"
+TERRAFORM_PATCH_REGEX = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
+
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
+
 TFWRAPPER_DEFAULT_CONFIG = {
     "always_trigger_init": False,
     "pipe_plan_command": "cat",
@@ -595,20 +602,19 @@ def search_on_github(repo, minor_version, patch_regex, patch):
     return None
 
 
-def get_terraform_last_patch(minor_version, patch_regex):
+def get_terraform_last_patch(minor_version):
     """Get last terraform patch of a given minor version."""
-    releases_url = "https://releases.hashicorp.com/terraform/index.json"
-    releases = requests.get(releases_url).json()
+    releases = requests.get(TERRAFORM_RELEASES_URL).json()
     if type(releases) is dict and type(releases["versions"]) is dict:
         for release in natsorted(releases["versions"].keys(), reverse=True):
-            if re.match(r"^{}\.{}$".format(minor_version, patch_regex), release):
+            if re.match(r"^{}\.{}$".format(minor_version, TERRAFORM_PATCH_REGEX), release):
                 logger.debug("Found {} for {}".format(release, minor_version))
                 return release.split(".")[-1]
 
         raise ValueError("The terraform minor version {} does not exist".format(minor_version))
 
     message = releases.get("message", "Unknown error")
-    logger.warning("Failed to retrieve terraform releases from {}: {}".format(releases_url, message))
+    logger.warning("Failed to retrieve terraform releases from {}: {}".format(TERRAFORM_RELEASES_URL, message))
 
     return None
 
@@ -619,10 +625,8 @@ def do_switchver(version):
 
     :param version: string: desired terraform version
     """
-    minor_version_regex = r"[0-9]+\.[0-9]+"
-    patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
     m = re.match(
-        r"^(?P<minor>{})(\.(?P<patch>{}))?$".format(minor_version_regex, patch_regex),
+        r"^(?P<minor>{})(\.(?P<patch>{}))?$".format(TERRAFORM_MINOR_VERSION_REGEX, TERRAFORM_PATCH_REGEX),
         version,
     )
     if not m:
@@ -631,7 +635,7 @@ def do_switchver(version):
 
     # Getting latest patch version if not defined
     if not patch:
-        patch = get_terraform_last_patch(minor_version, patch_regex)
+        patch = get_terraform_last_patch(minor_version)
     full_version = "{}.{}".format(minor_version, patch)
 
     # Getting current version
@@ -639,7 +643,9 @@ def do_switchver(version):
         p = subprocess.run(["terraform", "version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         logger.debug(p.stdout.decode("ascii"))
         current_version = re.search(
-            r"^Terraform v({}\.{})".format(minor_version_regex, patch_regex), p.stdout.decode("ascii"), re.MULTILINE
+            r"^Terraform v({}\.{})".format(TERRAFORM_MINOR_VERSION_REGEX, TERRAFORM_PATCH_REGEX),
+            p.stdout.decode("ascii"),
+            re.MULTILINE,
         ).group(1)
     except AttributeError as ex:
         logger.debug("`terraform version`: {}".format(ex))

@@ -7,9 +7,6 @@ import pytest
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
-releases_url = "https://releases.hashicorp.com/terraform/index.json"
-patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
-
 
 @pytest.fixture
 def terraform_versions_json():  # noqa: D103
@@ -29,43 +26,43 @@ def test_get_terraform_last_patch(
     terraform_versions_json,
 ):  # noqa: D103
     requests_mock.get(
-        releases_url,
+        tfwrapper.TERRAFORM_RELEASES_URL,
         complete_qs=True,
         text=terraform_versions_json,
     )
 
-    patch = tfwrapper.get_terraform_last_patch("0.14", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.14")
     assert patch == "4"
 
-    patch = tfwrapper.get_terraform_last_patch("0.13", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.13")
     assert patch == "6"
 
-    patch = tfwrapper.get_terraform_last_patch("0.12", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.12")
     assert patch == "30"
 
-    patch = tfwrapper.get_terraform_last_patch("0.11", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.11")
     assert patch == "14"
 
-    patch = tfwrapper.get_terraform_last_patch("0.10", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.10")
     assert patch == "8"
 
-    patch = tfwrapper.get_terraform_last_patch("0.9", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.9")
     assert patch == "11"
 
-    patch = tfwrapper.get_terraform_last_patch("0.8", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.8")
     assert patch == "8"
 
-    patch = tfwrapper.get_terraform_last_patch("0.7", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.7")
     assert patch == "13"
 
-    patch = tfwrapper.get_terraform_last_patch("0.6", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.6")
     assert patch == "16"
 
-    patch = tfwrapper.get_terraform_last_patch("0.5", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.5")
     assert patch == "3"
 
     with pytest.raises(ValueError) as e:
-        tfwrapper.get_terraform_last_patch("0.666", patch_regex)
+        tfwrapper.get_terraform_last_patch("0.666")
     assert "The terraform minor version 0.666 does not exist" in str(e)
 
 
@@ -74,10 +71,10 @@ def test_get_terraform_last_patch_error(
     terraform_versions_json_error,
 ):  # noqa: D103
     requests_mock.get(
-        releases_url,
+        tfwrapper.TERRAFORM_RELEASES_URL,
         complete_qs=True,
         text=terraform_versions_json_error,
     )
 
-    patch = tfwrapper.get_terraform_last_patch("0.12", patch_regex)
+    patch = tfwrapper.get_terraform_last_patch("0.12")
     assert patch is None
