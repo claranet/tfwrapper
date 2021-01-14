@@ -6,10 +6,37 @@ from importlib.machinery import SourceFileLoader
 import pook
 import mock
 from pook.interceptors.urllib3 import io
+import pytest
 
-from test_search_on_github import terraform_releases_html_after_v0_13_0  # noqa: F401
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+
+
+@pytest.fixture
+def terraform_releases_html_after_v0_13_0():  # noqa: D103
+    return """
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+        <div class="release-header">
+            <a href="/hashicorp/terraform/releases/tag/v0.12.19">v0.12.19</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.18">v0.12.18</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.17">v0.12.17</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.16">v0.12.16</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.15">v0.12.15</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.14">v0.12.14</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.13">v0.12.13</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.12">v0.12.12</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.11">v0.12.11</a>
+            <a href="/hashicorp/terraform/releases/tag/v0.12.10">v0.12.10</a>
+        </div>
+    </body>
+</html>
+    """
 
 
 # This test uses pook instead of requests_mock because:
