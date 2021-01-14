@@ -1,6 +1,16 @@
+# 7.10.0 (14/01/2021)
+
+UPDATES:
+
+  * TER-441: Use hashicorp API to locate terraform versions
+
+FIXED:
+
+  * TER-465: Wrapper cannot find terraform 0.12.30 & 0.13.6
+
 # 7.9.5 (08/01/2021)
 
-UPDATES
+UPDATES:
 
   * TER-464: Pass state.yml configuration object to state.j2.tf template
 
