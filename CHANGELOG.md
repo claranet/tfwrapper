@@ -1,8 +1,9 @@
-# 7.10.0 (14/01/2021)
+# 7.10.0 (15/01/2021)
 
 UPDATES:
 
   * TER-441: Use hashicorp API to locate terraform versions
+  * TER-347: Update dependencies
 
 FIXED:
 
