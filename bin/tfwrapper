@@ -453,6 +453,9 @@ def get_session(rootdir, account, region, profile, backend_type=None, conf=None)
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, account, profile)
         session = _get_aws_session(session_cache_file, region, profile)
     elif backend_type == "azure":
+        session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
+        if session:
+            return session
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, conf["state_subscription"], conf["state_rg"])
         session = _get_azure_session(
             session_cache_file,
@@ -1369,7 +1372,8 @@ def main(argv=None):
                 logger.info("AWS state backend initialized.")
             elif state_backend_type == "azure":
                 # set Azure state centralization environment variables
-                os.environ["ARM_ACCESS_KEY"] = state_session
+                if not os.environ.get("ARM_SAS_TOKEN", None):
+                    os.environ["ARM_ACCESS_KEY"] = state_session
                 os.environ["TF_VAR_azure_state_access_key"] = state_session
                 logger.info("Azure state backend initialized.")
             else:
