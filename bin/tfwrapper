@@ -455,6 +455,8 @@ def get_session(rootdir, account, region, profile, backend_type=None, conf=None)
     elif backend_type == "azure":
         session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
         if session:
+            logger.info("'ARM_SAS_TOKEN' or 'ARM_ACCESS_KEY' already set, don't try to get a new session.")
+            logger.debug("Session token found for backend: {}".format(session))
             return session
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, conf["state_subscription"], conf["state_rg"])
         session = _get_azure_session(
@@ -1373,6 +1375,7 @@ def main(argv=None):
             elif state_backend_type == "azure":
                 # set Azure state centralization environment variables
                 if not os.environ.get("ARM_SAS_TOKEN", None):
+                    logger.debug("No 'ARM_SAS_TOKEN' already set, set and use 'ARM_ACCESS_KEY'")
                     os.environ["ARM_ACCESS_KEY"] = state_session
                 os.environ["TF_VAR_azure_state_access_key"] = state_session
                 logger.info("Azure state backend initialized.")
