@@ -1,3 +1,8 @@
+# 7.11.0 (03/02/2021)
+
+UPDATES:
+  * TER-466: Don't try to generate/load Azure storage backend credentials if they're already set
+
 # 7.10.0 (15/01/2021)
 
 UPDATES:
