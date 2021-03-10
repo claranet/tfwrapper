@@ -73,6 +73,7 @@ handler.setFormatter(colorlog.ColoredFormatter(LOG_FORMAT, style="{"))
 logger = colorlog.getLogger()
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
 
 stack_configuration_schema = Schema(
     {
@@ -1311,6 +1312,7 @@ def main(argv=None):
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
+        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.DEBUG)
 
     # convert args to dict
     wrapper_config = deepcopy(vars(args))
