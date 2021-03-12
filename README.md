@@ -9,7 +9,9 @@
   - [Table Of Contents](#table-of-contents)
   - [Features](#features)
   - [Drawbacks](#drawbacks)
-  - [Dependencies](#dependencies)
+  - [Setup Dependencies](#setup-dependencies)
+  - [Runtime Dependencies](#runtime-dependencies)
+  - [Recommended setup](#recommended-setup)
   - [Installation](#installation)
     - [Required files](#required-files)
   - [Configuration](#configuration)
@@ -57,14 +59,22 @@
 - AWS oriented (even if other cloud providers do work)
 - Setup overhead
 
-## Dependencies
+## Setup Dependencies
 
-- Make
-- Python `>= 3.5` (3.6+ recommended)
-- python-pip
-- python-virtualenv
-- python3-dev
-- Terraform `>= 0.10` (0.11+ recommended)
+- `build-essential` (provides make and C/C++ compilers)
+- `libffi-dev`
+- `libssl-dev`
+- `python3` `>= 3.5` (3.8+ recommended)
+- `python3-dev`
+- `python3-venv`
+
+## Runtime Dependencies
+
+- `terraform` `>= 0.10`
+
+## Recommended setup
+
+- Terraform 0.14+
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 
