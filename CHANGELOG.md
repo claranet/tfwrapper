@@ -1,12 +1,13 @@
-# Unreleased
+# 7.11.1 (12/03/2021)
 
 FIXED:
 
-  * TER-467: Fix azure http logging policy
+  * TER-467: Fix Azure HTTP logging policy
 
 # 7.11.0 (03/02/2021)
 
 UPDATES:
+
   * TER-466: Don't try to generate/load Azure storage backend credentials if they're already set
 
 # 7.10.0 (15/01/2021)
