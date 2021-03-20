@@ -352,7 +352,7 @@ isodate==0.6.0
     # via msrest
 javaproperties==0.5.1
     # via azure-cli
-jinja2==2.11.2
+jinja2==2.11.3
     # via
     #   -r requirements.in
     #   azure-functions-devops-build
