@@ -1,3 +1,11 @@
+# 7.12.0 (29/03/2021)
+
+UPDATES:
+
+  * TER-347: Update dependencies
+  * [GITHUB-10](https://github.com/claranet/terraform-wrapper/pull/10): Bump jinja2 from 2.11.2 to 2.11.3
+  * [GITHUB-11](https://github.com/claranet/terraform-wrapper/pull/11): Bump pyyaml from 5.3.1 to 5.4.1
+
 # 7.11.1 (12/03/2021)
 
 FIXED:
@@ -217,7 +225,7 @@ UPDATES:
 
 UPDATES:
 
-  * GITHUB-4: More robust shell detection in makefile.
+  * [GITHUB-4](https://github.com/claranet/terraform-wrapper/pull/4): More robust shell detection in makefile.
 
 # 6.4.0 (04/10/2018)
 
@@ -235,7 +243,7 @@ UPDATES:
   * TER-336: Add terraform version and providers commands support to the wrapper.
   * TER-331: Support download of custom providers from Github.
   * TER-319: Make subscription id check case insensitive.
-  * GITHUB-1: Add lstrip_blocks=True and trim_blocks=True for jinja2 env.
+  * [GITHUB-2](https://github.com/claranet/terraform-wrapper/pull/2): Add lstrip_blocks=True and trim_blocks=True for jinja2 env.
 
 # 6.2.1 (09/07/2018)
 
@@ -256,7 +264,7 @@ UPDATES:
 
 UPDATES:
 
-  * GITHUB-1: Remove unused attribute in AWS configuration schema.
+  * [GITHUB-1](https://github.com/claranet/terraform-wrapper/pull/1): Remove unused attribute in AWS configuration schema.
 
 # 6.1.0 (14/03/2018)
 
