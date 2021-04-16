@@ -48,3 +48,9 @@ tox:python-3.8:
   variables:
     PYTHON_VERSION: "3.8"
     TOX_ENV: "py38"
+
+tox:python-3.9:
+  <<: *tox
+  variables:
+    PYTHON_VERSION: "3.9"
+    TOX_ENV: "py39"
