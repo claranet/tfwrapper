@@ -20,7 +20,7 @@ lint:
     - pip3 install -U virtualenv tox
     - tox -e lint
   tags:
-    - default
+    - ops4ops-cloud
 
 .tox: &tox
   stage: test
@@ -29,7 +29,7 @@ lint:
     - pip3 install -U virtualenv tox
     - tox -e ${TOX_ENV}
   tags:
-    - default
+    - ops4ops-cloud
 
 tox:python-3.6:
   <<: *tox
@@ -48,3 +48,9 @@ tox:python-3.8:
   variables:
     PYTHON_VERSION: "3.8"
     TOX_ENV: "py38"
+
+tox:python-3.9:
+  <<: *tox
+  variables:
+    PYTHON_VERSION: "3.9"
+    TOX_ENV: "py39"
