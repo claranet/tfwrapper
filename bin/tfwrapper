@@ -612,7 +612,9 @@ def get_terraform_last_patch(minor_version):
     """Get last terraform patch of a given minor version."""
     releases = CachedRequestsSession.get(TERRAFORM_RELEASES_URL).json()
     if type(releases) is dict and type(releases["versions"]) is dict:
-        for release in natsorted(releases["versions"].keys(), reverse=True):
+        # Use recommended sorting method to place releases before all pre-versions from
+        # https://natsort.readthedocs.io/en/master/examples.html#sorting-more-expressive-versioning-schemes
+        for release in natsorted(releases["versions"].keys(), key=lambda x: x.replace(".", "~") + "z", reverse=True):
             if re.match(r"^{}\.{}$".format(minor_version, TERRAFORM_PATCH_REGEX), release):
                 logger.debug("Found {} for {}".format(release, minor_version))
                 return release.split(".")[-1]

@@ -31,8 +31,11 @@ def test_get_terraform_last_patch(
         text=terraform_versions_json,
     )
 
+    patch = tfwrapper.get_terraform_last_patch("0.15")
+    assert patch == "0"
+
     patch = tfwrapper.get_terraform_last_patch("0.14")
-    assert patch == "4"
+    assert patch == "10"
 
     patch = tfwrapper.get_terraform_last_patch("0.13")
     assert patch == "6"
