@@ -1,3 +1,13 @@
+# 7.12.1 (19/04/2021)
+
+FIXED:
+
+  * TER-471: Fix switchver version selection to place releases before all pre-versions
+
+UPDATES:
+
+  * TER-471: Add python 3.9 in tests
+
 # 7.12.0 (29/03/2021)
 
 UPDATES:
