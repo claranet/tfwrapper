@@ -6,7 +6,6 @@ import os
 import textwrap
 
 import pytest
-import testpath
 
 tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
 
@@ -46,11 +45,10 @@ def test_config_load_init(tmp_working_dir_regional):  # noqa: D103
     )
     paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
 
-    with testpath.assert_calls("terraform", ["init"]):
-        with pytest.raises(SystemExit) as e:
-            tfwrapper.main(["init"])
-        assert e.type == SystemExit
-        assert e.value.code == 0
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(["init"])
+    assert e.type == SystemExit
+    assert e.value.code == 0
 
 
 def test_config_load_plan(tmp_working_dir_regional):  # noqa: D103
@@ -75,8 +73,7 @@ def test_config_load_plan(tmp_working_dir_regional):  # noqa: D103
     )
     paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
 
-    with testpath.assert_calls("terraform", ["plan"]):
-        with pytest.raises(SystemExit) as e:
-            tfwrapper.main(["plan"])
-            assert e.type == SystemExit
-            assert e.value.code == 0
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(["plan"])
+    assert e.type == SystemExit
+    assert e.value.code == 0

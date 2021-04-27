@@ -64,6 +64,8 @@ TFWRAPPER_DEFAULT_CONFIG = {
     "pipe_plan_command": "cat",
 }
 
+TERRAFORM_LOCAL_BIN_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "terraform")
+
 home_dir = str(Path.home())
 
 # setup logging parameters
@@ -648,7 +650,7 @@ def do_switchver(version):
 
     # Getting current version
     try:
-        p = subprocess.run(["terraform", "version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run([TERRAFORM_LOCAL_BIN_PATH, "version"], env=os.environ, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         logger.debug(p.stdout.decode("ascii"))
         current_version = re.search(
             r"^Terraform v({}\.{})".format(TERRAFORM_MINOR_VERSION_REGEX, TERRAFORM_PATCH_REGEX),
@@ -669,7 +671,6 @@ def do_switchver(version):
 
     version_path = os.path.expanduser(os.path.join("~/.terraform.d/versions", minor_version, full_version))
     tf_bin_path = os.path.join(version_path, "terraform")
-    local_tf_bin_path = os.path.join(os.path.dirname(__file__), "terraform")
     os.makedirs(version_path, exist_ok=True)
 
     if not os.path.isfile(tf_bin_path):
@@ -703,9 +704,9 @@ def do_switchver(version):
         os.remove(tmp_file)
 
     # Doing symlink
-    if os.path.islink(local_tf_bin_path):
-        os.remove(local_tf_bin_path)
-    os.symlink(tf_bin_path, local_tf_bin_path)
+    if os.path.islink(TERRAFORM_LOCAL_BIN_PATH):
+        os.remove(TERRAFORM_LOCAL_BIN_PATH)
+    os.symlink(tf_bin_path, TERRAFORM_LOCAL_BIN_PATH)
 
     logger.warning("Switch done, current terraform version is {}".format(full_version))
 
@@ -859,7 +860,7 @@ def run_terraform(action, wrapper_config):
     stack = wrapper_config["stack"]
 
     # support for custom parameters
-    command = ["terraform", action]
+    command = [TERRAFORM_LOCAL_BIN_PATH, action]
     if tf_params is not None:
         if tf_params and tf_params[0] == "--":
             tf_params = tf_params[1:]
@@ -867,22 +868,17 @@ def run_terraform(action, wrapper_config):
 
     working_dir = get_stack_dir(rootdir, account, environment, region, stack)
 
-    cmd_env = deepcopy(os.environ)
-    cmd_env["PATH"] = "{path}{sep}{old_path}".format(
-        path=os.path.dirname(__file__), sep=os.pathsep, old_path=cmd_env.get("PATH", "")
-    )
-
     pipe_plan_command = wrapper_config.get("pipe_plan_command") or wrapper_config["config"].get("pipe_plan_command")
     pipe_plan = action == "plan" and wrapper_config.get("pipe_plan") and pipe_plan_command
     stdout = pipe_plan and subprocess.PIPE or None
-    with subprocess.Popen(command, cwd=working_dir, env=cmd_env, shell=False, stdout=stdout) as process:
+    with subprocess.Popen(command, cwd=working_dir, env=os.environ, shell=False, stdout=stdout) as process:
         logger.debug('Execute command "{}"'.format(command))
         if pipe_plan:
             logger.debug('Piping command "{}"'.format(pipe_plan_command))
             with subprocess.Popen(
                 pipe_plan_command,
                 cwd=working_dir,
-                env=cmd_env,
+                env=os.environ,
                 shell=True,
                 stdin=process.stdout,
             ) as pipe_process:
