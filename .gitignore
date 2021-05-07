@@ -6,3 +6,4 @@
 .webcache
 __pycache__
 bin/terraform
+venv
