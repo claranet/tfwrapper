@@ -35,6 +35,45 @@ def test_parse_args_switchver_help(capsys):  # noqa: D103
     assert "usage: tfwrapper switchver [-h] version" in captured.out
 
 
+def test_parse_args_init_help(capsys):  # noqa: D103
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.parse_args(["init", "-h"])
+    assert e.value.code == 0
+    captured = capsys.readouterr()
+    assert "usage: tfwrapper init [-h] [--backend {true,false}] ..." in captured.out
+
+
+def test_parse_args_init_no_args():  # noqa: D103
+    args = tfwrapper.parse_args(["init"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.backend == "true"
+
+
+def test_parse_args_init_backend_true():  # noqa: D103
+    args = tfwrapper.parse_args(["init", "--backend", "true"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.backend == "true"
+
+    args = tfwrapper.parse_args(["init", "--backend=true"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.backend == "true"
+
+
+def test_parse_args_init_backend_false():  # noqa: D103
+    args = tfwrapper.parse_args(["init", "--backend", "false"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.backend == "false"
+
+    args = tfwrapper.parse_args(["init", "--backend=false"])
+    assert args.subcommand == "init"
+    assert args.func == tfwrapper.terraform_init
+    assert args.backend == "false"
+
+
 def test_parse_args_foreach_help(capsys):  # noqa: D103
     with pytest.raises(SystemExit) as e:
         tfwrapper.parse_args(["foreach", "-h"])
