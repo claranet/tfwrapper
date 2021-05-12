@@ -19,8 +19,6 @@ lint:
     - python -V
     - pip3 install -U virtualenv tox
     - tox -e lint
-  tags:
-    - ops4ops-cloud
 
 .tox: &tox
   stage: test
@@ -28,8 +26,6 @@ lint:
     - python -V
     - pip3 install -U virtualenv tox
     - tox -e ${TOX_ENV}
-  tags:
-    - ops4ops-cloud
 
 tox:python-3.6:
   <<: *tox
