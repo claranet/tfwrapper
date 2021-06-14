@@ -1,3 +1,9 @@
+# 7.13.1 (2021/06/14)
+
+FIXED:
+
+- TER-430: Hotfix bootstrapped stacks created in conf directory
+
 # 7.13.0 (2021/05/11)
 
 ADDED:
