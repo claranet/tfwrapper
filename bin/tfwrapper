@@ -490,7 +490,7 @@ def bootstrap(wrapper_config):
     region = wrapper_config["region"]
     stack = wrapper_config["stack"]
 
-    stack_path = get_stack_dir(confdir, account, environment, region, stack)
+    stack_path = get_stack_dir(rootdir, account, environment, region, stack)
     stack_config = load_stack_config(confdir, account, environment, region, stack)
     state_backend_name = stack_config.get("state_configuration_name", None)
     state_backend_type = (
