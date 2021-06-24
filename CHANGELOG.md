@@ -1,8 +1,15 @@
+# 7.13.2 (2021/06/24)
+
+UPDATES:
+
+- TER-347: Update dependencies (azure-cli `v2.25.0`)
+
 # 7.13.1 (2021/06/14)
 
 FIXED:
 
 - TER-430: Hotfix bootstrapped stacks created in conf directory
+- [GITHUB-12](https://github.com/claranet/terraform-wrapper/pull/12): Bump urllib3 from 1.26.4 to 1.26.5
 
 # 7.13.0 (2021/05/11)
 
