@@ -34,6 +34,13 @@ from natsort import natsorted
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
+try:
+    import importlib.metadata as importlib_metadata
+except ModuleNotFoundError:
+    import importlib_metadata
+
+__version__ = importlib_metadata.version(__name__)
+
 
 def get_architecture():
     """Get system architecture name normalized for terraform."""
@@ -1068,6 +1075,7 @@ def parse_args(args):
     # argparse
     parser = argparse.ArgumentParser(prog="tfwrapper", description="Terraform wrapper.")
     parser.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output.")
+    parser.add_argument("-V", "--version", action="store_true", default=False, help="Show tfwrapper version.")
     parser.add_argument(
         "-c",
         "--confdir",
@@ -1241,6 +1249,10 @@ def parse_args(args):
     )
 
     parsed_args = parser.parse_args(args)
+
+    if hasattr(parsed_args, "version") and parsed_args.version:
+        print("tfwrapper v{}".format(__version__), file=sys.stderr)
+        raise SystemExit(0)
 
     if not hasattr(parsed_args, "func"):
         parser.print_help(file=sys.stderr)
