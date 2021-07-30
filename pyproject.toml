@@ -27,7 +27,10 @@ md-toc = "^8.0.0"
 flake8 = "^3.9.2"
 flake8-docstrings = "^1.6.0"
 mock = "^4.0.3"
-pook = "^1.0.1"
+#pook = "^1.0.1"
+# Use commit of "fix(urllib3): interceptor is never really disabled" https://github.com/h2non/pook/pull/68
+# until new release
+pook = {git = "https://github.com/h2non/pook", rev = "7e45a3fa8804a59d9bbe9e8e49e7344c40feae07"}
 pytest = "^6.2.4"
 requests-mock = "^1.9.3"
 

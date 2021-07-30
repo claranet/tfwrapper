@@ -1491,11 +1491,11 @@ colorama = {version = "*", markers = "sys_platform == \"win32\""}
 
 [[package]]
 name = "contextlib2"
-version = "0.6.0.post1"
+version = "21.6.0"
 description = "Backports and enhancements for the contextlib module"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.6"
 
 [[package]]
 name = "cryptography"
@@ -1990,11 +1990,18 @@ description = "HTTP traffic mocking and expectations made easy"
 category = "dev"
 optional = false
 python-versions = "*"
+develop = false
 
 [package.dependencies]
 furl = ">=0.5.6"
 jsonschema = ">=2.5.1"
 xmltodict = ">=0.11.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/h2non/pook"
+reference = "7e45a3fa8804a59d9bbe9e8e49e7344c40feae07"
+resolved_reference = "7e45a3fa8804a59d9bbe9e8e49e7344c40feae07"
 
 [[package]]
 name = "portalocker"
@@ -2479,7 +2486,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.2,<4.0"
-content-hash = "e98a0dae402d59cfb8e023127fa2e00f84b91e0cd450d7eda6a52e775f00dd17"
+content-hash = "1edeb6637388e8fe96338699261a8c062e300a3e42c9188ebf2006b81b15a5a6"
 
 [metadata.files]
 adal = [
@@ -2965,8 +2972,8 @@ colorlog = [
     {file = "colorlog-5.0.1.tar.gz", hash = "sha256:f17c013a06962b02f4449ee07cfdbe6b287df29efc2c9a1515b4a376f4e588ea"},
 ]
 contextlib2 = [
-    {file = "contextlib2-0.6.0.post1-py2.py3-none-any.whl", hash = "sha256:3355078a159fbb44ee60ea80abd0d87b80b78c248643b49aa6d94673b413609b"},
-    {file = "contextlib2-0.6.0.post1.tar.gz", hash = "sha256:01f490098c18b19d2bd5bb5dc445b2054d2fa97f09a4280ba2c5f3c394c8162e"},
+    {file = "contextlib2-21.6.0-py2.py3-none-any.whl", hash = "sha256:3fbdb64466afd23abaf6c977627b75b6139a5a3e8ce38405c5b413aed7a0471f"},
+    {file = "contextlib2-21.6.0.tar.gz", hash = "sha256:ab1e2bfe1d01d968e1b7e8d9023bc51ef3509bba217bb730cee3827e1ee82869"},
 ]
 cryptography = [
     {file = "cryptography-3.3.2-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:541dd758ad49b45920dda3b5b48c968f8b2533d8981bcdb43002798d8f7a89ed"},
@@ -3201,10 +3208,7 @@ pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
 ]
-pook = [
-    {file = "pook-1.0.1-py2-none-any.whl", hash = "sha256:c74443254cc8fe0aeda2a92a44534ce01aed8d63553d89355fd6876fb7cd763c"},
-    {file = "pook-1.0.1.tar.gz", hash = "sha256:ef9b29b0e786d90ef716ef7e9356c09087fefa16adf6554c22bdec5d7649d759"},
-]
+pook = []
 portalocker = [
     {file = "portalocker-1.7.1-py2.py3-none-any.whl", hash = "sha256:34cb36c618d88bcd9079beb36dcdc1848a3e3d92ac4eac59055bdeafc39f9d4a"},
     {file = "portalocker-1.7.1.tar.gz", hash = "sha256:6d6f5de5a3e68c4dd65a98ec1babb26d28ccc5e770e07b672d65d5a35e4b2d8a"},
