@@ -64,7 +64,7 @@ TFWRAPPER_DEFAULT_CONFIG = {
     "pipe_plan_command": "cat",
 }
 
-TERRAFORM_LOCAL_BIN_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "terraform")
+TERRAFORM_BIN_PATH = None
 
 home_dir = str(Path.home())
 
@@ -195,6 +195,7 @@ def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, dir=".
     # support both _global (fs) and global (param)
     if wrapper_config["environment"] == "_global":
         wrapper_config["environment"] = "global"
+
     logger.debug("Detected environment '{}'".format(wrapper_config["environment"]))
 
 
@@ -607,9 +608,9 @@ def get_terraform_last_patch(minor_version):
     return None
 
 
-def do_switchver(version):
+def select_terraform_version(version):
     """
-    Switch to desired terraform version if different from current one.
+    Select the desired terraform version.
 
     :param version: string: desired terraform version
     """
@@ -626,32 +627,12 @@ def do_switchver(version):
         patch = get_terraform_last_patch(minor_version)
     full_version = "{}.{}".format(minor_version, patch)
 
-    # Getting current version
-    try:
-        p = subprocess.run([TERRAFORM_LOCAL_BIN_PATH, "version"], env=os.environ, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        logger.debug(p.stdout.decode("ascii"))
-        current_version = re.search(
-            r"^Terraform v({}\.{})".format(TERRAFORM_MINOR_VERSION_REGEX, TERRAFORM_PATCH_REGEX),
-            p.stdout.decode("ascii"),
-            re.MULTILINE,
-        ).group(1)
-    except AttributeError as ex:
-        logger.debug("`terraform version`: {}".format(ex))
-        current_version = "unknown"
-    except FileNotFoundError:
-        current_version = "not installed"
-
-    if current_version == full_version:
-        logger.debug("Terraform is already on version {}".format(full_version))
-        return
-
-    logger.warning("Current terraform version is {}, switching to version {}".format(current_version, full_version))
-
     version_path = os.path.expanduser(os.path.join("~/.terraform.d/versions", minor_version, full_version))
-    tf_bin_path = os.path.join(version_path, "terraform")
+    global TERRAFORM_BIN_PATH
+    TERRAFORM_BIN_PATH = os.path.join(version_path, "terraform")
     os.makedirs(version_path, exist_ok=True)
 
-    if not os.path.isfile(tf_bin_path):
+    if not os.path.isfile(TERRAFORM_BIN_PATH):
         if patch.endswith("-dev"):
             error("The development version {} for terraform does not exist locally".format(version))
 
@@ -676,17 +657,12 @@ def do_switchver(version):
             zip.extractall(path=version_path)
         # Permissions not preserved on extract https://bugs.python.org/issue15795
         os.chmod(
-            tf_bin_path,
-            os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+            TERRAFORM_BIN_PATH,
+            os.stat(TERRAFORM_BIN_PATH).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
         )
         os.remove(tmp_file)
 
-    # Doing symlink
-    if os.path.islink(TERRAFORM_LOCAL_BIN_PATH):
-        os.remove(TERRAFORM_LOCAL_BIN_PATH)
-    os.symlink(tf_bin_path, TERRAFORM_LOCAL_BIN_PATH)
-
-    logger.warning("Switch done, current terraform version is {}".format(full_version))
+    logger.warning("Using terraform version {}".format(full_version))
 
 
 def download_custom_provider(provider_name, provider_version, extension="zip"):
@@ -727,9 +703,9 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         bin_name = "{n}_v{v}".format(n=provider_short_name, v=full_version)
     else:
         bin_name = "{n}_{v}".format(n=provider_short_name, v=full_version)
-    tf_bin_path = os.path.join(plugins_path, "{n}_v{v}".format(n=provider_short_name, v=full_version))
+    TERRAFORM_BIN_PATH = os.path.join(plugins_path, "{n}_v{v}".format(n=provider_short_name, v=full_version))
 
-    if not os.path.isfile(tf_bin_path):
+    if not os.path.isfile(TERRAFORM_BIN_PATH):
         # Download and extract in user's home if needed
         logger.warning("Provider version does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix="." + extension)
@@ -750,8 +726,8 @@ def download_custom_provider(provider_name, provider_version, extension="zip"):
         shutil.unpack_archive(tmp_file, plugins_path)
         # Permissions not preserved on extract https://bugs.python.org/issue15795
         os.chmod(
-            tf_bin_path,
-            os.stat(tf_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+            TERRAFORM_BIN_PATH,
+            os.stat(TERRAFORM_BIN_PATH).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
         )
         os.remove(tmp_file)
         logger.info("Download done, current provider version is {}".format(full_version))
@@ -838,7 +814,7 @@ def run_terraform(action, wrapper_config):
     stack = wrapper_config["stack"]
 
     # support for custom parameters
-    command = [TERRAFORM_LOCAL_BIN_PATH, action]
+    command = [TERRAFORM_BIN_PATH, action]
 
     if action == "init" and not wrapper_config["backend"]:
         command.append("-backend=false")
@@ -1054,12 +1030,6 @@ def terraform_version(wrapper_config):
     return run_terraform("version", wrapper_config)
 
 
-def switchver(wrapper_config):
-    """Switch terraform version command."""
-    version = wrapper_config.get("version")[0]
-    do_switchver(version)
-
-
 def foreach(wrapper_config):
     """Execute command foreach stack."""
     stacks = foreach_select_stacks(wrapper_config)
@@ -1270,10 +1240,6 @@ def parse_args(args):
         help='command to execute after a "--" delimiter',
     )
 
-    parser_switchver = subparsers.add_parser("switchver", help="switch terraform version")
-    parser_switchver.set_defaults(func=switchver)
-    parser_switchver.add_argument("version", nargs=1, help="terraform version to use")
-
     parsed_args = parser.parse_args(args)
 
     if not hasattr(parsed_args, "func"):
@@ -1308,10 +1274,7 @@ def main(argv=None):
 
     # process args
     try:
-        wrapper_local_commands = (
-            "foreach",
-            "switchver",
-        )
+        wrapper_local_commands = ("foreach",)
         parents_count = detect_config_dir(wrapper_config)
         detect_stack(wrapper_config, parents_count, raise_on_missing=args.subcommand not in wrapper_local_commands)
         if args.subcommand not in wrapper_local_commands:
@@ -1554,16 +1517,10 @@ def main(argv=None):
         set_terraform_vars(terraform_vars)
         os.environ["TF_PLUGIN_CACHE_DIR"] = wrapper_config["plugin_cache_dir"]
 
-    # check terraform version
-    if args.subcommand not in (
-        "foreach",
-        "providers",
-        "switchver",
-        "version",
-    ):
-        tf_version = stack_config["terraform"]["vars"].get("version")
-        if tf_version:
-            do_switchver(tf_version)
+    # select terraform version
+    if args.subcommand not in ("foreach",):
+        tf_version = stack_config["terraform"]["vars"]["version"]
+        select_terraform_version(tf_version)
     # do we need a custom provider ?
     if args.subcommand in ["init", "bootstrap"]:
         for provider, config in stack_config["terraform"].get("custom-providers", {}).items():

@@ -6,6 +6,7 @@ BREAKING:
     * make it installable with pip and pipx once, no longer as a submodule of each workspace
     * ease dependencies management and make it more robust
     * remove the `Makefile`
+    * remove the `switchver` subcommand that is no longer needed now that terraform binary is directly used from `~/.terraform.d/versions` and symbolic links are no longer created in `.wrapper/bin`
 
 # 7.13.2 (2021/06/24)
 
