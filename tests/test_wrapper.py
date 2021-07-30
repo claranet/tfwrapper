@@ -1,11 +1,10 @@
 """First unit tests."""
 
-from importlib.machinery import SourceFileLoader
 from unittest.mock import MagicMock
 
 import platform
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 def test_get_architecture_arm():  # noqa: D103

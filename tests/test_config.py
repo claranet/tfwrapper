@@ -1,6 +1,5 @@
 """Test stack configuration selection based on working directory."""
 
-from importlib.machinery import SourceFileLoader
 
 from copy import deepcopy
 
@@ -9,7 +8,7 @@ import textwrap
 
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 @pytest.fixture

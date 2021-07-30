@@ -1,7 +1,6 @@
 """Test HTTP(S) requests caching."""
 
 from email.utils import formatdate
-from importlib.machinery import SourceFileLoader
 
 import pook
 import mock
@@ -9,7 +8,7 @@ from pook.interceptors.urllib3 import io
 import pytest
 
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 @pytest.fixture
@@ -73,10 +72,10 @@ class AutoclosingBytesIO(io.BytesIO):
         return data
 
 
-def test_search_on_github_cache_terraform_releases_200(
+def test_search_on_github_cache_terraform_releases_200(  # noqa: D103
     tmp_working_dir,
-    terraform_releases_html_after_v0_13_0,  # noqa: F811
-):  # noqa: D103
+    terraform_releases_html_after_v0_13_0,
+):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -110,10 +109,9 @@ def test_search_on_github_cache_terraform_releases_200(
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
-    tmp_working_dir,
-    terraform_releases_html_after_v0_13_0,  # noqa: F811
-):  # noqa: D103
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(  # noqa: D103
+    tmp_working_dir, terraform_releases_html_after_v0_13_0
+):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -157,10 +155,10 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(  # noqa: D103
     tmp_working_dir,
-    terraform_releases_html_after_v0_13_0,  # noqa: F811
-):  # noqa: D103
+    terraform_releases_html_after_v0_13_0,
+):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
@@ -204,10 +202,10 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(  # noqa: D103
     tmp_working_dir,
-    terraform_releases_html_after_v0_13_0,  # noqa: F811
-):  # noqa: D103
+    terraform_releases_html_after_v0_13_0,
+):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"

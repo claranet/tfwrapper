@@ -1,11 +1,9 @@
 """Test hashicorp terraform last patch searching."""
 
-from importlib.machinery import SourceFileLoader
-
 import os
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 @pytest.fixture
@@ -21,10 +19,10 @@ def terraform_versions_json_error():  # noqa: D103
 """
 
 
-def test_get_terraform_last_patch(
+def test_get_terraform_last_patch(  # noqa: D103
     requests_mock,
     terraform_versions_json,
-):  # noqa: D103
+):
     requests_mock.get(
         tfwrapper.TERRAFORM_RELEASES_URL,
         complete_qs=True,
@@ -69,10 +67,10 @@ def test_get_terraform_last_patch(
     assert "The terraform minor version 0.666 does not exist" in str(e)
 
 
-def test_get_terraform_last_patch_error(
+def test_get_terraform_last_patch_error(  # noqa: D103
     requests_mock,
     terraform_versions_json_error,
-):  # noqa: D103
+):
     requests_mock.get(
         tfwrapper.TERRAFORM_RELEASES_URL,
         complete_qs=True,

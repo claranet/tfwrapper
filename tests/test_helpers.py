@@ -1,8 +1,7 @@
 """Test some helper functions."""
 
-from importlib.machinery import SourceFileLoader
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 def test_get_stack_dir(tmp_working_dir):  # noqa: D103

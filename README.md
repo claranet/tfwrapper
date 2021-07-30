@@ -64,7 +64,7 @@
 - `build-essential` (provides make and C/C++ compilers)
 - `libffi-dev`
 - `libssl-dev`
-- `python3` `>= 3.5` (3.8+ recommended)
+- `python3` `>= 3.6.2 <4.0` (3.8+ recommended)
 - `python3-dev`
 - `python3-venv`
 
@@ -74,7 +74,7 @@
 
 ## Recommended setup
 
-- Terraform 0.14+
+- Terraform 1.0+
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 
@@ -83,31 +83,18 @@
 tfwrapper should be deployed as a git submodule in Terraform projects.
 
 ```bash
-cd my_terraform_project
-git submodule add git@github.com:claranet/terraform-wrapper.git .wrapper
+pipx install git+https://github.com/claranet/terraform-wrapper@poetry # FIXME before release
 ```
 
-If you plan to use tfwrapper for multiple projects, creating a new git repository including all the required files and tfwrapper as a git submodule is recommended. You then just need to clone this repository to start new projects.
+If targetting Azure, you should also install the `azure` extras:
+
+```bash
+pipx install git+https://github.com/claranet/terraform-wrapper@poetry#tfwrapper[azure]
+```
 
 ### Required files
 
-tfwrapper expects multiple files and directories at the root of its parent project.
-
-#### Makefile
-
-A `Makefile` symlink should point to tfwrapper's `Makefile`. this link allows users to setup and enable tfwrapper from the root of their project.
-
-```bash
-ln -s .wrapper/Makefile
-```
-
-Available Makefile commands:
-
- * `make work` (default target): spawns a new shell with the virtualenv `bin` directory prepended to its PATH.
- * `make setup`: create a Python3 virtualenv if not already there and install needed python (pip) dependencies.
- * `make clear` or `make clean`: remove the virtualenv created by `setup`.
- * `make update`: trigger a python (pip) dependencies update (if you have changed the version of `terraform-wrapper`) in the virtualenv created by `setup`.
- * `make renew`: trigger `make clean` + `make work` in order to setup a fresh virtualenv.
+tfwrapper expects multiple files and directories at the root of a project.
 
 #### conf
 

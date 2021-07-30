@@ -1,13 +1,12 @@
 """Test config is loaded depending on cmd line arguments."""
 
-from importlib.machinery import SourceFileLoader
 
 import os
 import textwrap
 
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 def test_config_load_help():  # noqa: D103

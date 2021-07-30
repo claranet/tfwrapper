@@ -1,14 +1,10 @@
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-cache:
-  key: .gitlab-cache-tfwrapper
-  paths:
-    - .cache/pip
+  POETRY_VERSION: 1.1.7
+  TOX_VERSION: 3.24.0
 
 stages:
   - lint
-  - test
+  - unit-test
 
 image: python:${PYTHON_VERSION}
 
@@ -16,15 +12,13 @@ lint:
   stage: lint
   image: python:3
   script:
-    - python -V
-    - pip3 install -U virtualenv tox
+    - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
     - tox -e lint
 
 .tox: &tox
-  stage: test
+  stage: unit-test
   script:
-    - python -V
-    - pip3 install -U virtualenv tox
+    - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
     - tox -e ${TOX_ENV}
 
 tox:python-3.6:

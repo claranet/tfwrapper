@@ -1,11 +1,10 @@
 """Test github releases searching."""
 
-from importlib.machinery import SourceFileLoader
 
 import pytest
 import requests
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 
 @pytest.fixture
@@ -62,11 +61,11 @@ def provider_releases_html_after_v1_3_0():  # noqa: D103
     """
 
 
-def test_search_on_github_provider_releases(
+def test_search_on_github_provider_releases(  # noqa: D103
     requests_mock,
     provider_releases_html_after_v2_6_0,
     provider_releases_html_after_v1_3_0,
-):  # noqa: D103
+):
     from tfwrapper import GITHUB_RELEASES
 
     repo = "claranet/terraform-provider-gitlab"

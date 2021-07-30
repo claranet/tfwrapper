@@ -1,4 +1,0 @@
--r requirements.in
-azure-common
-azure-cli
-azure-mgmt-storage

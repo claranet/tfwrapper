@@ -1,12 +1,11 @@
 """Test command line argument parsing."""
 
-from importlib.machinery import SourceFileLoader
 
 import os
 
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import tfwrapper
 
 from tfwrapper import home_dir  # noqa: E402
 

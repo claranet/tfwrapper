@@ -1,3 +1,12 @@
+# 8.x (unreleased)
+
+BREAKING:
+
+- TER-473: Use poetry to manage project to:
+    * make it installable with pip and pipx once, no longer as a submodule of each workspace
+    * ease dependencies management and make it more robust
+    * remove the `Makefile`
+
 # 7.13.2 (2021/06/24)
 
 UPDATES:
