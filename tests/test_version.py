@@ -13,4 +13,4 @@ def test_versions_are_in_sync():
 
     package_init_version = tfwrapper.__version__
 
-    assert package_init_version == pyproject_version
+    assert package_init_version == pyproject_version.replace("-alpha.", "a").replace("-beta.", "b").replace("-rc.", "rc")
