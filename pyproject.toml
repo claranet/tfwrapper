@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tfwrapper"
-version = "7.13.2"
+version = "8.0.0-alpha.0"
 description = "`tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices"
 authors = ["Your Name <you@example.com>"]
 license = "Mozilla Public License Version 2.0"
