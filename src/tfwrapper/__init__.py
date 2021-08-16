@@ -1364,6 +1364,7 @@ def main(argv=None):
         terraform_vars["environment"] = wrapper_config["environment"]
         terraform_vars["stack"] = wrapper_config["stack"]
 
+        # AWS support
         if load_backend and "aws" in stack_config:
             logger.info("Getting stack session")
             stack_session = get_session(
@@ -1461,13 +1462,14 @@ def main(argv=None):
                 logger.error("Sorry, tfwrapper only supports user Application Default Credentials right now.")
                 sys.exit(RC_KO)
 
-        # Add support Azure
+        # Azure support
         if load_backend and "azure" in stack_config:
-            az_config_dir = os.environ.get("AZURE_CONFIG_DIR")
-            if az_config_dir:
-                logger.debug("`AZURE_CONFIG_DIR` is set to `{}` directory".format(az_config_dir))
+            if wrapper_config.get("use_local_azure_session_directory", True):
+                az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
+                logger.debug("Exporting `AZURE_CONFIG_DIR` set to `{}` directory".format(az_config_dir))
+                os.environ["AZURE_CONFIG_DIR"] = az_config_dir
                 az_token_file = os.path.join(az_config_dir, "accessTokens.json")
-                logger.debug("Exporting `AZURE_ACCESS_TOKEN_FILE` to `{}`".format(az_token_file))
+                logger.debug("Exporting `AZURE_ACCESS_TOKEN_FILE` set to `{}`".format(az_token_file))
                 os.environ["AZURE_ACCESS_TOKEN_FILE"] = az_token_file
             if "client_name" not in terraform_vars:
                 terraform_vars["client_name"] = wrapper_config["account"]
@@ -1492,11 +1494,18 @@ def main(argv=None):
                         )
                     )
                     if not _check_azure_auth(subscription_id=terraform_vars["azure_subscription_id"]):
-                        logger.error(
-                            'Error while getting Azure token, try logging you in with "az login" '
-                            'or "az login --tenant xx" '
-                            "and check that you are authorized on this subscription."
+                        msg = (
+                            "Error while getting Azure token, check that you are authorized on this subscription"
+                            "then log yourself in with:\n\n"
                         )
+
+                        if os.environ.get("AZURE_CONFIG_DIR", None):
+                            msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
+                        if os.environ.get("AZURE_ACCESS_TOKEN_FILE", None):
+                            msg += " AZURE_ACCESS_TOKEN_FILE={}".format(os.environ["AZURE_ACCESS_TOKEN_FILE"])
+                        msg += " az login --tenant {} ".format(terraform_vars["azure_tenant_id"])
+                        logger.error(msg)
+
                         sys.exit(RC_KO)
             elif az_login_mode.lower() in [
                 "sp",

@@ -217,7 +217,7 @@ tfwrapper uses some default behaviors that can be overridden or modified via a `
 install_azure_dependencies: True # Install all needed Azure dependencies in the loaded shell (azure-cli, azure python SDK)
 always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
 pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
-use_local_azure_session_directory: True # Specify the `.run` directory to store `azure-cli` session and configuration
+use_local_azure_session_directory: False # Use the current user's Azure configuration in `~/.azure`. By default, the wrapper stores `azure-cli` session and configuration in the local `.run` directory.
 ```
 
 ### Stacks configurations
