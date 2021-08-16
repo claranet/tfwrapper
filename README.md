@@ -80,7 +80,7 @@
 
 ## Installation
 
-tfwrapper should be deployed as a git submodule in Terraform projects.
+tfwrapper should installed using pipx (recommended) or pip:
 
 ```bash
 pipx install git+https://github.com/claranet/terraform-wrapper@poetry # FIXME before release
