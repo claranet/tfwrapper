@@ -648,7 +648,7 @@ def select_terraform_version(version):
             error("The development version {} for terraform does not exist locally".format(version))
 
         # Download and extract in user's home if needed
-        logger.warning("Version does not exist locally, downloading it")
+        logger.warning("Terraform version {} does not exist locally, downloading it".format(full_version))
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix=".zip")
         r = CachedRequestsSession.get(
             "https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform}_{arch}.zip".format(
