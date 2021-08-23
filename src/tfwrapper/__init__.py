@@ -45,9 +45,11 @@ __version__ = importlib_metadata.version(__name__)
 def get_architecture():
     """Get system architecture name normalized for terraform."""
     platform_system = platform.machine()
-    if "arm" in platform_system:
+    if platform_system in ("arm64", "aarch64"):
+        return "arm64"
+    if platform_system in ("arm", "aarch"):
         return "arm"
-    if platform_system in ("x86_64", "darwin"):
+    if platform_system in ("amd64", "x86_64"):
         return "amd64"
     return "386"
 

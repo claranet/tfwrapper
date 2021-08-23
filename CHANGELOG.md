@@ -1,4 +1,4 @@
-# 8.0.0-alpha.0 (2021/07/31)
+# 8.0.0-alpha.4 (2021/08/23)
 
 BREAKING:
 
@@ -9,6 +9,10 @@ BREAKING:
     * remove the `switchver` subcommand that is no longer needed now that terraform binary is directly used from `~/.terraform.d/versions` and symbolic links are no longer created in `.wrapper/bin`
     * add `-V`/`--version` parameter to get the version of the tfwrapper itself
     * `use_local_azure_session_directory` now defaults to `True`
+
+FIXED:
+
+- TER-474: Support downloading terraform binaries for MacOS on Apple Silicon M1 (`darwin_arm64`)
 
 # 7.13.2 (2021/06/24)
 
