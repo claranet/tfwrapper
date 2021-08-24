@@ -649,12 +649,21 @@ def select_terraform_version(version):
         if patch.endswith("-dev"):
             error("The development version {} for terraform does not exist locally".format(version))
 
+        if PLATFORM_SYSTEM == "darwin" and full_version < "1.0.2":
+            arch = "amd64"
+            logger.warning(
+                "Terraform only supports darwin (MacOS) on arm64 (Apple Silicon M1) since v1.0.2, "
+                "so force usage of {} binaries with Rosetta on darwin for older terraform versions".format(arch)
+            )
+        else:
+            arch = ARCH_NAME
+
         # Download and extract in user's home if needed
         logger.warning("Terraform version {} does not exist locally, downloading it".format(full_version))
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix=".zip")
         r = CachedRequestsSession.get(
             "https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform}_{arch}.zip".format(
-                full_version=full_version, platform=PLATFORM_SYSTEM, arch=ARCH_NAME
+                full_version=full_version, platform=PLATFORM_SYSTEM, arch=arch
             ),
             stream=True,
         )
