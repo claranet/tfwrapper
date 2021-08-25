@@ -1,11 +1,12 @@
-# tfwrapper
+# claranet-tfwrapper
+[![Changelog](https://img.shields.io/badge/changelog-release-blue.svg)](CHANGELOG.md) [![Mozilla Public License](https://img.shields.io/badge/license-mozilla-orange.svg)](LICENSE) [![Pypi](https://img.shields.io/badge/python-pypi-green.svg)](https://pypi.org/project/claranet-tfwrapper/)
 
 `tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
 ## Table Of Contents
 <!--TOC-->
 
-- [tfwrapper](#tfwrapper)
+- [claranet-tfwrapper](#claranet-tfwrapper)
   - [Table Of Contents](#table-of-contents)
   - [Features](#features)
   - [Drawbacks](#drawbacks)
