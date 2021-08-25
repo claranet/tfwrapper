@@ -9,7 +9,7 @@ import textwrap
 
 import pytest
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture

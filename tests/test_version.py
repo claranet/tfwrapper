@@ -2,7 +2,7 @@
 
 import toml
 from pathlib import Path
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 def test_versions_are_in_sync():

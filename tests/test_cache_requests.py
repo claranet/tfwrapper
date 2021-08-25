@@ -8,7 +8,7 @@ from pook.interceptors.urllib3 import io
 import pytest
 
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture

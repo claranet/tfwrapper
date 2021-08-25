@@ -6,7 +6,7 @@ import textwrap
 
 import pytest
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 def test_config_load_help():  # noqa: D103

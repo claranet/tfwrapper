@@ -4,12 +4,12 @@
 import pytest
 import textwrap
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 # Not used yet: this method will be used by the mock to replace requests.get
 def mocked_requests_get(*args, **kwargs):  # noqa: D103
-    from tfwrapper import GITHUB_RELEASES
+    from claranet_tfwrapper import GITHUB_RELEASES
 
     class MockResponse:
         def __init__(self, text, status_code):

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import platform
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 def test_get_architecture_arm():  # noqa: D103

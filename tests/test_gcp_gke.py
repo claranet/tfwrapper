@@ -6,7 +6,7 @@ import os
 import textwrap
 import pytest
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 @patch("pathlib.Path.is_file")

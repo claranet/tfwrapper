@@ -6,9 +6,9 @@ import os
 
 import pytest
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
-from tfwrapper import home_dir  # noqa: E402
+from claranet_tfwrapper import home_dir  # noqa: E402
 
 
 def test_parse_args_help(capsys):  # noqa: D103

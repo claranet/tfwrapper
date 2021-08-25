@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "tfwrapper"
-version = "8.0.0-alpha.4"
-description = "`tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices"
-authors = ["Your Name <you@example.com>"]
+name = "claranet-tfwrapper"
+version = "8.0.0-alpha.5"
+description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
+authors = []
 license = "Mozilla Public License Version 2.0"
 
 [tool.poetry.dependencies]
@@ -35,7 +35,7 @@ pytest = "^6.2.4"
 requests-mock = "^1.9.3"
 
 [tool.poetry.scripts]
-tfwrapper = 'tfwrapper:main'
+tfwrapper = 'claranet_tfwrapper:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -4,7 +4,7 @@
 import pytest
 import requests
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
@@ -66,7 +66,7 @@ def test_search_on_github_provider_releases(  # noqa: D103
     provider_releases_html_after_v2_6_0,
     provider_releases_html_after_v1_3_0,
 ):
-    from tfwrapper import GITHUB_RELEASES
+    from claranet_tfwrapper import GITHUB_RELEASES
 
     repo = "claranet/terraform-provider-gitlab"
     releases_url = GITHUB_RELEASES.format(repo)

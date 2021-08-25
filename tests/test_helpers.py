@@ -1,7 +1,7 @@
 """Test some helper functions."""
 
 
-import tfwrapper
+import claranet_tfwrapper as tfwrapper
 
 
 def test_get_stack_dir(tmp_working_dir):  # noqa: D103
