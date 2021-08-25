@@ -1,9 +1,28 @@
 [tool.poetry]
 name = "claranet-tfwrapper"
-version = "8.0.0-alpha.5"
+version = "8.0.0-alpha.6"
 description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
 authors = []
 license = "Mozilla Public License Version 2.0"
+readme = "README.md"
+homepage = "https://github.com/claranet/terraform-wrapper"
+keywords = ["terraform", "wrapper"]
+
+# For reference, see https://pypi.org/pypi?%3Aaction=list_classifiers
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.6.2,<4.0"
