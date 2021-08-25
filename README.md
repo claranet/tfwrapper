@@ -662,13 +662,13 @@ Commit, tag and push this change to Github, then publish the release to test.pyp
 
 ```bash
 # poetry config repositories.testpypi https://test.pypi.org/legacy/
-# poetry publish --repository testpypi
+# poetry publish --build --repository testpypi
 ```
 
 If all is ok, publish to pypi.org:
 
 ```bash
-# poetry publish
+# poetry publish --build
 ```
 
 TODO: automate this process with Github Actions
