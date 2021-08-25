@@ -14,6 +14,7 @@
   - [Runtime Dependencies](#runtime-dependencies)
   - [Recommended setup](#recommended-setup)
   - [Installation](#installation)
+  - [Upgrade from tfwrapper v7 or older](#upgrade-from-tfwrapper-v7-or-older)
     - [Required files](#required-files)
   - [Configuration](#configuration)
     - [tfwrapper configuration](#tfwrapper-configuration)
@@ -93,6 +94,23 @@ If targetting Azure, you should also install the `azure` extras:
 ```bash
 pipx install claranet-tfwrapper[azure]
 ```
+
+## Upgrade from tfwrapper v7 or older
+
+If you used versions of the wrapper older than v8, there is not much to do when upgrading to v8
+except a little cleanup.
+Indeed, the wrapper is no longer installed as a git submodule of your project like it used to be instructed and there is no longer any `Makefile` to activate it.
+
+Just clean up each project by destroying the `.wrapper` submodule:
+
+```bash
+git rm -f Makefile
+git submodule deinit .wrapper
+rm -rf .git/modules/.wrapper
+git rm -f .wrapper
+```
+
+Then check the staged changes and commit them.
 
 ### Required files
 
