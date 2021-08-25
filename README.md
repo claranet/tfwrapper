@@ -40,6 +40,7 @@
   - [README TOC](#readme-toc)
   - [Using terraform development builds](#using-terraform-development-builds)
   - [git pre-commit hooks](#git-pre-commit-hooks)
+  - [Publishing new releases to PyPI](#publishing-new-releases-to-pypi)
 
 <!--TOC-->
 
@@ -83,13 +84,13 @@
 tfwrapper should installed using pipx (recommended) or pip:
 
 ```bash
-pipx install git+https://github.com/claranet/terraform-wrapper@poetry # FIXME before release
+pipx install claranet-tfwrapper
 ```
 
 If targetting Azure, you should also install the `azure` extras:
 
 ```bash
-pipx install git+https://github.com/claranet/terraform-wrapper@poetry#tfwrapper[azure]
+pipx install claranet-tfwrapper[azure]
 ```
 
 ### Required files
@@ -647,3 +648,26 @@ If updating hooks configuration, run checks against all files to make sure every
 ```
 
 Note: the `pre-commit` tool itself can be installed with `pip` or `pipx`.
+
+## Publishing new releases to PyPI
+
+Bump the version with poetry:
+
+```bash
+# poetry version [patch|minor|major|prepatch|preminor|premajor|prerelease]
+```
+
+Commit, tag and push this change to Github, then publish the release to test.pypi.org for validation:
+
+```bash
+# poetry config repositories.testpypi https://test.pypi.org/legacy/
+# poetry publish --repository testpypi
+```
+
+If all is ok, publish to pypi.org:
+
+```bash
+# poetry publish
+```
+
+TODO: automate this process with Github Actions
