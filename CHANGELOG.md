@@ -1,3 +1,20 @@
+# 8.0.0-alpha.8 (2021/08/27)
+
+BREAKING:
+
+- TER-473: Use poetry to manage project to:
+    * make it installable with pip and pipx once, no longer as a submodule of each workspace
+    * ease dependencies management and make it more robust
+    * remove the `Makefile`
+    * remove the `switchver` subcommand that is no longer needed now that terraform binary is directly used from `~/.terraform.d/versions` and symbolic links are no longer created in `.wrapper/bin`
+    * add `-V`/`--version` parameter to get the version of the tfwrapper itself
+    * `use_local_azure_session_directory` now defaults to `True`
+    * drop `azure-cli` dependency from the wrapper's virtualenv (use `pipx install azure-cli` to install it in your environment if you need)
+
+FIXED:
+
+- TER-474: Support downloading terraform binaries for MacOS on Apple Silicon M1 (`darwin_arm64`)
+
 # 7.13.2 (2021/06/24)
 
 UPDATES:

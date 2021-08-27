@@ -1,7 +1,68 @@
+[tool.poetry]
+name = "claranet-tfwrapper"
+version = "8.0.0-alpha.8"
+description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
+authors = []
+license = "Mozilla Public License Version 2.0"
+readme = "README.md"
+homepage = "https://github.com/claranet/terraform-wrapper"
+keywords = ["terraform", "wrapper"]
+
+# For reference, see https://pypi.org/pypi?%3Aaction=list_classifiers
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6.2,<4.0"
+CacheControl = "^0.12.6"
+colorlog = "^5.0.1"
+lockfile = "^0.12.2"
+natsort = "^7.1.1"
+schema = "^0.7.4"
+termcolor = "^1.1.0"
+boto3 = "^1.17.94"
+Jinja2 = "^3.0.1"
+PyYAML = "^5.4.1"
+requests = "^2.25.1"
+azure-common = {version = "^1.1.27", extras = ["azure"]}
+azure-mgmt-storage = {version = "^18.0.0", extras = ["azure"]}
+
+[tool.poetry.dev-dependencies]
+black = "^21.7b0"
+md-toc = "^8.0.0"
+flake8 = "^3.9.2"
+flake8-docstrings = "^1.6.0"
+mock = "^4.0.3"
+#pook = "^1.0.1"
+# Use commit of "fix(urllib3): interceptor is never really disabled" https://github.com/h2non/pook/pull/68
+# until new release
+pook = {git = "https://github.com/h2non/pook", rev = "7e45a3fa8804a59d9bbe9e8e49e7344c40feae07"}
+pytest = "^6.2.4"
+requests-mock = "^1.9.3"
+
+[tool.poetry.scripts]
+tfwrapper = 'claranet_tfwrapper:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.black]
 # Make sure to match flake8's max-line-length in tox.ini.
 line-length = 130 # black's default
-target-version = ['py36', 'py37', 'py38']
+target-version = ['py36', 'py37', 'py38', 'py39']
 exclude = '''
 /(
   \.git

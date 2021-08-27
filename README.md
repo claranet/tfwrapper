@@ -1,11 +1,12 @@
-# tfwrapper
+# claranet-tfwrapper
+[![Changelog](https://img.shields.io/badge/changelog-release-blue.svg)](CHANGELOG.md) [![Mozilla Public License](https://img.shields.io/badge/license-mozilla-orange.svg)](LICENSE) [![Pypi](https://img.shields.io/badge/python-pypi-green.svg)](https://pypi.org/project/claranet-tfwrapper/)
 
 `tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
 ## Table Of Contents
 <!--TOC-->
 
-- [tfwrapper](#tfwrapper)
+- [claranet-tfwrapper](#claranet-tfwrapper)
   - [Table Of Contents](#table-of-contents)
   - [Features](#features)
   - [Drawbacks](#drawbacks)
@@ -13,6 +14,7 @@
   - [Runtime Dependencies](#runtime-dependencies)
   - [Recommended setup](#recommended-setup)
   - [Installation](#installation)
+  - [Upgrade from tfwrapper v7 or older](#upgrade-from-tfwrapper-v7-or-older)
     - [Required files](#required-files)
   - [Configuration](#configuration)
     - [tfwrapper configuration](#tfwrapper-configuration)
@@ -40,6 +42,7 @@
   - [README TOC](#readme-toc)
   - [Using terraform development builds](#using-terraform-development-builds)
   - [git pre-commit hooks](#git-pre-commit-hooks)
+  - [Publishing new releases to PyPI](#publishing-new-releases-to-pypi)
 
 <!--TOC-->
 
@@ -64,7 +67,7 @@
 - `build-essential` (provides make and C/C++ compilers)
 - `libffi-dev`
 - `libssl-dev`
-- `python3` `>= 3.5` (3.8+ recommended)
+- `python3` `>= 3.6.2 <4.0` (3.8+ recommended)
 - `python3-dev`
 - `python3-venv`
 
@@ -74,40 +77,44 @@
 
 ## Recommended setup
 
-- Terraform 0.14+
+- Terraform 1.0+
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 
 ## Installation
 
-tfwrapper should be deployed as a git submodule in Terraform projects.
+tfwrapper should installed using pipx (recommended) or pip:
 
 ```bash
-cd my_terraform_project
-git submodule add git@github.com:claranet/terraform-wrapper.git .wrapper
+pipx install claranet-tfwrapper
 ```
 
-If you plan to use tfwrapper for multiple projects, creating a new git repository including all the required files and tfwrapper as a git submodule is recommended. You then just need to clone this repository to start new projects.
+If targetting Azure, you should also install the `azure` extras:
+
+```bash
+pipx install claranet-tfwrapper[azure]
+```
+
+## Upgrade from tfwrapper v7 or older
+
+If you used versions of the wrapper older than v8, there is not much to do when upgrading to v8
+except a little cleanup.
+Indeed, the wrapper is no longer installed as a git submodule of your project like it used to be instructed and there is no longer any `Makefile` to activate it.
+
+Just clean up each project by destroying the `.wrapper` submodule:
+
+```bash
+git rm -f Makefile
+git submodule deinit .wrapper
+rm -rf .git/modules/.wrapper
+git rm -f .wrapper
+```
+
+Then check the staged changes and commit them.
 
 ### Required files
 
-tfwrapper expects multiple files and directories at the root of its parent project.
-
-#### Makefile
-
-A `Makefile` symlink should point to tfwrapper's `Makefile`. this link allows users to setup and enable tfwrapper from the root of their project.
-
-```bash
-ln -s .wrapper/Makefile
-```
-
-Available Makefile commands:
-
- * `make work` (default target): spawns a new shell with the virtualenv `bin` directory prepended to its PATH.
- * `make setup`: create a Python3 virtualenv if not already there and install needed python (pip) dependencies.
- * `make clear` or `make clean`: remove the virtualenv created by `setup`.
- * `make update`: trigger a python (pip) dependencies update (if you have changed the version of `terraform-wrapper`) in the virtualenv created by `setup`.
- * `make renew`: trigger `make clean` + `make work` in order to setup a fresh virtualenv.
+tfwrapper expects multiple files and directories at the root of a project.
 
 #### conf
 
@@ -230,7 +237,7 @@ tfwrapper uses some default behaviors that can be overridden or modified via a `
 install_azure_dependencies: True # Install all needed Azure dependencies in the loaded shell (azure-cli, azure python SDK)
 always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
 pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
-use_local_azure_session_directory: True # Specify the `.run` directory to store `azure-cli` session and configuration
+use_local_azure_session_directory: False # Use the current user's Azure configuration in `~/.azure`. By default, the wrapper stores `azure-cli` session and configuration in the local `.run` directory.
 ```
 
 ### Stacks configurations
@@ -660,3 +667,26 @@ If updating hooks configuration, run checks against all files to make sure every
 ```
 
 Note: the `pre-commit` tool itself can be installed with `pip` or `pipx`.
+
+## Publishing new releases to PyPI
+
+Bump the version with poetry:
+
+```bash
+# poetry version [patch|minor|major|prepatch|preminor|premajor|prerelease]
+```
+
+Commit, tag and push this change to Github, then publish the release to test.pypi.org for validation:
+
+```bash
+# poetry config repositories.testpypi https://test.pypi.org/legacy/
+# poetry publish --build --repository testpypi
+```
+
+If all is ok, publish to pypi.org:
+
+```bash
+# poetry publish --build
+```
+
+TODO: automate this process with Github Actions

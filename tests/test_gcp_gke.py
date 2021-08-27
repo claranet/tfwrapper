@@ -1,13 +1,12 @@
 """Test GCP/GKE configuration parsing."""
 
-from importlib.machinery import SourceFileLoader
 from unittest.mock import MagicMock, patch
 import subprocess
 import os
 import textwrap
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import claranet_tfwrapper as tfwrapper
 
 
 @patch("pathlib.Path.is_file")

@@ -1,25 +1,18 @@
 """Test config is loaded depending on cmd line arguments."""
 
-from importlib.machinery import SourceFileLoader
 
 import os
 import textwrap
 
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import claranet_tfwrapper as tfwrapper
 
 
 def test_config_load_help():  # noqa: D103
     with pytest.raises(SystemExit) as e:
         tfwrapper.parse_args([])
     assert e.value.code == 0
-
-
-def test_config_load_switchver():  # noqa: D103
-    with pytest.raises(SystemExit) as e:
-        tfwrapper.main(["switchver"])
-    assert e.value.code == 2
 
 
 def test_config_load_init(tmp_working_dir_regional):  # noqa: D103
@@ -40,10 +33,18 @@ def test_config_load_init(tmp_working_dir_regional):  # noqa: D103
             terraform:
               vars:
                 myvar: myvalue
+                version: "1.0.3"
             """
         )
     )
     paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
+    paths["terraform_conf"].write_text(
+        textwrap.dedent(
+            """
+            # Empty terraform configuration
+            """
+        )
+    )
 
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["init"])
@@ -68,10 +69,18 @@ def test_config_load_plan(tmp_working_dir_regional):  # noqa: D103
             terraform:
               vars:
                 myvar: myvalue
+                version: "1.0.3"
             """
         )
     )
     paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
+    paths["terraform_conf"].write_text(
+        textwrap.dedent(
+            """
+            # Empty terraform configuration
+            """
+        )
+    )
 
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["plan"])

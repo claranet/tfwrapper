@@ -1,14 +1,14 @@
 """Test command line argument parsing."""
 
-from importlib.machinery import SourceFileLoader
 
+import re
 import os
 
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import claranet_tfwrapper as tfwrapper
 
-from tfwrapper import home_dir  # noqa: E402
+from claranet_tfwrapper import home_dir  # noqa: E402
 
 
 def test_parse_args_help(capsys):  # noqa: D103
@@ -16,7 +16,7 @@ def test_parse_args_help(capsys):  # noqa: D103
         tfwrapper.parse_args([])
     assert e.value.code == 0
     captured = capsys.readouterr()
-    assert "usage: tfwrapper [-h] [-d] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
+    assert "usage: tfwrapper [-h] [-d] [-V] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
 
 
 def test_parse_args_no_args(capsys):  # noqa: D103
@@ -24,15 +24,7 @@ def test_parse_args_no_args(capsys):  # noqa: D103
         tfwrapper.parse_args([])
     assert e.value.code == 0
     captured = capsys.readouterr()
-    assert "usage: tfwrapper [-h] [-d] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
-
-
-def test_parse_args_switchver_help(capsys):  # noqa: D103
-    with pytest.raises(SystemExit) as e:
-        tfwrapper.parse_args(["switchver", "-h"])
-    assert e.value.code == 0
-    captured = capsys.readouterr()
-    assert "usage: tfwrapper switchver [-h] version" in captured.out
+    assert "usage: tfwrapper [-h] [-d] [-V] [-c CONFDIR] [-a [ACCOUNT]]" in captured.err
 
 
 def test_parse_args_init_help(capsys):  # noqa: D103
@@ -157,3 +149,11 @@ def test_parse_args_init_plugin_cache_dir_arg_and_env():  # noqa: D103
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init
     assert args.plugin_cache_dir == "/tmp/plugin-cache-dir-arg"
+
+
+def test_parse_args_version(capsys):  # noqa: D103
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.parse_args(["-V"])
+    assert e.value.code == 0
+    captured = capsys.readouterr()
+    assert re.match(r"^tfwrapper v\d+\.\d+\.\d+", captured.err)

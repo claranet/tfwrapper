@@ -1,6 +1,5 @@
 """Test foreach command behavior."""
 
-from importlib.machinery import SourceFileLoader
 
 from copy import deepcopy
 
@@ -10,7 +9,7 @@ import textwrap
 
 import pytest
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
@@ -294,7 +293,11 @@ def test_foreach_select_from_args_region_euw1(tmp_working_dir_multiple_stacks, m
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_stack_default(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_args_stack_default(  # noqa: D103
+    tmp_working_dir_multiple_stacks,
+    multiple_stacks,
+    default_args,
+):
     default_args.stack = "default"
 
     wrapper_config = deepcopy(vars(default_args))
@@ -323,9 +326,9 @@ def test_foreach_select_from_args_stack_default(tmp_working_dir_multiple_stacks,
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_env_preprod_stack_default(
+def test_foreach_select_from_args_env_preprod_stack_default(  # noqa: D103
     tmp_working_dir_multiple_stacks, multiple_stacks, default_args
-):  # noqa: D103
+):
     default_args.environment = "preprod"
     default_args.stack = "default"
 

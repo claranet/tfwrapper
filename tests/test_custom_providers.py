@@ -1,16 +1,15 @@
 """Test custom providers configuration parsing."""
 
-from importlib.machinery import SourceFileLoader
 
 import pytest
 import textwrap
 
-tfwrapper = SourceFileLoader("tfwrapper", "bin/tfwrapper").load_module()
+import claranet_tfwrapper as tfwrapper
 
 
 # Not used yet: this method will be used by the mock to replace requests.get
 def mocked_requests_get(*args, **kwargs):  # noqa: D103
-    from tfwrapper import GITHUB_RELEASES
+    from claranet_tfwrapper import GITHUB_RELEASES
 
     class MockResponse:
         def __init__(self, text, status_code):
@@ -67,9 +66,9 @@ def test_stack_config_parsing(tmp_working_dir_empty_conf):  # noqa: D103
     assert stack_config == expected_stack_result
 
 
-def test_stack_config_parsing_extended_custom_provider(
+def test_stack_config_parsing_extended_custom_provider(  # noqa: D103
     tmp_working_dir_empty_conf,
-):  # noqa: D103
+):
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
@@ -103,7 +102,10 @@ def test_stack_config_parsing_extended_custom_provider(
     assert stack_config == expected_stack_result
 
 
-def test_stack_config_parsing_invalid_custom_provider_missing_extension(tmp_working_dir_empty_conf, caplog):  # noqa: D103
+def test_stack_config_parsing_invalid_custom_provider_missing_extension(  # noqa: D103
+    tmp_working_dir_empty_conf,
+    caplog,
+):
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
