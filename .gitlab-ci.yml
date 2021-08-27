@@ -1,6 +1,6 @@
 variables:
-  POETRY_VERSION: 1.1.7
-  TOX_VERSION: 3.24.0
+  POETRY_VERSION: 1.1.8
+  TOX_VERSION: 3.24.3
 
 stages:
   - lint
@@ -15,32 +15,11 @@ lint:
     - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
     - tox -e lint
 
-.tox: &tox
+tox:
   stage: unit-test
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
   script:
     - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
-    - tox -e ${TOX_ENV}
-
-tox:python-3.6:
-  <<: *tox
-  variables:
-    PYTHON_VERSION: "3.6"
-    TOX_ENV: "py36"
-
-tox:python-3.7:
-  <<: *tox
-  variables:
-    PYTHON_VERSION: "3.7"
-    TOX_ENV: "py37"
-
-tox:python-3.8:
-  <<: *tox
-  variables:
-    PYTHON_VERSION: "3.8"
-    TOX_ENV: "py38"
-
-tox:python-3.9:
-  <<: *tox
-  variables:
-    PYTHON_VERSION: "3.9"
-    TOX_ENV: "py39"
+    - tox -e py
