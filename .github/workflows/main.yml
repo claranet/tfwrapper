@@ -1,0 +1,52 @@
+name: Tests
+
+env:
+  POETRY_VERSION: 1.1.8
+  TOX_VERSION: 3.24.3
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install poetry and tox
+        shell: bash
+        run: |
+          pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
+
+      - name: Run tox
+        shell: bash
+        run: tox -e lint
+
+  tests:
+    name: Test with Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install poetry and tox
+        shell: bash
+        run: |
+          pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
+
+      - name: Run tox
+        shell: bash
+        run: tox -e py
