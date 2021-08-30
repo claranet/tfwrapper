@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "claranet-tfwrapper"
-version = "8.0.0-alpha.8"
+version = "8.0.0"
 description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
 authors = []
 license = "Mozilla Public License Version 2.0"
@@ -10,7 +10,7 @@ keywords = ["terraform", "wrapper"]
 
 # For reference, see https://pypi.org/pypi?%3Aaction=list_classifiers
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
