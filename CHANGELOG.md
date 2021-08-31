@@ -1,3 +1,9 @@
+# 8.0.2 (2021/08/31)
+
+FIXED:
+
+- TER-476: re-add `packaging` dependency needed for Azure authentication that was lost on removal of `azure-cli` dependency
+
 # 8.0.1 (2021/08/31)
 
 FIXED:
