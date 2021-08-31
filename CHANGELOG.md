@@ -1,3 +1,10 @@
+# 8.0.1 (2021/08/31)
+
+FIXED:
+
+- TER-475: terraform only supports `darwin` (MacOS) on `arm64` (Apple Silicon M1) since v1.0.2, so force usage of `amd64` binaries with Rosetta for older terraform versions
+- TER-476: re-add `azure-cli-core` and `msrestazure` dependencies needed for Azure authentication that were lost on removal of `azure-cli` dependency
+
 # 8.0.0 (2021/08/30)
 
 BREAKING:
