@@ -14,6 +14,7 @@ import stat
 import string
 import subprocess
 import tempfile
+import textwrap
 import time
 import sys
 import zipfile
@@ -33,6 +34,8 @@ from cachecontrol.caches import FileCache
 from natsort import natsorted
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
+
+from .utils import format_env
 
 try:
     import importlib.metadata as importlib_metadata
@@ -767,10 +770,13 @@ def adc_check_gke_credentials(
     refresh_kubeconfig=None,
 ):
     """Provision kubeconfig for a given GKE instance using ADC."""
+    gke_env = {
+        "CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS": "true",
+        "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE": adc_path,
+        "KUBECONFIG": kubeconfig_path,
+    }
     cmd_env = deepcopy(os.environ)
-    cmd_env["CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS"] = "true"
-    cmd_env["CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE"] = adc_path
-    cmd_env["KUBECONFIG"] = kubeconfig_path
+    cmd_env.update(gke_env)
 
     logger.info("Looking for {} GKE credentials.".format(gke_name))
 
@@ -810,15 +816,22 @@ def adc_check_gke_credentials(
     if refresh_kubeconfig == "always" or not Path(kubeconfig_path).is_file():
         logger.info("Refreshing {} GKE credentials.".format(gke_name))
         try:
+            logger.debug("Executing `{} {}`".format(format_env(gke_env), " ".join(command)))
             subprocess.run(
                 command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 check=True,
                 env=cmd_env,
             )
-        except subprocess.CalledProcessError:
-            logger.error("Could not configure {} GKE credentials.".format(gke_name))
+        except subprocess.CalledProcessError as e:
+            logger.error(
+                "Could not configure {} GKE credentials, the following command failed:\n\n"
+                "    {} {}\n\n"
+                "with the following error:\n\n"
+                "{}".format(gke_name, format_env(gke_env), " ".join(command), textwrap.indent(e.output.decode(), "    "))
+            )
+
             sys.exit(RC_KO)
         logger.info("{} GKE credentials configured.".format(gke_name))
     else:
@@ -1424,19 +1437,26 @@ def main(argv=None):
                         "application-default",
                         "print-access-token",
                     ]
+                    logger.debug("Executing `{}`".format(" ".join(command)))
                     subprocess.run(
                         command,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
                         check=True,
                     )
                 except FileNotFoundError:
                     logger.error("Please make sure that gcloud is available on this system.")
                     sys.exit(RC_KO)
-                except subprocess.CalledProcessError:
+                except subprocess.CalledProcessError as e:
                     logger.error(
-                        "Could not find valid user Application Default Credentials. Please run: "
-                        "gcloud auth application-default login"
+                        "Could not find valid user Application Default Credentials, the following command failed:\n\n"
+                        "    {}\n\n"
+                        "with the following error:\n\n"
+                        "{}\n"
+                        "You may need to run:\n\n"
+                        "    gcloud auth application-default login".format(
+                            " ".join(command), textwrap.indent(e.output.decode(), "    ")
+                        )
                     )
                     sys.exit(RC_KO)
                 logger.info("Found GCP user Application Default Credentials.")

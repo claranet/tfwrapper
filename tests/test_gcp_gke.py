@@ -60,8 +60,8 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     )
     subprocess.run.assert_called_with(
         command,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         check=True,
         env=cmd_env,
     )
@@ -80,8 +80,8 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     )
     subprocess.run.assert_called_with(
         command,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         check=True,
         env=cmd_env,
     )
@@ -98,8 +98,8 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     )
     subprocess.run.assert_called_with(
         command,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         check=True,
         env=cmd_env,
     )
