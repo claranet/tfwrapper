@@ -696,23 +696,16 @@ dev = ["pre-commit", "tox"]
 
 [[package]]
 name = "pook"
-version = "1.0.1"
+version = "1.0.2"
 description = "HTTP traffic mocking and expectations made easy"
 category = "dev"
 optional = false
 python-versions = "*"
-develop = false
 
 [package.dependencies]
 furl = ">=0.5.6"
 jsonschema = ">=2.5.1"
 xmltodict = ">=0.11.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/h2non/pook"
-reference = "7e45a3fa8804a59d9bbe9e8e49e7344c40feae07"
-resolved_reference = "7e45a3fa8804a59d9bbe9e8e49e7344c40feae07"
 
 [[package]]
 name = "portalocker"
@@ -1116,7 +1109,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.2,<4.0"
-content-hash = "1c4a29948cfcd76d6271ec9d445649190b929d530419a54defcc083e32a94bc9"
+content-hash = "0d6f847e51a604dd0cd531c7d88ec17cf16bea02b01b78b9bfbf710f129bc5e9"
 
 [metadata.files]
 adal = [
@@ -1465,7 +1458,11 @@ pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
 ]
-pook = []
+pook = [
+    {file = "pook-1.0.2-py2-none-any.whl", hash = "sha256:cd3cbfe280d544e672f41a5b9482883841ba247f865858b57fd59f729e37616a"},
+    {file = "pook-1.0.2-py3-none-any.whl", hash = "sha256:2e16d231ec9fe071c14cad7fe41261f65b401f6cb30935a169cf6fc229bd0a1d"},
+    {file = "pook-1.0.2.tar.gz", hash = "sha256:f28112db062d17db245b351c80f2bb5bf1e56ebfa93d3d75cc44f500c15c40eb"},
+]
 portalocker = [
     {file = "portalocker-1.7.1-py2.py3-none-any.whl", hash = "sha256:34cb36c618d88bcd9079beb36dcdc1848a3e3d92ac4eac59055bdeafc39f9d4a"},
     {file = "portalocker-1.7.1.tar.gz", hash = "sha256:6d6f5de5a3e68c4dd65a98ec1babb26d28ccc5e770e07b672d65d5a35e4b2d8a"},
