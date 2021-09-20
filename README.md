@@ -1,9 +1,11 @@
 # claranet-tfwrapper
+
 [![Changelog](https://img.shields.io/badge/changelog-release-blue.svg)](CHANGELOG.md) [![Mozilla Public License](https://img.shields.io/badge/license-mozilla-orange.svg)](LICENSE) [![Pypi](https://img.shields.io/badge/python-pypi-green.svg)](https://pypi.org/project/claranet-tfwrapper/)
 
 `tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
 
 ## Table Of Contents
+
 <!--TOC-->
 
 - [claranet-tfwrapper](#claranet-tfwrapper)
@@ -23,7 +25,6 @@
     - [How to migrate from one backend to another for state centralization](#how-to-migrate-from-one-backend-to-another-for-state-centralization)
   - [Stacks file structure](#stacks-file-structure)
   - [Usage](#usage)
-    - [tfwrapper activation](#tfwrapper-activation)
     - [Stack bootstrap](#stack-bootstrap)
     - [Working on stacks](#working-on-stacks)
     - [Passing options](#passing-options)
@@ -64,7 +65,7 @@
 
 ## Setup Dependencies
 
-- `build-essential` (provides make and C/C++ compilers)
+- `build-essential` (provides C/C++ compilers)
 - `libffi-dev`
 - `libssl-dev`
 - `python3` `>= 3.6.2 <4.0` (3.8+ recommended)
@@ -236,7 +237,7 @@ tfwrapper uses some default behaviors that can be overridden or modified via a `
 ---
 install_azure_dependencies: True # Install all needed Azure dependencies in the loaded shell (azure-cli, azure python SDK)
 always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
-pipe_plan_command: 'cat' # Default command used when you're invoking tfwrapper with `--pipe-plan`
+pipe_plan_command: "cat" # Default command used when you're invoking tfwrapper with `--pipe-plan`
 use_local_azure_session_directory: False # Use the current user's Azure configuration in `~/.azure`. By default, the wrapper stores `azure-cli` session and configuration in the local `.run` directory.
 ```
 
@@ -252,16 +253,16 @@ Here is an example for an AWS stack configuration:
 
 ```yaml
 ---
-state_configuration_name: 'aws' # use "aws" backend state configuration
+state_configuration_name: "aws" # use "aws" backend state configuration
 aws:
   general:
-    account: &aws_account 'xxxxxxxxxxx' # aws account for this stack
-    region: &aws_region eu-west-1       # aws region for this stack
+    account: &aws_account "xxxxxxxxxxx" # aws account for this stack
+    region: &aws_region eu-west-1 # aws region for this stack
   credentials:
-    profile: my-aws-profile         # should be configured in .aws/config
+    profile: my-aws-profile # should be configured in .aws/config
 
 terraform:
-  vars:                         # variables passed to terraform
+  vars: # variables passed to terraform
     aws_account: *aws_account
     aws_region: *aws_region
     client_name: my-client-name # arbitrary client name
@@ -271,12 +272,12 @@ Here is an example for a stack on Azure configuration using user mode and AWS S3
 
 ```yaml
 ---
-state_configuration_name: 'aws-demo' # use "aws" backend state configuration
+state_configuration_name: "aws-demo" # use "aws" backend state configuration
 azure:
   general:
     mode: user # Uses personal credentials with MFA
-    directory_id: &directory_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Tenant/Directory UID
-    subscription_id: &subscription_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Subscription UID
+    directory_id: &directory_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Tenant/Directory UID
+    subscription_id: &subscription_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Subscription UID
 
 terraform:
   vars:
@@ -295,8 +296,8 @@ Here is an example for a stack on Azure configuration using Service Principal mo
 azure:
   general:
     mode: service_principal # Uses an Azure tenant Service Principal account
-    directory_id: &directory_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Tenant/Directory UID
-    subscription_id: &subscription_id 'aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz' # Azure Subscription UID
+    directory_id: &directory_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Tenant/Directory UID
+    subscription_id: &subscription_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Subscription UID
 
   credential:
     profile: azurerm-account-profile # To stay coherent, create an AzureRM profile with the same name than the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
@@ -342,27 +343,29 @@ The `conf/state.yml` configuration file defines the configurations used to conne
 It can be an AWS (S3) or Azure (Storage Account) backend type.
 
 You can use other backends (e.g. Google GCS or Hashicorp Consul) not specifically supported by the wrapper if you them manage yourself and omit the `conf/state.yml` file or make it empty:
+
 ```yaml
 ---
 ```
 
 Example configuration with both AWS and Azure backends defined:
+
 ```yaml
 ---
 aws:
-  name: 'aws-demo'
+  name: "aws-demo"
   general:
-    account: 'xxxxxxxxxxx'
+    account: "xxxxxxxxxxx"
     region: eu-west-1
   credentials:
     profile: my-state-aws-profile # should be configured in .aws/config
 
 azure:
-  name: 'azure-alternative'
+  name: "azure-alternative"
   general:
-    subscription_uid: 'xxxxxxx' # the Azure account to use for state storage
-    resource_group_name: 'tfstates-xxxxx-rg' # The Azure resource group with state storage
-    storage_account_name: 'tfstatesxxxxx'
+    subscription_uid: "xxxxxxx" # the Azure account to use for state storage
+    resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
+    storage_account_name: "tfstatesxxxxx"
 
 backend_parameters: # Parameters or options which can be used by `state.j2.tf` template file
   state_snaphot: "false" # Example of Azure storage backend option
@@ -377,7 +380,7 @@ you can migrate your stack state from one backend to another.
 
 Here is a quick howto:
 
-  1. Make sure your stack is clean:
+1. Make sure your stack is clean:
 
 ```bash
 $ cd account/path/env/your_stack
@@ -386,15 +389,15 @@ $ tfwrapper plan
 # should return no changes
 ```
 
-  2. Change your backend in the stack configuration yaml file:
+2. Change your backend in the stack configuration yaml file:
 
 ```yaml
 ---
 #state_configuration_name: 'aws-demo' # previous backend
-state_configuration_name: 'azure-alternative' # new backend to use
+state_configuration_name: "azure-alternative" # new backend to use
 ```
 
-  3. Back in your stack directory, you can perform the change:
+3. Back in your stack directory, you can perform the change:
 
 ```bash
 $ cd account/path/env/your_stack
@@ -443,20 +446,6 @@ The following file structure is enforced:
 
 ## Usage
 
-### tfwrapper activation
-
-```bash
-# this will initialize a virtualenv and update your PATH in a new instance of your current SHELL
-make
-# if you don't want to install Azure CLI dependencies for a non Azure repository, you may want to specify it in your `config.yml`
-# see [tfwrapper configuration section](#tfwrapper-configuration)
-
-tfwrapper -h
-
-# when you are done using the tfwrapper you can leave the virtualenv
-exit
-```
-
 ### Stack bootstrap
 
 After creating a `conf/${account}_${environment}_${region}_${stack}.yml` stack configuration file you can bootstrap it.
@@ -501,6 +490,7 @@ tfwrapper -a ${account} -r ${region} foreach -- tfwrapper plan
 ```
 
 The same can be achieved with:
+
 ```bash
 # working from an account directory
 cd ${account}
@@ -508,6 +498,7 @@ tfwrapper -r ${region} foreach -- tfwrapper plan
 ```
 
 Complex commands can be executed in a sub-shell with the `-c` argument, e.g.:
+
 ```bash
 # working from an environment directory
 cd ${account}/${environment}
@@ -564,6 +555,7 @@ Each GKE instance has its own kubeconfig, the path to each configuration is avai
 kubeconfig is automatically fetched by the wrapper (using gcloud) and stored inside the `.run` directory of your project.
 It is refreshed automatically at every run to ensure you point to correct Kubernetes endpoint.
 You can disable this behaviour by setting `refresh_kubeconfig: never` in your cluster settings.
+
 ```yaml
 ---
 gcp:
@@ -574,7 +566,7 @@ gcp:
     - name: kubernetes-1
       zone: europe-west1-c
       refresh_kubeconfig: never
- ```
+```
 
 ### Stack configurations and credentials
 
