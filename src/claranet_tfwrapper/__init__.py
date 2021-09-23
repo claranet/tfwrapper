@@ -652,7 +652,7 @@ def select_terraform_version(version):
         if patch.endswith("-dev"):
             error("The development version {} for terraform does not exist locally".format(version))
 
-        if PLATFORM_SYSTEM == "darwin" and full_version < "1.0.2":
+        if PLATFORM_SYSTEM == "darwin" and ARCH_NAME == "arm64" and full_version < "1.0.2":
             arch = "amd64"
             logger.warning(
                 "Terraform only supports darwin (MacOS) on arm64 (Apple Silicon M1) since v1.0.2, "
