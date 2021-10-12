@@ -1,3 +1,16 @@
+# 8.1.0 (2021/10/12)
+
+UPDATES:
+
+- TER-473: cleanup README of remaining Makefile references
+- TER-478: display gcloud command output in case of error
+- TER-482: add support for python 3.10 and update dependencies
+
+FIXED:
+
+- TER-477: remove warning about using `amd64` binaries on non-`arm64` architecture for `darwin` platform
+- TER-483: fix azure extras
+
 # 8.0.2 (2021/08/31)
 
 FIXED:
@@ -16,13 +29,13 @@ FIXED:
 BREAKING:
 
 - TER-473: Use poetry to manage project to:
-    * make it installable with pip and pipx once, no longer as a submodule of each workspace
-    * ease dependencies management and make it more robust
-    * remove the `Makefile`
-    * remove the `switchver` subcommand that is no longer needed now that terraform binary is directly used from `~/.terraform.d/versions` and symbolic links are no longer created in `.wrapper/bin`
-    * add `-V`/`--version` parameter to get the version of the tfwrapper itself
-    * `use_local_azure_session_directory` now defaults to `True`
-    * drop `azure-cli` dependency from the wrapper's virtualenv (use `pipx install azure-cli` to install it in your environment if you need)
+  - make it installable with pip and pipx once, no longer as a submodule of each workspace
+  - ease dependencies management and make it more robust
+  - remove the `Makefile`
+  - remove the `switchver` subcommand that is no longer needed now that terraform binary is directly used from `~/.terraform.d/versions` and symbolic links are no longer created in `.wrapper/bin`
+  - add `-V`/`--version` parameter to get the version of the tfwrapper itself
+  - `use_local_azure_session_directory` now defaults to `True`
+  - drop `azure-cli` dependency from the wrapper's virtualenv (use `pipx install azure-cli` to install it in your environment if you need)
 
 FIXED:
 
