@@ -681,4 +681,10 @@ If all is ok, publish to pypi.org:
 # poetry publish --build
 ```
 
+Bump the version with poetry again in master to mark it for development:
+
+```bash
+# poetry version prerelease
+```
+
 TODO: automate this process with Github Actions
