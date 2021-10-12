@@ -1,12 +1,10 @@
 variables:
-  POETRY_VERSION: 1.1.8
-  TOX_VERSION: 3.24.3
+  POETRY_VERSION: 1.1.11
+  TOX_VERSION: 3.24.4
 
 stages:
   - lint
   - unit-test
-
-image: python:${PYTHON_VERSION}
 
 lint:
   stage: lint
@@ -17,9 +15,10 @@ lint:
 
 tox:
   stage: unit-test
+  image: python:${PYTHON_VERSION}
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
+      - PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9", "3.10"]
   script:
     - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
     - tox -e py
