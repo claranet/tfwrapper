@@ -90,10 +90,16 @@ tfwrapper should installed using pipx (recommended) or pip:
 pipx install claranet-tfwrapper
 ```
 
-If targetting Azure, you should also install the `azure` extras:
+If targeting Azure, you should instead install `claranet-tfwrapper` with its `azure` extras:
 
 ```bash
 pipx install claranet-tfwrapper[azure]
+```
+
+With zsh, you need to escape brackets:
+
+```zsh
+pipx install 'claranet-tfwrapper[azure]'
 ```
 
 ## Upgrade from tfwrapper v7 or older
