@@ -1352,7 +1352,7 @@ def main(argv=None):
             )
         )
 
-        if wrapper_config["config"].get("use_local_azure_session_directory", True):
+        if wrapper_config["config"]["use_local_azure_session_directory"]:
             az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
             logger.debug("Exporting `AZURE_CONFIG_DIR` set to `{}` directory".format(az_config_dir))
             os.environ["AZURE_CONFIG_DIR"] = az_config_dir
