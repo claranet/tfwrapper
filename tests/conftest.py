@@ -5,6 +5,17 @@ import os
 
 import pytest
 
+from unittest import mock
+
+
+@pytest.fixture(autouse=True)
+def mock_environment_variables():  # noqa: D103
+    # ensure external environment variables do not infer with tests,
+    # and that the ones that are set by tfwrapper are cleared between tests
+    path = os.environ["PATH"]
+    with mock.patch.dict(os.environ, {"PATH": path}, clear=True):
+        yield
+
 
 @pytest.fixture
 def default_args():  # noqa: D103
