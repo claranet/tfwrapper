@@ -61,3 +61,14 @@ def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
     paths["stack_dir"].mkdir(parents=True)
 
     return paths
+
+
+@pytest.fixture
+def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
+    paths = tmp_working_dir_empty_conf
+    paths["account_dir"] = paths["working_dir"] / "testaccount"
+    paths["environment_dir"] = paths["account_dir"] / "_global"
+    paths["stack_dir"] = paths["environment_dir"] / "teststack"
+    paths["stack_dir"].mkdir(parents=True)
+
+    return paths
