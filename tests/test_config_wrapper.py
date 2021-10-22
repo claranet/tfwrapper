@@ -53,6 +53,87 @@ def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_arg
     assert wrapper_config["state"] == {}
 
 
+def test_load_wrapper_config_empty_wrapper_config(tmp_working_dir_regional, default_args):  # noqa: D103
+    paths = tmp_working_dir_regional
+
+    os.chdir(paths["stack_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
+
+    paths["wrapper_conf"].write_text("")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
+
+    paths["wrapper_conf"].write_text("#")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
+
+    paths["wrapper_conf"].write_text("{}")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
+
+    paths["wrapper_conf"].write_text("---")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["state"] == {}
+
+
+def test_load_wrapper_config_use_local_azure_session_directory(tmp_working_dir_regional, default_args):  # noqa: D103
+    paths = tmp_working_dir_regional
+
+    os.chdir(paths["stack_dir"])
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is True
+
+    paths["wrapper_conf"].write_text("")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is True
+
+    paths["wrapper_conf"].write_text("#")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is True
+
+    paths["wrapper_conf"].write_text("{}")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is True
+
+    paths["wrapper_conf"].write_text("---")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is True
+
+    paths["wrapper_conf"].write_text("use_local_azure_session_directory: true")
+    wrapper_config = deepcopy(vars(default_args))
+
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is True
+
+    paths["wrapper_conf"].write_text("use_local_azure_session_directory: false")
+    wrapper_config = deepcopy(vars(default_args))
+    tfwrapper.detect_config_dir(wrapper_config)
+    tfwrapper.load_wrapper_config(wrapper_config)
+    assert wrapper_config["config"]["use_local_azure_session_directory"] is False
+
+
 def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, default_args):  # noqa: D103
     paths = tmp_working_dir_regional
 
