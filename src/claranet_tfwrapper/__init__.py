@@ -74,6 +74,7 @@ PLATFORM_SYSTEM = platform.system().lower()
 TFWRAPPER_DEFAULT_CONFIG = {
     "always_trigger_init": False,
     "pipe_plan_command": "cat",
+    "use_local_azure_session_directory": True,
 }
 
 TERRAFORM_BIN_PATH = None
@@ -220,12 +221,13 @@ def load_wrapper_config(wrapper_config):
     """
     # load wrapper config
     wrapper_config_file = os.path.join(wrapper_config["confdir"], "config.yml")
-    wrapper_config["config"] = TFWRAPPER_DEFAULT_CONFIG
+    wrapper_config["config"] = deepcopy(TFWRAPPER_DEFAULT_CONFIG)
     if os.path.exists(wrapper_config_file):
         with open(wrapper_config_file, "r") as f:
             logger.debug("Loading wrapper config from '{}'".format(wrapper_config_file))
             w_config = yaml.safe_load(f)
-            wrapper_config["config"].update(w_config)
+            if w_config:
+                wrapper_config["config"].update(w_config)
 
     # load state configuration
     config_file = os.path.join(wrapper_config["confdir"], "state.yml")
@@ -1350,7 +1352,7 @@ def main(argv=None):
             )
         )
 
-        if wrapper_config.get("use_local_azure_session_directory", True):
+        if wrapper_config["config"]["use_local_azure_session_directory"]:
             az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
             logger.debug("Exporting `AZURE_CONFIG_DIR` set to `{}` directory".format(az_config_dir))
             os.environ["AZURE_CONFIG_DIR"] = az_config_dir

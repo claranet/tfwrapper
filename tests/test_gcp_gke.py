@@ -1,24 +1,26 @@
 """Test GCP/GKE configuration parsing."""
 
-from unittest.mock import MagicMock, patch
-import subprocess
 import os
+import subprocess
 import textwrap
+
+from copy import deepcopy
+
 import pytest
+
+from unittest.mock import MagicMock, patch
 
 import claranet_tfwrapper as tfwrapper
 
 
 @patch("pathlib.Path.is_file")
-def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
-    os.environ = {}
-
+def test_dot_kubeconfig_refresh(mock_is_file, monkeypatch, caplog):  # noqa: D103
     adc_path = "/home/test/.config/gcloud/application_default_credentials.json"
     gke_name = "gke-testproject"
     project = "testproject"
     region = "testregion"
     kubeconfig_path = "/home/test/.run/testaccount/testenvironment/{}/{}.kubeconfig".format(region, gke_name)
-    cmd_env = {}
+    cmd_env = deepcopy(os.environ)
     cmd_env["CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS"] = "true"
     cmd_env["CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE"] = adc_path
     cmd_env["KUBECONFIG"] = kubeconfig_path
@@ -37,7 +39,7 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     # never is old behavior, refresh only if file does not exist
     refresh_kubeconfig = "never"
     mock_is_file.return_value = True
-    subprocess.run = MagicMock()
+    monkeypatch.setattr(subprocess, "run", MagicMock())
     tfwrapper.adc_check_gke_credentials(
         adc_path,
         kubeconfig_path,
@@ -49,7 +51,7 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     subprocess.run.assert_not_called()
 
     mock_is_file.return_value = False
-    subprocess.run = MagicMock()
+    monkeypatch.setattr(subprocess, "run", MagicMock())
     tfwrapper.adc_check_gke_credentials(
         adc_path,
         kubeconfig_path,
@@ -69,7 +71,7 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     # always => we refresh no matter if kubeconfig_path exists
     refresh_kubeconfig = "always"
     mock_is_file.return_value = True
-    subprocess.run = MagicMock()
+    monkeypatch.setattr(subprocess, "run", MagicMock())
     tfwrapper.adc_check_gke_credentials(
         adc_path,
         kubeconfig_path,
@@ -87,7 +89,7 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     )
 
     mock_is_file.return_value = False
-    subprocess.run = MagicMock()
+    monkeypatch.setattr(subprocess, "run", MagicMock())
     tfwrapper.adc_check_gke_credentials(
         adc_path,
         kubeconfig_path,
@@ -105,7 +107,7 @@ def test_dot_kubeconfig_refresh(mock_is_file, caplog):  # noqa: D103
     )
 
     refresh_kubeconfig = "invalid"
-    subprocess.run = MagicMock()
+    monkeypatch.setattr(subprocess, "run", MagicMock())
     try:
         tfwrapper.adc_check_gke_credentials(
             adc_path,

@@ -2,7 +2,6 @@
 
 
 import re
-import os
 
 import pytest
 
@@ -92,8 +91,8 @@ def test_parse_args_foreach_command_shell_too_many_args():  # noqa: D103
     assert str(e.value) == "foreach: error: -c must be followed by a single argument (hint: use quotes)"
 
 
-def test_parse_args_foreach_command():  # noqa: D103
-    os.environ["SHELL"] = "mybash"
+def test_parse_args_foreach_command(monkeypatch):  # noqa: D103
+    monkeypatch.setenv("SHELL", "mybash")
     args = tfwrapper.parse_args(["foreach", "--", "ls", "-l"])
     assert args.subcommand == "foreach"
     assert args.func == tfwrapper.foreach
@@ -102,8 +101,8 @@ def test_parse_args_foreach_command():  # noqa: D103
     assert args.command == ["ls", "-l"]
 
 
-def test_parse_args_foreach_command_shell():  # noqa: D103
-    os.environ["SHELL"] = "mybash"
+def test_parse_args_foreach_command_shell(monkeypatch):  # noqa: D103
+    monkeypatch.setenv("SHELL", "mybash")
     args = tfwrapper.parse_args(["foreach", "-c", "ls -l | head -1"])
     assert args.subcommand == "foreach"
     assert args.func == tfwrapper.foreach
@@ -119,32 +118,32 @@ def test_parse_args_http_cache_dir():  # noqa: D103
     assert args.http_cache_dir == ".webcache"
 
 
-def test_parse_args_init_plugin_cache_dir_default():  # noqa: D103
-    os.environ.pop("TF_PLUGIN_CACHE_DIR", None)
+def test_parse_args_init_plugin_cache_dir_default(monkeypatch):  # noqa: D103
+    monkeypatch.delenv("TF_PLUGIN_CACHE_DIR", raising=False)
     args = tfwrapper.parse_args(["init"])
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init
     assert args.plugin_cache_dir == "{}/.terraform.d/plugin-cache".format(home_dir)
 
 
-def test_parse_args_init_plugin_cache_dir_arg():  # noqa: D103
-    os.environ.pop("TF_PLUGIN_CACHE_DIR", None)
+def test_parse_args_init_plugin_cache_dir_arg(monkeypatch):  # noqa: D103
+    monkeypatch.delenv("TF_PLUGIN_CACHE_DIR", raising=False)
     args = tfwrapper.parse_args(["--plugin-cache-dir=/tmp/plugin-cache-dir", "init"])
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init
     assert args.plugin_cache_dir == "/tmp/plugin-cache-dir"
 
 
-def test_parse_args_init_plugin_cache_dir_env():  # noqa: D103
-    os.environ["TF_PLUGIN_CACHE_DIR"] = "/tmp/plugin-cache-dir"
+def test_parse_args_init_plugin_cache_dir_env(monkeypatch):  # noqa: D103
+    monkeypatch.setenv("TF_PLUGIN_CACHE_DIR", "/tmp/plugin-cache-dir")
     args = tfwrapper.parse_args(["init"])
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init
     assert args.plugin_cache_dir == "/tmp/plugin-cache-dir"
 
 
-def test_parse_args_init_plugin_cache_dir_arg_and_env():  # noqa: D103
-    os.environ["TF_PLUGIN_CACHE_DIR"] = "/tmp/plugin-cache-dir-env"
+def test_parse_args_init_plugin_cache_dir_arg_and_env(monkeypatch):  # noqa: D103
+    monkeypatch.setenv("TF_PLUGIN_CACHE_DIR", "/tmp/plugin-cache-dir")
     args = tfwrapper.parse_args(["--plugin-cache-dir=/tmp/plugin-cache-dir-arg", "init"])
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init

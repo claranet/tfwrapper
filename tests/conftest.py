@@ -5,6 +5,17 @@ import os
 
 import pytest
 
+from unittest import mock
+
+
+@pytest.fixture(autouse=True)
+def mock_environment_variables():  # noqa: D103
+    # ensure external environment variables do not infer with tests,
+    # and that the ones that are set by tfwrapper are cleared between tests
+    path = os.environ["PATH"]
+    with mock.patch.dict(os.environ, {"PATH": path}, clear=True):
+        yield
+
 
 @pytest.fixture
 def default_args():  # noqa: D103
@@ -47,6 +58,17 @@ def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
     paths["environment_dir"] = paths["account_dir"] / "testenvironment"
     paths["region_dir"] = paths["environment_dir"] / "testregion"
     paths["stack_dir"] = paths["region_dir"] / "teststack"
+    paths["stack_dir"].mkdir(parents=True)
+
+    return paths
+
+
+@pytest.fixture
+def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
+    paths = tmp_working_dir_empty_conf
+    paths["account_dir"] = paths["working_dir"] / "testaccount"
+    paths["environment_dir"] = paths["account_dir"] / "_global"
+    paths["stack_dir"] = paths["environment_dir"] / "teststack"
     paths["stack_dir"].mkdir(parents=True)
 
     return paths
