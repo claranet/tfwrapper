@@ -1,3 +1,9 @@
+# 8.1.1 (2021/10/25)
+
+FIXED:
+
+- TER-485: fix `use_local_azure_session_directory` parameter which was no longer taken into account since v8.0.0
+
 # 8.1.0 (2021/10/12)
 
 UPDATES:
