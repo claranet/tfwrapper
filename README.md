@@ -43,7 +43,7 @@
   - [README TOC](#readme-toc)
   - [Using terraform development builds](#using-terraform-development-builds)
   - [git pre-commit hooks](#git-pre-commit-hooks)
-  - [Publishing new releases to PyPI](#publishing-new-releases-to-pypi)
+  - [Tagging and publishing new releases to PyPI](#tagging-and-publishing-new-releases-to-pypi)
 
 <!--TOC-->
 
@@ -666,31 +666,28 @@ If updating hooks configuration, run checks against all files to make sure every
 
 Note: the `pre-commit` tool itself can be installed with `pip` or `pipx`.
 
-## Publishing new releases to PyPI
+## Tagging and publishing new releases to PyPI
 
-Bump the version with poetry:
+Use the `scripts/release.sh` script from `master` branch to:
 
-```bash
-# poetry version [patch|minor|major|prepatch|preminor|premajor|prerelease]
-```
+- bump the version with poetry,
+- update `CHANGELOG.md`,
+- commit these changes,
+- tag with last CHANGELOG.md item content as annotation,
+- bump the version with poetry again to mark it for development,
+- commit this change,
+- push all commits and tags to all remote repositories.
 
-Commit, tag and push this change to Github, then publish the release to test.pypi.org for validation:
+This will trigger a Github Actions job to publish packages to PyPI.
 
-```bash
-# poetry config repositories.testpypi https://test.pypi.org/legacy/
-# poetry publish --build --repository testpypi
-```
-
-If all is ok, publish to pypi.org:
-
-```bash
-# poetry publish --build
-```
-
-Bump the version with poetry again in master to mark it for development:
+To invoke the script, pass it the desired bump rule, e.g.:
 
 ```bash
-# poetry version prerelease
+# ./scripts/release.sh minor
 ```
 
-TODO: automate this process with Github Actions
+For more options, check the help:
+
+```bash
+# ./scripts/release.sh --help
+```
