@@ -83,5 +83,4 @@ git commit -m "Develop v$VERSION"
 
 request_approval_to_continue "Ready to push to all remote repositories. On GitHub, this will trigger a Github Actions job to publish packages to PyPI"
 
-# FIXME: uncomment when ready
-# for remote in $(git remote); do git push $remote --follow-tags ; done
+for remote in $(git remote); do git push $remote --follow-tags ; done
