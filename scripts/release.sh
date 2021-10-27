@@ -36,11 +36,11 @@ sed --version |& head -n 1 | grep "(GNU sed)" || (echo ERROR: this script requir
 ([ "$VERSION" == "-h" ] || [ "$VERSION" == "--help" ] || [ "$VERSION" == "" ]) && show_help
 
 # Ensure we are on master branch (we do not backport fixes for older major versions yet)
-[ "$(git rev-parse --abbrev-ref HEAD)" == "master" ] || (echo ERROR: not on "master" branch, aborting. && exit 1)
+[ "$(git rev-parse --abbrev-ref HEAD)" == "master" ] || (echo ERROR: not on "master" branch, aborting. ; exit 1)
 
 # Ensure pyproject.toml and CHANGELOG.md do not have unstaged modifications
-git diff --exit-code CHANGELOG.md &> /dev/null || (echo ERROR: CHANGELOG.md file has unstaged changes, aborting. && exit 1)
-git diff --exit-code pyproject.toml &> /dev/null || (echo ERROR: pyproject.toml file has unstaged changes, aborting. && exit 1)
+git diff --exit-code CHANGELOG.md &> /dev/null || (echo ERROR: CHANGELOG.md file has unstaged changes, aborting. ; exit 1)
+git diff --exit-code pyproject.toml &> /dev/null || (echo ERROR: pyproject.toml file has unstaged changes, aborting. ; exit 1)
 
 # Bump the version with poetry and re-read it
 poetry version $VERSION
