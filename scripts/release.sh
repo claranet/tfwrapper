@@ -12,7 +12,7 @@ request_approval_to_continue() {
     echo
     echo 'Continue with release? Only "yes" will be accepted to approve.'
     read CONTINUE
-    [ "$CONTINUE" == "yes" ] || exit 1
+    [ "$CONTINUE" == "yes" ] || exit 0
 }
 
 show_help () {
