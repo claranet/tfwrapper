@@ -1,3 +1,9 @@
+# 8.1.2 (2021/10/27)
+
+FIXED:
+
+- TER-486: script release process (it was a pain to do it right each time)
+
 # 8.1.1 (2021/10/25)
 
 FIXED:
