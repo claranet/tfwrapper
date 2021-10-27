@@ -29,6 +29,9 @@ show_git_diff_staged() {
     git diff --staged
 }
 
+# Check GNU sed
+sed --version |& head -n 1 | grep "(GNU sed)" || (echo ERROR: this script requires GNU sed ; exit 1)
+
 # Show help if needed
 ([ "$VERSION" == "-h" ] || [ "$VERSION" == "--help" ] || [ "$VERSION" == "" ]) && show_help
 
