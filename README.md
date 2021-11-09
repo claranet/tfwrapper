@@ -318,7 +318,18 @@ terraform:
 
 It is using the Service Principal's credentials to connect the Azure Subscription. This SP must have access to the subscription.
 The wrapper loads client_id and client_secret from your `config.yml` located in `~/.azurem/config.yml`.
-Please check the example here: [https://git.fr.clara.net/claranet/cloudnative/projects/terraform/base-template/tree/master/conf](https://git.fr.clara.net/claranet/cloudnative/projects/terraform/base-template/tree/master/conf)
+`~/.azurem/config.yml` file structure example:
+```yaml
+# File located at ~/.azurerm/config.yml
+
+claranet-sandbox :
+  client_id: aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz
+  client_secret: AAbbbCCCzzz==
+
+customer-profile:
+  client_id: aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz
+  client_secret: AAbbbCCCzzz==
+```
 
 Here is an example for a GCP/GKE stack with user ADC and multiple GKE instances:
 

@@ -1537,6 +1537,7 @@ def main(argv=None):
                             msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
                         msg += " az login --tenant {}".format(terraform_vars["azure_tenant_id"])
                         logger.error(msg)
+                        logger.warning("Make sure to use `azure-cli >= 2.30`.")
 
                         sys.exit(RC_KO)
             elif az_login_mode.lower() in [
