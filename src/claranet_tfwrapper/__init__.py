@@ -455,6 +455,7 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
             msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
         msg += " az login"
         logger.error(msg)
+        logger.warning("Make sure to use `azure-cli >= 2.30`.")
         sys.exit(RC_KO)
 
     profile = get_cli_profile()
