@@ -75,6 +75,7 @@
 ## Runtime Dependencies
 
 - `terraform` `>= 0.10`
+- `azure-cli` `>= 2.30.0` when using `[azure]` extras
 
 ## Recommended setup
 
