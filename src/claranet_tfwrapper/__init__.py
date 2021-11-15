@@ -453,10 +453,9 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
 
         if os.environ.get("AZURE_CONFIG_DIR", None):
             msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
-        if os.environ.get("AZURE_ACCESS_TOKEN_FILE", None):
-            msg += " AZURE_ACCESS_TOKEN_FILE={}".format(os.environ["AZURE_ACCESS_TOKEN_FILE"])
         msg += " az login"
         logger.error(msg)
+        logger.warning("Make sure to use `azure-cli >= 2.30`.")
         sys.exit(RC_KO)
 
     profile = get_cli_profile()
@@ -1356,9 +1355,6 @@ def main(argv=None):
             az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
             logger.debug("Exporting `AZURE_CONFIG_DIR` set to `{}` directory".format(az_config_dir))
             os.environ["AZURE_CONFIG_DIR"] = az_config_dir
-            az_token_file = os.path.join(az_config_dir, "accessTokens.json")
-            logger.debug("Exporting `AZURE_ACCESS_TOKEN_FILE` set to `{}`".format(az_token_file))
-            os.environ["AZURE_ACCESS_TOKEN_FILE"] = az_token_file
 
         if load_backend and wrapper_config["state"]:
             state_config = (
@@ -1540,10 +1536,9 @@ def main(argv=None):
 
                         if os.environ.get("AZURE_CONFIG_DIR", None):
                             msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
-                        if os.environ.get("AZURE_ACCESS_TOKEN_FILE", None):
-                            msg += " AZURE_ACCESS_TOKEN_FILE={}".format(os.environ["AZURE_ACCESS_TOKEN_FILE"])
                         msg += " az login --tenant {}".format(terraform_vars["azure_tenant_id"])
                         logger.error(msg)
+                        logger.warning("Make sure to use `azure-cli >= 2.30`.")
 
                         sys.exit(RC_KO)
             elif az_login_mode.lower() in [

@@ -1,3 +1,9 @@
+# 9.0.0 ()
+
+BREAKING:
+
+- TER-489/[GITHUB-19](https://github.com/claranet/terraform-wrapper/issues/19): Upgrade `azure-cli-core` deps to `v2.30.0` and uses MSAL auth. `azure-cli` must be in `v2.30.0` or a newer version
+
 # 8.1.2 (2021/10/27)
 
 FIXED:
