@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import textwrap
 
 import pytest
 
@@ -35,6 +36,7 @@ def tmp_working_dir(tmp_path):  # noqa: D103
     working_dir = tmp_path / "a" / "b" / "c" / "d" / "e"
     working_dir.mkdir(parents=True)
     os.chdir(working_dir)
+    os.mkdir(".run")
     return {
         "working_dir": working_dir,
     }
@@ -70,5 +72,34 @@ def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
     paths["environment_dir"] = paths["account_dir"] / "_global"
     paths["stack_dir"] = paths["environment_dir"] / "teststack"
     paths["stack_dir"].mkdir(parents=True)
+
+    return paths
+
+
+@pytest.fixture
+def tmp_working_dir_regional_valid(tmp_working_dir_regional):  # noqa: D103
+    paths = tmp_working_dir_regional
+
+    paths["state_conf"].write_text("---")
+    paths["stack_conf"] = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    paths["stack_conf"].write_text(
+        textwrap.dedent(
+            """
+            ---
+            terraform:
+              vars:
+                myvar: myvalue
+                version: "1.1.4"
+            """
+        )
+    )
+    paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
+    paths["terraform_conf"].write_text(
+        textwrap.dedent(
+            """
+            # Empty terraform configuration
+            """
+        )
+    )
 
     return paths

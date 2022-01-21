@@ -1066,6 +1066,11 @@ def terraform_version(wrapper_config):
     return run_terraform("version", wrapper_config)
 
 
+def terraform_workspace(wrapper_config):
+    """Terraform workspace wrapper function."""
+    return run_terraform("workspace", wrapper_config)
+
+
 def foreach(wrapper_config):
     """Execute command foreach stack."""
     stacks = foreach_select_stacks(wrapper_config)
@@ -1263,6 +1268,10 @@ def parse_args(args):
     parser_version = subparsers.add_parser("version", help="terraform version")
     parser_version.set_defaults(func=terraform_version)
     parser_version.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+
+    parser_workspace = subparsers.add_parser("workspace", help="terraform workspace")
+    parser_workspace.set_defaults(func=terraform_workspace)
+    parser_workspace.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
 
     parser_bootstrap = subparsers.add_parser("bootstrap", help="bootstrap configuration")
     parser_bootstrap.set_defaults(func=bootstrap)
