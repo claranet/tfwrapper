@@ -1,3 +1,13 @@
+# 9.1.0 (2022/01/24)
+
+ADDED:
+
+- TER-495: Add support for `terraform workspace` command
+
+UPDATES:
+
+- Add poetry.toml to set `in-project = true` by default
+
 # 9.0.0 (2021/11/15)
 
 BREAKING:
