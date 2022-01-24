@@ -9,35 +9,6 @@ import pytest
 import claranet_tfwrapper as tfwrapper
 
 
-@pytest.fixture
-def tmp_working_dir_regional_valid(tmp_working_dir_regional):  # noqa: D103
-    paths = tmp_working_dir_regional
-
-    paths["state_conf"].write_text("---")
-    paths["stack_conf"] = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
-    paths["stack_conf"].write_text(
-        textwrap.dedent(
-            """
-            ---
-            terraform:
-              vars:
-                myvar: myvalue
-                version: "1.0.3"
-            """
-        )
-    )
-    paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
-    paths["terraform_conf"].write_text(
-        textwrap.dedent(
-            """
-            # Empty terraform configuration
-            """
-        )
-    )
-
-    return paths
-
-
 def test_config_load_help():  # noqa: D103
     with pytest.raises(SystemExit) as e:
         tfwrapper.parse_args([])
