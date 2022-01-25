@@ -16,6 +16,7 @@
   - [Runtime Dependencies](#runtime-dependencies)
   - [Recommended setup](#recommended-setup)
   - [Installation](#installation)
+  - [Setup command-line completion](#setup-command-line-completion)
   - [Upgrade from tfwrapper v7 or older](#upgrade-from-tfwrapper-v7-or-older)
     - [Required files](#required-files)
   - [Configuration](#configuration)
@@ -38,6 +39,7 @@
     - [Stack path](#stack-path)
 - [Development](#development)
   - [Tests](#tests)
+  - [Debug command-line completion](#debug-command-line-completion)
   - [Python code formatting](#python-code-formatting)
   - [Checks](#checks)
   - [README TOC](#readme-toc)
@@ -57,6 +59,7 @@
 - Azure credentials loading (both Service Principal or User)
 - GCP and GKE user ADC support
 - Plugins caching
+- Tab completion
 
 ## Drawbacks
 
@@ -102,6 +105,18 @@ With zsh, you need to escape brackets:
 ```zsh
 pipx install 'claranet-tfwrapper[azure]'
 ```
+
+## Setup command-line completion
+
+Add the following to your shell's interactive configuration file, e.g. `.bashrc` for bash:
+
+```bash
+eval "$(register-python-argcomplete tfwrapper -e tfwrapper)"
+```
+
+You can then press the completion key (usually `Tab ↹`) twice to get your partially typed `tfwrapper` commands completed.
+
+Note: the `-e tfwrapper` parameter adds an suffix to the defined `_python_argcomplete` function to avoid clashes with other packages (see https://github.com/kislyuk/argcomplete/issues/310#issuecomment-697168326 for context).
 
 ## Upgrade from tfwrapper v7 or older
 
@@ -622,6 +637,14 @@ The stack path is passed to Terraform. This is especially useful for resource na
 All new code contributions should come with unit and/or integrations tests.
 
 To run those tests locally, use [tox](https://github.com/tox-dev/tox).
+
+## Debug command-line completion
+
+You can get verbose debugging information for `argcomplete` by defining the following environment variable:
+
+```bash
+export _ARC_DEBUG=1
+```
 
 ## Python code formatting
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Python wrapper for Terraform."""
 
+import argcomplete
 import argparse
 import logging
 import os
@@ -1286,6 +1287,7 @@ def parse_args(args):
         help='command to execute after a "--" delimiter',
     )
 
+    argcomplete.autocomplete(parser)
     parsed_args = parser.parse_args(args)
 
     if hasattr(parsed_args, "version") and parsed_args.version:
@@ -1309,7 +1311,12 @@ def parse_args(args):
 
 
 def main(argv=None):
-    """Execute tfwrapper."""
+    """Execute tfwrapper.
+
+    Note: there are two execution paths:
+    - the nominal one is standard execution
+    - the alternative one is auto-completion execution
+    """
     args = parse_args(argv or sys.argv[1:])
 
     if args.debug:
