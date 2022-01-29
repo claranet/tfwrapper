@@ -15,14 +15,23 @@ def test_config_load_help():  # noqa: D103
     assert e.value.code == 0
 
 
+def test_config_load_init_not_in_stack(tmp_working_dir_regional):  # noqa: D103
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(["init"])
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+
+
 def test_config_load_init_missing_config(tmp_working_dir_regional):  # noqa: D103
     paths = tmp_working_dir_regional
     os.chdir(paths["stack_dir"])
 
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         tfwrapper.main(["init"])
 
-    assert "No such file or directory" in str(e)
+    assert e.type == SystemExit
+    assert e.value.code == 0
 
 
 def test_config_load_init_valid_config(tmp_working_dir_regional_valid):  # noqa: D103
@@ -36,14 +45,23 @@ def test_config_load_init_valid_config(tmp_working_dir_regional_valid):  # noqa:
     assert e.value.code == 0
 
 
+def test_config_load_plan_not_in_stack(tmp_working_dir_regional):  # noqa: D103
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(["plan"])
+
+    assert e.type == SystemExit
+    assert e.value.code == 1
+
+
 def test_config_load_plan_missing_config(tmp_working_dir_regional):  # noqa: D103
     paths = tmp_working_dir_regional
     os.chdir(paths["stack_dir"])
 
-    with pytest.raises(FileNotFoundError) as e:
+    with pytest.raises(SystemExit) as e:
         tfwrapper.main(["plan"])
 
-    assert "No such file or directory" in str(e)
+    assert e.type == SystemExit
+    assert e.value.code == 1
 
 
 def test_config_load_plan_valid_config(tmp_working_dir_regional_valid):  # noqa: D103
