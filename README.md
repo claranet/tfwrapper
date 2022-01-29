@@ -320,10 +320,11 @@ terraform:
 It is using the Service Principal's credentials to connect the Azure Subscription. This SP must have access to the subscription.
 The wrapper loads client_id and client_secret from your `config.yml` located in `~/.azurem/config.yml`.
 `~/.azurem/config.yml` file structure example:
+
 ```yaml
 # File located at ~/.azurerm/config.yml
 
-claranet-sandbox :
+claranet-sandbox:
   client_id: aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz
   client_secret: AAbbbCCCzzz==
 
