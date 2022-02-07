@@ -1125,7 +1125,9 @@ def terraform_completer(prefix, action, parser, parsed_args):
     # Pass environment variables unchanged, including COMP_LINE which is defined by the shell
     # when invoked during auto-completion
     logger.debug('Execute command "{}" with environment {}'.format(command, os.environ))
-    process = subprocess.run(command, cwd=working_dir, env=os.environ, shell=False, capture_output=True, encoding="ascii")
+    process = subprocess.run(
+        command, cwd=working_dir, env=os.environ, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="ascii"
+    )
     return sorted(process.stdout.strip().split("\n"))
 
 
