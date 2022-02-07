@@ -1126,7 +1126,7 @@ def terraform_completer(prefix, action, parser, parsed_args):
     # when invoked during auto-completion
     logger.debug('Execute command "{}" with environment {}'.format(command, os.environ))
     process = subprocess.run(command, cwd=working_dir, env=os.environ, shell=False, capture_output=True, encoding="ascii")
-    return process.stdout.strip().split("\n")
+    return sorted(process.stdout.strip().split("\n"))
 
 
 def parse_base_args(args):
