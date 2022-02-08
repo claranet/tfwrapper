@@ -1,3 +1,13 @@
+# 9.2.0 (2022/02/08)
+
+ADDED:
+
+TER-496: add shell completion to tfwrapper and terraform commands
+
+UPDATES:
+
+- Update pre-commit hooks and add flake8-docstrings dependency to flake8 pre-commit hook to match CI checks
+
 # 9.1.0 (2022/01/24)
 
 ADDED:
