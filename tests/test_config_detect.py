@@ -13,9 +13,8 @@ import claranet_tfwrapper as tfwrapper
 def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):  # noqa: D103
     wrapper_config = deepcopy(vars(default_args))
 
-    with pytest.raises(ValueError) as e:
-        wrapper_config = tfwrapper.detect_config_dir(wrapper_config)
-    assert "Cannot find configuration directory" in str(e.value)
+    parents_count = tfwrapper.detect_config_dir(wrapper_config)
+    assert parents_count == 0
 
 
 def test_detect_config_dir_empty(tmp_working_dir_empty_conf, default_args):  # noqa: D103

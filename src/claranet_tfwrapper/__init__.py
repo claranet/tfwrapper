@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Python wrapper for Terraform."""
 
+import argcomplete
 import argparse
 import logging
 import os
@@ -16,6 +17,7 @@ import subprocess
 import tempfile
 import textwrap
 import time
+import shlex
 import sys
 import zipfile
 from copy import deepcopy
@@ -79,7 +81,9 @@ TFWRAPPER_DEFAULT_CONFIG = {
 
 TERRAFORM_BIN_PATH = None
 
-home_dir = str(Path.home())
+HOME_DIR = str(Path.home())
+DEFAULT_CONF_DIRNAME = "conf"
+DEFAULT_HTTP_CACHE_DIR = "{}/.terraform.d/http-cache".format(HOME_DIR)
 
 # setup logging parameters
 LOG_FORMAT = "{log_color}{levelname: <7}{reset} {purple}tfwrapper{reset} : {bold}{message}{reset}"
@@ -87,8 +91,6 @@ handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter(LOG_FORMAT, style="{"))
 logger = colorlog.getLogger()
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
 
 stack_configuration_schema = Schema(
     {
@@ -162,7 +164,12 @@ def detect_config_dir(wrapper_config, dir="."):
         parents_count += 1
 
     if parents_count == 5:
-        error("Cannot find configuration directory '{}' in this directory or above".format(wrapper_config["confdir"]))
+        logger.debug(
+            "Cannot find configuration directory '{}' in this directory or any of its parents up to 4 levels up".format(
+                wrapper_config["confdir"]
+            )
+        )
+        parents_count = 0
 
     wrapper_config["rootdir"] = os.path.dirname(os.path.abspath("{}/".format(dir) + wrapper_config["confdir"]))
     logger.debug("Detected rootdir at '{}' with {} parents from {}".format(wrapper_config["rootdir"], parents_count, dir))
@@ -197,6 +204,10 @@ def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, dir=".
             wrapper_config[parents_list[count_up]] = os.path.basename(
                 os.path.abspath("{}/".format(dir) + "../" * (count_down - 1))
             )
+            # support both _global (fs) and global (param)
+            if parents_list[count_up] == "environment" and wrapper_config[parents_list[count_up]] == "_global":
+                wrapper_config[parents_list[count_up]] = "global"
+            logger.debug("Detected {} '{}'".format(parents_list[count_up], wrapper_config[parents_list[count_up]]))
         count_down -= 1
         count_up += 1
 
@@ -204,12 +215,6 @@ def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, dir=".
         for element in parents_list:
             if wrapper_config[element] is None:
                 error("{} cannot be autodetected. Exiting...".format(element))
-
-    # support both _global (fs) and global (param)
-    if wrapper_config["environment"] == "_global":
-        wrapper_config["environment"] = "global"
-
-    logger.debug("Detected environment '{}'".format(wrapper_config["environment"]))
 
 
 def load_wrapper_config(wrapper_config):
@@ -272,7 +277,11 @@ def get_stack_dir(rootdir, account, environment, region, stack):
     """
     if environment == "global":
         return "{}/{}/_global/{}".format(rootdir, account, stack)
-    return "{}/{}/{}/{}/{}".format(rootdir, account, environment, region, stack)
+
+    if all([rootdir, account, environment, region, stack]):
+        return "{}/{}/{}/{}/{}".format(rootdir, account, environment, region, stack)
+
+    return rootdir
 
 
 def get_stack_config_filename(account, environment, region, stack):
@@ -356,6 +365,10 @@ def load_stack_config(confdir, account, environment, region, stack):
 
 def _load_stack_config_from_file(stack_config_file):
     """Load configuration from YAML file."""
+    if not os.path.exists(stack_config_file):
+        logger.debug("Stack configuration file does not exist: {}".format(stack_config_file))
+        return {}
+
     with open(stack_config_file, "r") as f:
         stack_config = yaml.safe_load(f)
 
@@ -1101,55 +1114,82 @@ def foreach(wrapper_config):
     return 0
 
 
+def terraform_completer(prefix, action, parser, parsed_args):
+    """Get completions for terraform command line arguments."""
+    logger.debug(
+        "terraform_completer(prefix={}, action={}, parser={}, parsed_args={})".format(prefix, action, parser, parsed_args)
+    )
+
+    working_dir = "."
+    command = [TERRAFORM_BIN_PATH]
+    # Pass environment variables unchanged, including COMP_LINE which is defined by the shell
+    # when invoked during auto-completion
+    logger.debug('Execute command "{}" with environment {}'.format(command, os.environ))
+    process = subprocess.run(
+        command, cwd=working_dir, env=os.environ, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="ascii"
+    )
+    return sorted(process.stdout.strip().split("\n"))
+
+
+def parse_base_args(args):
+    """Parse -d/--debug command line argument and setup HTTP cache dir."""
+    # Get command line arguments from COMP_LINE environment variable which is defined by the shell
+    # when invoked during auto-completion
+    if not args and "COMP_LINE" in os.environ:
+        args = shlex.split(os.environ["COMP_LINE"])
+
+    parser = argparse.ArgumentParser(
+        prog="tfwrapper",
+        add_help=False,
+    )
+    parser.add_argument("-d", "--debug", action="store_true", default=False)
+    parser.add_argument("-c", "--confdir", nargs="?", const=DEFAULT_CONF_DIRNAME, default=DEFAULT_CONF_DIRNAME)
+    parser.add_argument("-a", "--account", nargs="?")
+    parser.add_argument("-e", "--environment", nargs="?")
+    parser.add_argument("-r", "--region", nargs="?")
+    parser.add_argument("-s", "--stack", nargs="?")
+    parser.add_argument("--http-cache-dir", nargs="?", const=DEFAULT_HTTP_CACHE_DIR, default=DEFAULT_HTTP_CACHE_DIR)
+    parsed_args, _ = parser.parse_known_args(args)
+
+    if parsed_args.debug:
+        logger.setLevel(logging.DEBUG)
+        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
+
+    # configure requests session's cache directory
+    CachedRequestsSession.set_cache_dir(parsed_args.http_cache_dir)
+
+    return parsed_args
+
+
 def parse_args(args):
     """Parse command line arguments."""
     # terraform params doc
+    confdir_help = "Configuration directory. Used to detect the project root. Defaults to conf."
+    target_help = "Target {}. Autodetected if none is provided."
     tf_params_help = 'Any Terraform parameters after a "--" delimiter'
 
     # argparse
-    parser = argparse.ArgumentParser(prog="tfwrapper", description="Terraform wrapper.")
+    parser = argparse.ArgumentParser(
+        prog="tfwrapper",
+        description="Terraform wrapper.",
+        argument_default=argparse.SUPPRESS,
+    )
     parser.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output.")
     parser.add_argument("-V", "--version", action="store_true", default=False, help="Show tfwrapper version.")
-    parser.add_argument(
-        "-c",
-        "--confdir",
-        help="Configuration directory. Used to detect the project root. Defaults to conf.",
-        default="conf",
-    )
-    parser.add_argument(
-        "-a",
-        "--account",
-        help="Target account. Autodetected if none is provided.",
-        nargs="?",
-    )
-    parser.add_argument(
-        "-e",
-        "--environment",
-        help="Target environment. Autodetected if none is provided.",
-        nargs="?",
-    )
-    parser.add_argument(
-        "-r",
-        "--region",
-        help="Target region. Autodetected if none is provided.",
-        nargs="?",
-    )
-    parser.add_argument(
-        "-s",
-        "--stack",
-        help="Target stack. Autodetected if none is provided.",
-        nargs="?",
-    )
+    parser.add_argument("-c", "--confdir", help=confdir_help, default=DEFAULT_CONF_DIRNAME)
+    parser.add_argument("-a", "--account", help=target_help.format("account"), nargs="?")
+    parser.add_argument("-e", "--environment", help=target_help.format("environment"), nargs="?")
+    parser.add_argument("-r", "--region", help=target_help.format("region"), nargs="?")
+    parser.add_argument("-s", "--stack", help=target_help.format("stack"), nargs="?")
+    parser.add_argument("--http-cache-dir", help="HTTP(S) requests cache directory.", default=DEFAULT_HTTP_CACHE_DIR)
     parser.add_argument(
         "-p",
         "--plugin-cache-dir",
         help="Plugins cache directory.",
-        default=os.environ.get("TF_PLUGIN_CACHE_DIR", "{}/.terraform.d/plugin-cache".format(home_dir)),
-    )
-    parser.add_argument(
-        "--http-cache-dir",
-        help="HTTP(S) requests cache directory.",
-        default="{}/.terraform.d/http-cache".format(home_dir),
+        default=os.environ.get("TF_PLUGIN_CACHE_DIR", "{}/.terraform.d/plugin-cache".format(HOME_DIR)),
     )
 
     subparsers = parser.add_subparsers(dest="subcommand", help="subcommands")
@@ -1176,19 +1216,19 @@ def parse_args(args):
         nargs="?",
         help="Pipe plan output to the command of your choice set as argument inline value.",
     )
-    parser_apply.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_apply.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_console = subparsers.add_parser("console", help="terraform console")
     parser_console.set_defaults(func=terraform_console)
-    parser_console.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_console.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_destroy = subparsers.add_parser("destroy", help="terraform destroy")
     parser_destroy.set_defaults(func=terraform_destroy)
-    parser_destroy.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_destroy.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_fmt = subparsers.add_parser("fmt", help="terraform fmt")
     parser_fmt.set_defaults(func=terraform_fmt)
-    parser_fmt.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_fmt.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_force_unlock = subparsers.add_parser("force-unlock", help="terraform force-unlock")
     parser_force_unlock.set_defaults(func=terraform_force_unlock)
@@ -1196,19 +1236,19 @@ def parse_args(args):
 
     parser_get = subparsers.add_parser("get", help="terraform get")
     parser_get.set_defaults(func=terraform_get)
-    parser_get.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_get.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_graph = subparsers.add_parser("graph", help="terraform graph")
     parser_graph.set_defaults(func=terraform_graph)
-    parser_graph.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_graph.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_import = subparsers.add_parser("import", help="terraform import")
     parser_import.set_defaults(func=terraform_import)
-    parser_import.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_import.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_init = subparsers.add_parser("init", help="terraform init")
     parser_init.set_defaults(func=terraform_init)
-    parser_init.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_init.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
     parser_init.add_argument(
         "--backend",
         choices=["true", "false"],
@@ -1218,7 +1258,7 @@ def parse_args(args):
 
     parser_output = subparsers.add_parser("output", help="terraform output")
     parser_output.set_defaults(func=terraform_output)
-    parser_output.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_output.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_plan = subparsers.add_parser("plan", help="terraform plan")
     parser_plan.set_defaults(func=terraform_plan)
@@ -1235,43 +1275,43 @@ def parse_args(args):
         nargs="?",
         help="Pipe plan output to the command of your choice set as argument inline value.",
     )
-    parser_plan.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_plan.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_providers = subparsers.add_parser("providers", help="terraform providers")
     parser_providers.set_defaults(func=terraform_providers)
-    parser_providers.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_providers.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_refresh = subparsers.add_parser("refresh", help="terraform refresh")
     parser_refresh.set_defaults(func=terraform_refresh)
-    parser_refresh.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_refresh.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_show = subparsers.add_parser("show", help="terraform show")
     parser_show.set_defaults(func=terraform_show)
-    parser_show.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_show.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_state = subparsers.add_parser("state", help="terraform state")
     parser_state.set_defaults(func=terraform_state)
-    parser_state.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_state.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_taint = subparsers.add_parser("taint", help="terraform taint")
     parser_taint.set_defaults(func=terraform_taint)
-    parser_taint.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_taint.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_untaint = subparsers.add_parser("untaint", help="terraform untaint")
     parser_untaint.set_defaults(func=terraform_untaint)
-    parser_untaint.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_untaint.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_validate = subparsers.add_parser("validate", help="terraform validate")
     parser_validate.set_defaults(func=terraform_validate)
-    parser_validate.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_validate.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_version = subparsers.add_parser("version", help="terraform version")
     parser_version.set_defaults(func=terraform_version)
-    parser_version.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_version.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_workspace = subparsers.add_parser("workspace", help="terraform workspace")
     parser_workspace.set_defaults(func=terraform_workspace)
-    parser_workspace.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help)
+    parser_workspace.add_argument("tf_params", nargs=argparse.REMAINDER, help=tf_params_help).completer = terraform_completer
 
     parser_bootstrap = subparsers.add_parser("bootstrap", help="bootstrap configuration")
     parser_bootstrap.set_defaults(func=bootstrap)
@@ -1286,6 +1326,7 @@ def parse_args(args):
         help='command to execute after a "--" delimiter',
     )
 
+    argcomplete.autocomplete(parser, exit_method=sys.exit)
     parsed_args = parser.parse_args(args)
 
     if hasattr(parsed_args, "version") and parsed_args.version:
@@ -1309,43 +1350,49 @@ def parse_args(args):
 
 
 def main(argv=None):
-    """Execute tfwrapper."""
-    args = parse_args(argv or sys.argv[1:])
+    """Execute tfwrapper.
 
-    if args.debug:
-        logger.setLevel(logging.DEBUG)
-        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.DEBUG)
-
-    # convert args to dict
+    Note: there are two execution paths:
+    - the nominal one is standard execution where arguments are normally passed in sys.argv.
+    - the alternative one is auto-completion execution where _ARGCOMPLETE, COMP_LINE and COMP_POINT
+      environment variables are defined, and arguments are passed in COMP_LINE.
+    """
+    # parse base flags on their own to:
+    # - activate debug log level early
+    # - setup HTTP cache before downloading terraform index and binaries needed for completion
+    args = parse_base_args(argv or sys.argv[1:])
     wrapper_config = deepcopy(vars(args))
 
-    # Configure requests session's cache directory
-    CachedRequestsSession.set_cache_dir(wrapper_config["http_cache_dir"])
+    # locate config and root dirs
+    parents_count = detect_config_dir(wrapper_config)
+
+    # detect if we are in a stack
+    detect_stack(wrapper_config, parents_count, raise_on_missing=False)
+
+    # load wrapper config
+    load_wrapper_config(wrapper_config)
+
+    # load stack config
+    stack_config = load_stack_config(
+        wrapper_config["confdir"],
+        wrapper_config["account"],
+        wrapper_config["environment"],
+        wrapper_config["region"],
+        wrapper_config["stack"],
+    )
+
+    # select terraform version for the stack if selected with a fallback on v1.0
+    tf_version = stack_config.get("terraform", {}).get("vars", {}).get("version", "1.0")
+    select_terraform_version(tf_version)
+
+    args = parse_args(argv or sys.argv[1:])
+
+    # convert args to dict
+    wrapper_config.update(vars(args))
 
     # process args
-    try:
-        wrapper_local_commands = ("foreach",)
-        parents_count = detect_config_dir(wrapper_config)
-        detect_stack(wrapper_config, parents_count, raise_on_missing=args.subcommand not in wrapper_local_commands)
-        if args.subcommand not in wrapper_local_commands:
-            load_wrapper_config(wrapper_config)
-    except ValueError as e:
-        logger.error(e)
-        sys.exit(RC_KO)
-    except Exception:
-        logger.exception("Unknown error")
-        sys.exit(RC_UNK)
-
+    wrapper_local_commands = ("foreach",)
     if args.subcommand not in wrapper_local_commands:
-        # load config
-        stack_config = load_stack_config(
-            wrapper_config["confdir"],
-            wrapper_config["account"],
-            wrapper_config["environment"],
-            wrapper_config["region"],
-            wrapper_config["stack"],
-        )
-
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
         load_backend = wrapper_config["backend"] = not (
@@ -1404,7 +1451,7 @@ def main(argv=None):
                     )
                 )
 
-        terraform_vars = stack_config["terraform"]["vars"]
+        terraform_vars = stack_config.get("terraform", {}).get("vars", {})
         terraform_vars["environment"] = wrapper_config["environment"]
         terraform_vars["stack"] = wrapper_config["stack"]
 
@@ -1474,7 +1521,7 @@ def main(argv=None):
                     for cluster in stack_config["gcp"]["gke"]:
                         gke_name = cluster["name"]
                         adc_path = os.path.join(
-                            os.path.abspath(home_dir),
+                            os.path.abspath(HOME_DIR),
                             ".config/gcloud/application_default_credentials.json",
                         )
                         kubeconfig_path = "{}/.run/{}_{}_{}_{}_{}.kubeconfig".format(
@@ -1557,7 +1604,7 @@ def main(argv=None):
             ]:
                 logger.info("Using Azure Service Principal mode")
 
-                azure_config = open(os.path.abspath(home_dir) + "/.azurerm/config.yml")
+                azure_config = open(os.path.abspath(HOME_DIR) + "/.azurerm/config.yml")
                 load_azure_config = yaml.safe_load(azure_config)
                 if load_azure_config is None:
                     logger.error("Please configure your ~/.azurerm/config.yml configuration file")
@@ -1581,13 +1628,9 @@ def main(argv=None):
         set_terraform_vars(terraform_vars)
         os.environ["TF_PLUGIN_CACHE_DIR"] = wrapper_config["plugin_cache_dir"]
 
-    # select terraform version
-    if args.subcommand not in ("foreach",):
-        tf_version = stack_config["terraform"]["vars"]["version"]
-        select_terraform_version(tf_version)
     # do we need a custom provider ?
     if args.subcommand in ["init", "bootstrap"]:
-        for provider, config in stack_config["terraform"].get("custom-providers", {}).items():
+        for provider, config in stack_config.get("terraform", {}).get("custom-providers", {}).items():
             if type(config) == str:
                 # This should be the version
                 download_custom_provider(provider, config)

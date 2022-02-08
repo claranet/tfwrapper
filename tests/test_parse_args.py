@@ -7,7 +7,7 @@ import pytest
 
 import claranet_tfwrapper as tfwrapper
 
-from claranet_tfwrapper import home_dir  # noqa: E402
+from claranet_tfwrapper import HOME_DIR  # noqa: E402
 
 
 def test_parse_args_help(capsys):  # noqa: D103
@@ -123,7 +123,7 @@ def test_parse_args_init_plugin_cache_dir_default(monkeypatch):  # noqa: D103
     args = tfwrapper.parse_args(["init"])
     assert args.subcommand == "init"
     assert args.func == tfwrapper.terraform_init
-    assert args.plugin_cache_dir == "{}/.terraform.d/plugin-cache".format(home_dir)
+    assert args.plugin_cache_dir == "{}/.terraform.d/plugin-cache".format(HOME_DIR)
 
 
 def test_parse_args_init_plugin_cache_dir_arg(monkeypatch):  # noqa: D103
