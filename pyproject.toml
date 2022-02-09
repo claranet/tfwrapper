@@ -29,7 +29,7 @@ classifiers = [
 python = ">=3.6.2,<4.0"
 boto3 = "^1.17.94"
 CacheControl = "^0.12.6"
-colorlog = "^5.0.1"
+colorlog = ">=5.0.1,<7.0.0"
 Jinja2 = "^3.0.1"
 lockfile = "^0.12.2"
 natsort = "^7.1.1"
