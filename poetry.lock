@@ -350,15 +350,15 @@ pydocstyle = ">=2.1"
 
 [[package]]
 name = "fpyutils"
-version = "2.0.0"
+version = "2.1.0"
 description = "A collection of useful non-standard Python functions which aim to be simple to use, highly readable but not efficient."
 category = "dev"
 optional = false
 python-versions = ">=3"
 
 [package.dependencies]
-atomicwrites = ">=1.4,<1.5"
-requests = ">=2.25,<2.26"
+atomicwrites = ">=1,<2"
+requests = ">=2,<3"
 
 [[package]]
 name = "furl"
@@ -508,14 +508,14 @@ python-versions = "*"
 
 [[package]]
 name = "md-toc"
-version = "8.0.1"
+version = "8.1.1"
 description = "A utility that is able to generate a table of contents for a markdown file."
 category = "dev"
 optional = false
 python-versions = ">=3.5, <4"
 
 [package.dependencies]
-fpyutils = ">=2.0,<2.1"
+fpyutils = ">=2.1,<3"
 
 [[package]]
 name = "mock"
@@ -1126,7 +1126,7 @@ azure = ["azure-cli-core", "azure-common", "azure-mgmt-storage", "msrestazure"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.2,<4.0"
-content-hash = "7db385a56d6f1ce7b70ab5298ba9c89fd1f2379bf18ee576f87244badf4f143d"
+content-hash = "66a972c94cf90af094c83e20614ccac4425100905be29a194b97d6c183bacecc"
 
 [metadata.files]
 adal = [
@@ -1328,8 +1328,8 @@ flake8-docstrings = [
     {file = "flake8_docstrings-1.6.0-py2.py3-none-any.whl", hash = "sha256:99cac583d6c7e32dd28bbfbef120a7c0d1b6dde4adb5a9fd441c4227a6534bde"},
 ]
 fpyutils = [
-    {file = "fpyutils-2.0.0-py3-none-any.whl", hash = "sha256:89a63dc7526bc0d365eb50494b293f31bf7849111de5013a07c48de504d563a9"},
-    {file = "fpyutils-2.0.0.tar.gz", hash = "sha256:18a8ad741a4c1520911c53f6851c5eb2329a8e9ae26cd9522fdef5a9cd2f67ab"},
+    {file = "fpyutils-2.1.0-py3-none-any.whl", hash = "sha256:d2970d42034c0128319ffaba1d7a9657cf0d6031a042f6761a55c353fc1cdfdd"},
+    {file = "fpyutils-2.1.0.tar.gz", hash = "sha256:87eec40ab2a04a67cb8e69c047a9d7aa306642641d904bb8016bddf5e2600803"},
 ]
 furl = [
     {file = "furl-2.1.3-py2.py3-none-any.whl", hash = "sha256:9ab425062c4217f9802508e45feb4a83e54324273ac4b202f1850363309666c0"},
@@ -1451,8 +1451,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 md-toc = [
-    {file = "md_toc-8.0.1-py3-none-any.whl", hash = "sha256:bdd68ec04a2ebe7cc9a8fd7eb0139e0e377ba7e118b742ef76e1222d4494982b"},
-    {file = "md_toc-8.0.1.tar.gz", hash = "sha256:53056eadb11c79f581090ecd94d6d6f0c9e6d6ed68225b54470c0cff97b8f257"},
+    {file = "md_toc-8.1.1-py3-none-any.whl", hash = "sha256:8092ab50cc3a4a9b4f73d903486e55b408442c2aec3b07be3e10ceb167795632"},
+    {file = "md_toc-8.1.1.tar.gz", hash = "sha256:4d4de61433679024411dbf506e327fbddb3cf12c9330f5283e7ba2c68d9e7fd6"},
 ]
 mock = [
     {file = "mock-4.0.3-py3-none-any.whl", hash = "sha256:122fcb64ee37cfad5b3f48d7a7d51875d7031aaf3d8be7c42e2bee25044eee62"},
