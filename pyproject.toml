@@ -56,7 +56,7 @@ azure = [
 [tool.poetry.dev-dependencies]
 black = "^22.1"
 md-toc = "^8.1.1"
-flake8 = "^3.9.2"
+flake8 = "^4.0.1"
 flake8-docstrings = "^1.6.0"
 mock = "^4.0.3"
 pook = "^1.0.2"
