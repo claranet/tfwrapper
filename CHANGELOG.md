@@ -1,3 +1,27 @@
+# 9.2.1-alpha.0 (2022/02/10)
+
+UPDATES:
+
+- Add .github/dependabot.yml
+- Bump black from 21.9b0 to 22.1.0
+- Bump boto3 from 1.18.59 to 1.20.52
+- Bump cachecontrol from 0.12.6 to 0.12.10
+- Bump colorlog from 5.0.1 to 6.6.0
+- Bump flake8 from 3.9.2 to 4.0.1
+- Bump jinja2 from 3.0.2 to 3.0.3
+- Bump md-toc from 8.0.1 to 8.1.1
+- Bump natsort from 7.1.1 to 8.1.0
+- Bump packaging from 21.0 to 21.3
+- Bump pytest from 6.2.5 to 7.0.0
+- Bump pyyaml from 5.4.1 to 6.0
+- Bump schema from 0.7.4 to 0.7.5
+
+FIXES:
+
+- Fix black command for lint
+- poetry add --dev toml
+- Properly check prerelease status in Create Release step
+
 # 9.2.0 (2022/02/08)
 
 ADDED:
