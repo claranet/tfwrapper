@@ -62,6 +62,7 @@ mock = "^4.0.3"
 pook = "^1.0.2"
 pytest = "^7.0.0"
 requests-mock = "^1.9.3"
+toml = "^0.10.2"
 
 [tool.poetry.scripts]
 tfwrapper = 'claranet_tfwrapper:main'
