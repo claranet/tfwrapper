@@ -127,7 +127,7 @@ azure-core = ">=1.9.0,<2.0.0"
 
 [[package]]
 name = "azure-mgmt-storage"
-version = "18.0.0"
+version = "19.0.0"
 description = "Microsoft Azure Storage Management Client Library for Python"
 category = "main"
 optional = true
@@ -1125,7 +1125,7 @@ azure = ["azure-cli-core", "azure-common", "azure-mgmt-storage", "msrestazure"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.2,<4.0"
-content-hash = "2143de6407be7a92112e5093af87059e05b9c15c72174ca43d23420e818caef0"
+content-hash = "1c9ad1fbd360aad3dcf422b813206b4022f534e18bd39be4fcddb2aaa8a7873c"
 
 [metadata.files]
 adal = [
@@ -1169,8 +1169,8 @@ azure-mgmt-core = [
     {file = "azure_mgmt_core-1.2.2-py2.py3-none-any.whl", hash = "sha256:d36bd595dff6a1509ed52a89ee8dd88b83200320a6afa60fb4186afcb8978ce5"},
 ]
 azure-mgmt-storage = [
-    {file = "azure-mgmt-storage-18.0.0.zip", hash = "sha256:d17beb34273797fa89863632ff0e1eb9b6a55198abb8c7f05d84980762e5f71f"},
-    {file = "azure_mgmt_storage-18.0.0-py2.py3-none-any.whl", hash = "sha256:ec11d6aef47f8489559055e4c1a1891567828b9864f63ee8c7a81c9d911015b6"},
+    {file = "azure-mgmt-storage-19.0.0.zip", hash = "sha256:f05963e5a8696d0fd4dcadda4feecb9b382a380d2e461b3647704ac787d79876"},
+    {file = "azure_mgmt_storage-19.0.0-py2.py3-none-any.whl", hash = "sha256:d4960693a4e2aa046b510df13c2071df2eb3f99925384a127d843a3b969fc54b"},
 ]
 bcrypt = [
     {file = "bcrypt-3.2.0-cp36-abi3-macosx_10_10_universal2.whl", hash = "sha256:b589229207630484aefe5899122fb938a5b017b0f4349f769b8c13e78d99a8fd"},
