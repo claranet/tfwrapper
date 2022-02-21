@@ -96,7 +96,7 @@ portalocker = ">=1.2,<2.0"
 
 [[package]]
 name = "azure-common"
-version = "1.1.27"
+version = "1.1.28"
 description = "Microsoft Azure Client Library for Python (Common)"
 category = "main"
 optional = true
@@ -1157,8 +1157,8 @@ azure-cli-telemetry = [
     {file = "azure_cli_telemetry-1.0.6-py3-none-any.whl", hash = "sha256:05c11939b8ed9a98b8bad1d0201909ff7c33671aaa4a98932069594e815aefbe"},
 ]
 azure-common = [
-    {file = "azure-common-1.1.27.zip", hash = "sha256:9f3f5d991023acbd93050cf53c4e863c6973ded7e236c69e99c8ff5c7bad41ef"},
-    {file = "azure_common-1.1.27-py2.py3-none-any.whl", hash = "sha256:426673962740dbe9aab052a4b52df39c07767decd3f25fdc87c9d4c566a04934"},
+    {file = "azure-common-1.1.28.zip", hash = "sha256:4ac0cd3214e36b6a1b6a442686722a5d8cc449603aa833f3f0f40bda836704a3"},
+    {file = "azure_common-1.1.28-py2.py3-none-any.whl", hash = "sha256:5c12d3dcf4ec20599ca6b0d3e09e86e146353d443e7fcc050c9a19c1f9df20ad"},
 ]
 azure-core = [
     {file = "azure-core-1.19.0.zip", hash = "sha256:18d2a6cd3b7391489f005775fe69e4d0870f9384b755e45185efd45c050e2306"},
