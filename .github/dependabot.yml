@@ -1,6 +1,5 @@
 version: 2
 updates:
-
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -12,3 +11,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      # Ignore all boto3 patch updates which are too frequent (but not security updates)
+      - dependency-name: "boto3"
+        update-types: ["version-update:semver-patch"]
+    # Allow up to 10 open pull requests for pip dependencies
+    open-pull-requests-limit: 10
