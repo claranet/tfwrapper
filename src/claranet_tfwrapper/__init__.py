@@ -37,7 +37,7 @@ from natsort import natsorted
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
-from .utils import format_env
+from .utils import format_env, get_dict_value
 
 try:
     import importlib.metadata as importlib_metadata
@@ -249,20 +249,22 @@ def load_wrapper_config(wrapper_config):
         return
 
     for config_type, config in state_config.items():
-        config_name = config.get("name", config_type)
-        wrapper_config["state"][config_name] = {
-            # Global
-            "state_backend_type": config_type,
-            "state_backend_parameters": (state_config.get("backend_parameters", {})),
-            # Azure configuration
-            "state_subscription": (state_config.get("azure", {}).get("general", {}).get("subscription_uid", None)),
-            "state_rg": (state_config.get("azure", {}).get("general", {}).get("resource_group_name", None)),
-            "state_storage": (state_config.get("azure", {}).get("general", {}).get("storage_account_name", None)),
-            # AWS configuration
-            "state_account": (state_config.get("aws", {}).get("general", {}).get("account", None)),
-            "state_region": (state_config.get("aws", {}).get("general", {}).get("region", None)),
-            "state_profile": (state_config.get("aws", {}).get("credentials", {}).get("profile", None)),
-        }
+        normalized_config = [config] if isinstance(config, dict) else config
+        for config in normalized_config:
+            config_name = config.get("name", config_type)
+            wrapper_config["state"][config_name] = {
+                # Global
+                "state_backend_type": config_type,
+                "state_backend_parameters": state_config.get("backend_parameters", {}),
+                # Azure configuration
+                "state_subscription": get_dict_value(config, "general", "subscription_uid"),
+                "state_rg": get_dict_value(config, "general", "resource_group_name"),
+                "state_storage": get_dict_value(config, "general", "storage_account_name"),
+                # AWS configuration
+                "state_account": get_dict_value(config, "general", "account"),
+                "state_region": get_dict_value(config, "general", "region"),
+                "state_profile": get_dict_value(config, "credentials", "profile"),
+            }
 
     # The default backend is the first in the list
     wrapper_config["default_state_backend_type"] = next(iter(state_config), None)
@@ -464,8 +466,8 @@ def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile,
         msg = "Error while getting Azure token, check that you are authorized on this subscription then log yourself in with:\n\n"
 
         if os.environ.get("AZURE_CONFIG_DIR", None):
-            msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
-        msg += " az login"
+            msg += "AZURE_CONFIG_DIR={} ".format(os.environ["AZURE_CONFIG_DIR"])
+        msg += "az login"
         logger.error(msg)
         logger.warning("Make sure to use `azure-cli >= 2.30`.")
         sys.exit(RC_KO)

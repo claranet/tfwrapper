@@ -387,19 +387,23 @@ Example configuration with both AWS and Azure backends defined:
 ```yaml
 ---
 aws:
-  name: "aws-demo"
-  general:
-    account: "xxxxxxxxxxx"
-    region: eu-west-1
-  credentials:
-    profile: my-state-aws-profile # should be configured in .aws/config
-
+  - name: "aws-demo"
+    general:
+      account: "xxxxxxxxxxx"
+      region: eu-west-1
+    credentials:
+      profile: my-state-aws-profile # should be configured in .aws/config
 azure:
-  name: "azure-alternative"
-  general:
-    subscription_uid: "xxxxxxx" # the Azure account to use for state storage
-    resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
-    storage_account_name: "tfstatesxxxxx"
+  - name: "azure-backend"
+    general:
+      subscription_uid: "xxxxxxx" # the Azure account to use for state storage
+      resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
+      storage_account_name: "tfstatesxxxxx"
+  - name: "azure-alternative"
+    general:
+      subscription_uid: "xxxxxxx" # the Azure account to use for state storage
+      resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
+      storage_account_name: "tfstatesxxxxx"
 
 backend_parameters: # Parameters or options which can be used by `state.j2.tf` template file
   state_snaphot: "false" # Example of Azure storage backend option
