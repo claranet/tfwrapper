@@ -37,6 +37,7 @@ from natsort import natsorted
 from schema import Schema, SchemaError, Optional, Or
 from termcolor import colored
 
+from . import azure
 from .utils import format_env, get_dict_value
 
 try:
@@ -256,10 +257,6 @@ def load_wrapper_config(wrapper_config):
                 # Global
                 "state_backend_type": config_type,
                 "state_backend_parameters": state_config.get("backend_parameters", {}),
-                # Azure configuration
-                "state_subscription": get_dict_value(config, "general", "subscription_uid"),
-                "state_rg": get_dict_value(config, "general", "resource_group_name"),
-                "state_storage": get_dict_value(config, "general", "storage_account_name"),
                 # AWS configuration
                 "state_account": get_dict_value(config, "general", "account"),
                 "state_region": get_dict_value(config, "general", "region"),
@@ -396,34 +393,6 @@ def get_stack_envvars(stack_config, wrapper_stack_config):
     return {**envvars, **os.environ}
 
 
-def _check_azure_auth(subscription_id=None, tenant_id=None):
-    """Check if user is authenticated and have access to the subscription."""
-    return _get_azure_token(subscription_id, tenant_id) is not None
-
-
-def _get_azure_token(subscription_id=None, tenant_id=None):
-    """Get Azure CLI token access to the subscription."""
-    from azure.common.credentials import get_cli_profile
-
-    if subscription_id is None and tenant_id is None:
-        raise ValueError("`subscription_id` or `tenant_id` parameter must be set.")
-
-    try:
-        profile = get_cli_profile()
-        if subscription_id:
-            logger.debug("Azure profile get with Subscription ID: {}".format(subscription_id))
-            token = profile.get_raw_token(subscription=subscription_id)
-        else:
-            logger.debug("Azure profile get with Tenant ID: {}".format(tenant_id))
-            token = profile.get_raw_token(tenant=tenant_id)
-        logger.debug("Azure profile token retrieved: {}".format(token[0]))
-        logger.debug("Azure profile token for SubID {} in Tenant ID {}".format(token[1], token[2]))
-        return token[0][2]
-    except Exception as e:
-        logger.debug("Failed retrieving Azure profile and token: {}", e)
-        return None
-
-
 def _get_aws_session(session_cache_file, region, profile):
     """Get or create boto cached session."""
     if os.path.isfile(session_cache_file) and time.time() - os.stat(session_cache_file).st_mtime < 2700:
@@ -457,49 +426,12 @@ def _get_aws_session(session_cache_file, region, profile):
     return session
 
 
-def _get_azure_session(session_cache_file, azure_subscription, azure_rg_profile, azure_storage):
-    """Retrieve Azure storage access keys."""
-    from azure.common.credentials import get_cli_profile
-    from azure.mgmt.storage import StorageManagementClient
-
-    if not _check_azure_auth(subscription_id=azure_subscription):
-        msg = "Error while getting Azure token, check that you are authorized on this subscription then log yourself in with:\n\n"
-
-        if os.environ.get("AZURE_CONFIG_DIR", None):
-            msg += "AZURE_CONFIG_DIR={} ".format(os.environ["AZURE_CONFIG_DIR"])
-        msg += "az login"
-        logger.error(msg)
-        logger.warning("Make sure to use `azure-cli >= 2.30`.")
-        sys.exit(RC_KO)
-
-    profile = get_cli_profile()
-    credentials, current_sub, tenant = profile.get_login_credentials(subscription_id=azure_subscription)
-
-    storage_client = StorageManagementClient(credentials, azure_subscription)
-    storage_keys = storage_client.storage_accounts.list_keys(azure_rg_profile, azure_storage)
-    storage_keys = {v.key_name: v.value for v in storage_keys.keys}
-    return storage_keys["key1"]
-
-
 def get_session(rootdir, account, region, profile, backend_type=None, conf=None):
     """Get/create session credentials for supported providers."""
     if backend_type == "aws":
         # Get or create boto cached session.
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, account, profile)
         session = _get_aws_session(session_cache_file, region, profile)
-    elif backend_type == "azure":
-        session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
-        if session:
-            logger.info("'ARM_SAS_TOKEN' or 'ARM_ACCESS_KEY' already set, don't try to get a new session.")
-            logger.debug("Session token found for backend: {}".format(session))
-            return session
-        session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, conf["state_subscription"], conf["state_rg"])
-        session = _get_azure_session(
-            session_cache_file,
-            conf["state_subscription"],
-            conf["state_rg"],
-            conf["state_storage"],
-        )
     else:
         session = None
 
@@ -1158,12 +1090,7 @@ def parse_base_args(args):
     parser.add_argument("--http-cache-dir", nargs="?", const=DEFAULT_HTTP_CACHE_DIR, default=DEFAULT_HTTP_CACHE_DIR)
     parsed_args, _ = parser.parse_known_args(args)
 
-    if parsed_args.debug:
-        logger.setLevel(logging.DEBUG)
-        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
+    logger.setLevel(logging.DEBUG if parsed_args.debug else logging.INFO)
 
     # configure requests session's cache directory
     CachedRequestsSession.set_cache_dir(parsed_args.http_cache_dir)
@@ -1444,18 +1371,10 @@ def main(argv=None):
                 if state_credentials.token:
                     os.environ["AWS_SESSION_TOKEN"] = state_credentials.token
                 logger.info("AWS state backend initialized.")
-            elif state_backend_type == "azure":
-                # set Azure state centralization environment variables
-                if not os.environ.get("ARM_SAS_TOKEN", None):
-                    logger.debug("No 'ARM_SAS_TOKEN' already set, set and use 'ARM_ACCESS_KEY'")
-                    os.environ["ARM_ACCESS_KEY"] = state_session
-                os.environ["TF_VAR_azure_state_access_key"] = state_session
-                logger.info("Azure state backend initialized.")
             else:
                 logger.info(
-                    'Unsupported state backend type "{}". Let terraform handle with its default behavior.'.format(
-                        state_backend_type
-                    )
+                    f'Using state backend type "{state_backend_type}". No custom implementation, let terraform handle '
+                    f"with its default behavior."
                 )
 
         terraform_vars = stack_config.get("terraform", {}).get("vars", {})
@@ -1571,39 +1490,26 @@ def main(argv=None):
         if load_backend and "azure" in stack_config:
             if "client_name" not in terraform_vars:
                 terraform_vars["client_name"] = wrapper_config["account"]
-            terraform_vars["azurerm_region"] = wrapper_config["region"]  # Kept for retro-compat
+            terraform_vars["azurerm_region"] = wrapper_config["region"]  # Kept for backwards compatibility
             terraform_vars["azure_region"] = wrapper_config["region"]
             terraform_vars["azure_subscription_id"] = stack_config["azure"]["general"]["subscription_id"]
+
+            directory_id = stack_config["azure"]["general"].get("directory_id", None)
+            terraform_vars["azure_tenant_id"] = stack_config["azure"]["general"].get("tenant_id", directory_id)
+            if not terraform_vars["azure_tenant_id"]:
+                logger.error("Please set the `azure.general.directory_id` variable in your stack configuration.")
+                sys.exit(RC_KO)
 
             az_login_mode = stack_config["azure"]["general"].get("mode", "user")
             if az_login_mode.lower() == "user":
                 logger.info("Using Azure user mode")
 
-                directory_id = stack_config["azure"]["general"].get("directory_id", None)
-                terraform_vars["azure_tenant_id"] = stack_config["azure"]["general"].get("tenant_id", directory_id)
-                if not terraform_vars["azure_tenant_id"]:
-                    logger.error("Please set the `azure.general.directory_id` variable in your stack configuration.")
+                try:
+                    azure.preconfigure(wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"])
+                except azure.AzureError as e:
+                    logger.error(f"Error while configuring Azure context: {e}")
                     sys.exit(RC_KO)
 
-                if not _check_azure_auth(tenant_id=terraform_vars["azure_tenant_id"]):
-                    logger.info(
-                        "Cannot retrieve Azure token via Tenant ID {}. Trying with Subscription ID".format(
-                            terraform_vars["azure_tenant_id"]
-                        )
-                    )
-                    if not _check_azure_auth(subscription_id=terraform_vars["azure_subscription_id"]):
-                        msg = (
-                            "Error while getting Azure token, check that you are authorized on this subscription"
-                            "then log yourself in with:\n\n"
-                        )
-
-                        if os.environ.get("AZURE_CONFIG_DIR", None):
-                            msg += " AZURE_CONFIG_DIR={}".format(os.environ["AZURE_CONFIG_DIR"])
-                        msg += " az login --tenant {}".format(terraform_vars["azure_tenant_id"])
-                        logger.error(msg)
-                        logger.warning("Make sure to use `azure-cli >= 2.30`.")
-
-                        sys.exit(RC_KO)
             elif az_login_mode.lower() in [
                 "sp",
                 "serviceprincipal",
@@ -1611,20 +1517,18 @@ def main(argv=None):
             ]:
                 logger.info("Using Azure Service Principal mode")
 
-                azure_config = open(os.path.abspath(HOME_DIR) + "/.azurerm/config.yml")
-                load_azure_config = yaml.safe_load(azure_config)
-                if load_azure_config is None:
-                    logger.error("Please configure your ~/.azurerm/config.yml configuration file")
+                try:
+                    profile = stack_config["azure"]["credentials"]["profile"]
+                except KeyError:
+                    # Backwards compatibility
+                    profile = stack_config["azure"]["credential"]["profile"]
+                try:
+                    azure.preconfigure(
+                        wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"], profile
+                    )
+                except azure.AzureError as e:
+                    logger.error(f"Error while configuring Azure context: {e}")
                     sys.exit(RC_KO)
-                profile = stack_config["azure"]["credential"]["profile"]
-                if profile not in load_azure_config.keys():
-                    logger.error('Cannot find "{}" profile in your ~/.azurerm/config.yml configuration file'.format(profile))
-                    sys.exit(RC_KO)
-
-                terraform_vars["azure_tenant_id"] = load_azure_config[profile]["tenant_id"]
-
-                os.environ["ARM_CLIENT_ID"] = load_azure_config[profile]["client_id"]
-                os.environ["ARM_CLIENT_SECRET"] = load_azure_config[profile]["client_secret"]
             else:
                 logger.error(
                     'Please use a correct Azure authentication mode ("user" or "service_principal") '

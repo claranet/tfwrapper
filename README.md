@@ -321,7 +321,7 @@ azure:
     directory_id: &directory_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Tenant/Directory UID
     subscription_id: &subscription_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Subscription UID
 
-  credential:
+  credentials:
     profile: azurerm-account-profile # To stay coherent, create an AzureRM profile with the same name than the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
 
 terraform:
@@ -396,14 +396,23 @@ aws:
 azure:
   - name: "azure-backend"
     general:
-      subscription_uid: "xxxxxxx" # the Azure account to use for state storage
+      subscription_id: "xxxxxxx" # the Azure account to use for state storage
       resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
       storage_account_name: "tfstatesxxxxx"
+  # This backend use storage keys for authentication 
   - name: "azure-alternative"
     general:
-      subscription_uid: "xxxxxxx" # the Azure account to use for state storage
+      subscription_id: "xxxxxxx" # the Azure account to use for state storage
       resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
       storage_account_name: "tfstatesxxxxx"
+  # This backend use Azure AD authentication 
+  - name: "azure-ad-auth"
+    general:
+      subscription_id: "xxxxxxx" # the Azure account to use for state storage
+      resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
+      storage_account_name: "tfstatesxxxxx"
+      azuread_auth: true
+  
 
 backend_parameters: # Parameters or options which can be used by `state.j2.tf` template file
   state_snaphot: "false" # Example of Azure storage backend option
@@ -466,15 +475,15 @@ The following file structure is enforced:
 
 # real-life example
 ├── aws-account-1
-│   └── production
-│       ├── eu-central-1
-│       │   └── web
-│       │       └── main.tf
-│       └── eu-west-1
-│           ├── default
-│           │   └── main.t
-│           └── tools
-│               └── main.tf
+│   └── production
+│       ├── eu-central-1
+│       │   └── web
+│       │       └── main.tf
+│       └── eu-west-1
+│           ├── default
+│           │   └── main.t
+│           └── tools
+│               └── main.tf
 └── aws-account-2
     └── backup
         └── eu-west-1
