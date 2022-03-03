@@ -58,7 +58,7 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "azure-cli-core"
-version = "2.33.1"
+version = "2.34.1"
 description = "Microsoft Azure Command-Line Tools Core Module"
 category = "main"
 optional = true
@@ -1152,8 +1152,8 @@ attrs = [
     {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
 ]
 azure-cli-core = [
-    {file = "azure-cli-core-2.33.1.tar.gz", hash = "sha256:13f50a70f2015b650ea49162d62fc1937d010a8e6c5503d86809fb834636ccb8"},
-    {file = "azure_cli_core-2.33.1-py3-none-any.whl", hash = "sha256:f49acd53500752b70084cdeb90c188d218ac33498839ea00757a7459fe81b130"},
+    {file = "azure-cli-core-2.34.1.tar.gz", hash = "sha256:9f7d6a5de6d3dad19655197583bd621059003bbc6f1d08ea7417c87dd22b4517"},
+    {file = "azure_cli_core-2.34.1-py3-none-any.whl", hash = "sha256:18a4e30e76486068ef8e894d2a82a39eee6c70bac9359502f873326f1037fd8d"},
 ]
 azure-cli-telemetry = [
     {file = "azure-cli-telemetry-1.0.6.tar.gz", hash = "sha256:fc6cadf59f14f3bbd6c01d1b4d6ad54cfc1456303510d8bdb6206db08c40e661"},
