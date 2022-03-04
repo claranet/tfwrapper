@@ -41,7 +41,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
         os.environ["AZURE_CONFIG_DIR"] = az_config_dir
 
     # Backwards compatibility
-    os.environ["TF_VAR_azure_state_access_key"] = os.environ.get("ARM_ACCESS_KEY", None)
+    os.environ["TF_VAR_azure_state_access_key"] = os.environ.get("ARM_ACCESS_KEY", "")
 
     if sp_profile is None:
         try:
@@ -67,12 +67,25 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
 
         # Logging in, useful for az CLI calls from Terraform code
         logger.info(f"Logging in with Service Principal {sp_profile}")
-        ret = subprocess.run(
-            ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],
-            capture_output=True,
-        )
-        if ret != 0:
-            raise AzureError(f"Cannot log in with service principal {sp_profile}: {ret.stderr}")
+        try:
+            subprocess.run(
+                [
+                    "az",
+                    "login",
+                    "--service-principal",
+                    "--username",
+                    client_id,
+                    "--password",
+                    client_secret,
+                    "--tenant",
+                    tenant_id,
+                ],
+                check=True,
+                capture_output=True,
+                universal_newlines=True,
+            )
+        except subprocess.CalledProcessError as e:
+            raise AzureError(f"Cannot log in with service principal {sp_profile}: {e.output}")
 
         os.environ["ARM_CLIENT_ID"] = client_id
         os.environ["ARM_CLIENT_SECRET"] = client_secret
