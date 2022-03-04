@@ -1505,7 +1505,7 @@ def main(argv=None):
                 logger.info("Using Azure user mode")
 
                 try:
-                    azure.preconfigure(wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"])
+                    azure.set_context(wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"])
                 except azure.AzureError as e:
                     logger.error(f"Error while configuring Azure context: {e}")
                     sys.exit(RC_KO)
@@ -1523,7 +1523,7 @@ def main(argv=None):
                     # Backwards compatibility
                     profile = stack_config["azure"]["credential"]["profile"]
                 try:
-                    azure.preconfigure(
+                    azure.set_context(
                         wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"], profile
                     )
                 except azure.AzureError as e:

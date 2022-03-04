@@ -153,12 +153,6 @@ def test_load_wrapper_config_old_map(tmp_working_dir_regional, default_args):
                     region: eu-west-1
                 credentials:
                     profile: terraform-states-profile # the AWS profile to use for state storage
-            azure:
-                name: azure_backend
-                general:
-                    subscription_id: '00000000-0000-0000-0000-000000000000'
-                    resource_group_name: my-resource-group
-                    storage_account_name: mystorage
             """
         )
     )
@@ -176,6 +170,3 @@ def test_load_wrapper_config_old_map(tmp_working_dir_regional, default_args):
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_region"] == "eu-west-1"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
-    assert wrapper_config["state"]["azure_backend"]["state_subscription"] == "00000000-0000-0000-0000-000000000000"
-    assert wrapper_config["state"]["azure_backend"]["state_rg"] == "my-resource-group"
-    assert wrapper_config["state"]["azure_backend"]["state_storage"] == "mystorage"

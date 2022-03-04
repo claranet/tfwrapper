@@ -32,7 +32,7 @@ def get_sp_profile(profile_name):
         )
 
 
-def preconfigure(wrapper_config, subscription_id, tenant_id=None, sp_profile=None):
+def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None):
     """Preconfigure context and check credentials."""
     azure_local_session = wrapper_config.get("config", {}).get("use_local_azure_session_directory", True)
     if azure_local_session:
@@ -41,15 +41,15 @@ def preconfigure(wrapper_config, subscription_id, tenant_id=None, sp_profile=Non
         os.environ["AZURE_CONFIG_DIR"] = az_config_dir
 
     # Backwards compatibility
-    os.environ["TF_VAR_azure_state_access_key"] = ""
+    os.environ["TF_VAR_azure_state_access_key"] = os.environ.get("ARM_ACCESS_KEY", None)
 
     if sp_profile is None:
         try:
             subprocess.run(["az", "account", "show", "-s", subscription_id], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             msg = (
-                "Error accessing subscription, check that you are authorized on this subscription"
-                "then log yourself in with:\n\n"
+                "Error accessing subscription, check that you have Azure CLI installed and are authorized "
+                "on this subscription then log yourself in with:\n\n"
             )
 
             if azure_local_session:
@@ -64,6 +64,15 @@ def preconfigure(wrapper_config, subscription_id, tenant_id=None, sp_profile=Non
 
         if tenant_id is not None and tenant_id != sp_tenant_id:
             raise AzureError("Configured tenant id and Service Principal tenant id must be the same.")
+
+        # Logging in, useful for az CLI calls from Terraform code
+        logger.info(f"Logging in with Service Principal {sp_profile}")
+        ret = subprocess.run(
+            ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],
+            capture_output=True,
+        )
+        if ret != 0:
+            raise AzureError(f"Cannot log in with service principal {sp_profile}: {ret.stderr}")
 
         os.environ["ARM_CLIENT_ID"] = client_id
         os.environ["ARM_CLIENT_SECRET"] = client_secret

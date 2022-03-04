@@ -31,8 +31,8 @@
     - [Passing options](#passing-options)
   - [Environment](#environment)
     - [S3 state backend credentials](#s3-state-backend-credentials)
-    - [Azure storage state backend credentials](#azure-storage-state-backend-credentials)
     - [Azure Service Principal credentials](#azure-service-principal-credentials)
+    - [Azure authentication isolation](#azure-authentication-isolation)
     - [GCP configuration](#gcp-configuration)
     - [GKE configurations](#gke-configurations)
     - [Stack configurations and credentials](#stack-configurations-and-credentials)
@@ -77,8 +77,8 @@
 
 ## Runtime Dependencies
 
-- `terraform` `>= 0.10`
-- `azure-cli` `>= 2.30.0` when using `[azure]` extras
+- `terraform` `>= 0.10` (`>= 0.13` for fully working Azure backend)
+- `azure-cli` when using context based Azure authentication
 
 ## Recommended setup
 
@@ -92,18 +92,6 @@ tfwrapper should installed using pipx (recommended) or pip:
 
 ```bash
 pipx install claranet-tfwrapper
-```
-
-If targeting Azure, you should instead install `claranet-tfwrapper` with its `azure` extras:
-
-```bash
-pipx install claranet-tfwrapper[azure]
-```
-
-With zsh, you need to escape brackets:
-
-```zsh
-pipx install 'claranet-tfwrapper[azure]'
 ```
 
 ## Setup command-line completion
@@ -181,10 +169,10 @@ EOF
 # create a default stack templates with support for AWS assume role
 cat << 'EOF' > templates/aws/basic/main.tf
 provider "aws" {
-  region     = "${var.aws_region}"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-  token      = "${var.aws_token}"
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  token      = var.aws_token
 }
 EOF
 ```
@@ -204,6 +192,8 @@ cat << 'EOF' > templates/azure/common/state.tf.jinja2
 
 terraform {
   backend "azurerm" {
+    subscription_id      = "00000000-0000-0000-0000-000000000000"
+    resource_group_name  = "my-resource-group"
     storage_account_name = "my-centralized-terraform-states-account"
     container_name       = "terraform-states"
 
@@ -215,8 +205,8 @@ EOF
 # create a default stack templates with support for Azure credentials
 cat << 'EOF' > templates/azure/basic/main.tf
 provider "azurerm" {
-  subscription_id = "${var.azure_subscription_id}"
-  tenant_id       = "${var.azure_tenant_id}"
+  subscription_id = var.azure_subscription_id
+  tenant_id       = var.azure_tenant_id
 }
 EOF
 ```
@@ -257,10 +247,9 @@ tfwrapper uses some default behaviors that can be overridden or modified via a `
 
 ```yaml
 ---
-install_azure_dependencies: True # Install all needed Azure dependencies in the loaded shell (azure-cli, azure python SDK)
 always_trigger_init: False # Always trigger `terraform init` first when launching `plan` or `apply` commands
 pipe_plan_command: "cat" # Default command used when you're invoking tfwrapper with `--pipe-plan`
-use_local_azure_session_directory: False # Use the current user's Azure configuration in `~/.azure`. By default, the wrapper stores `azure-cli` session and configuration in the local `.run` directory.
+use_local_azure_session_directory: False # Use the current user's Azure configuration in `~/.azure`. By default, the wrapper uses a local `azure-cli` session and configuration in the local `.run` directory.
 ```
 
 ### Stacks configurations
@@ -342,10 +331,12 @@ The wrapper loads client_id and client_secret from your `config.yml` located in 
 claranet-sandbox:
   client_id: aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz
   client_secret: AAbbbCCCzzz==
+  tenant_id: 00000000-0000-0000-0000-000000000000
 
 customer-profile:
   client_id: aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz
   client_secret: AAbbbCCCzzz==
+  tenant_id: 00000000-0000-0000-0000-000000000000
 ```
 
 Here is an example for a GCP/GKE stack with user ADC and multiple GKE instances:
@@ -374,9 +365,9 @@ terraform:
 ### States centralization configuration
 
 The `conf/state.yml` configuration file defines the configurations used to connect to state backend account.
-It can be an AWS (S3) or Azure (Storage Account) backend type.
+Only AWS (S3) backend type has custom support.
 
-You can use other backends (e.g. Google GCS or Hashicorp Consul) not specifically supported by the wrapper if you them manage yourself and omit the `conf/state.yml` file or make it empty:
+You can use other backends (e.g. Azure, Google GCS or Hashicorp Consul) not specifically supported by the wrapper if you them manage yourself and omit the `conf/state.yml` file or make it empty:
 
 ```yaml
 ---
@@ -572,18 +563,17 @@ The default AWS credentials of the environment are set to point to the S3 state 
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_SESSION_TOKEN`
 
-### Azure storage state backend credentials
-
-When using Azure storage (container blob), needed credentials are set in the environment. Those credentials are acquired from the profile defined in `conf/state.yml`
-
-- `ARM_ACCESS_KEY`
-
 ### Azure Service Principal credentials
 
 Those AzureRM credentials are loaded only if you are using the Service Principal mode. They are acquired from the profile defined in `~/.azurerm/config.yml`
 
 - `ARM_CLIENT_ID`
 - `ARM_CLIENT_SECRET`
+- `ARM_TENANT_ID`
+
+### Azure authentication isolation
+
+`AZURE_CONFIG_DIR` environment variable is set to the local `.run/azure` directory if global configuration value `use_local_azure_session_directory` is set to `true`.
 
 ### GCP configuration
 
