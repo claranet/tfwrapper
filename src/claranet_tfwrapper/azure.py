@@ -77,12 +77,13 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
             "Set `use_local_azure_session_directory: true` in your configuration."
         )
 
-    if azure_local_session and "AZURE_CONFIG_DIR" not in os.environ:
+    if azure_local_session:
         suffix = f"_{context_name}" if context_name else ""
         env_var_name = f"AZURE_CONFIG_DIR{suffix.upper()}"
         az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", f"azure{suffix}")
-        logger.debug(f"Exporting `{env_var_name}` to `{az_config_dir}` directory")
-        os.environ[env_var_name] = az_config_dir
+        if env_var_name not in os.environ:
+            logger.debug(f"Exporting `{env_var_name}` to `{az_config_dir}` directory")
+            os.environ[env_var_name] = az_config_dir
 
     vars_prefix = f"{context_name}_" if context_name else ""
 
@@ -135,11 +136,11 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         except subprocess.CalledProcessError as e:
             raise AzureError(f"Cannot log in with service principal {sp_profile}: {e.output}")
 
-        if not backend_context:
+        if not backend_context and not context_name:
             os.environ["ARM_CLIENT_ID"] = client_id
             os.environ["ARM_CLIENT_SECRET"] = client_secret
             os.environ["ARM_TENANT_ID"] = sp_tenant_id
-        else:
+        if backend_context:
             os.environ["TF_VAR_azure_state_client_id"] = client_id
             os.environ["TF_VAR_azure_state_client_secret"] = client_secret
             os.environ["TF_VAR_azure_state_client_tenant_id"] = sp_tenant_id
