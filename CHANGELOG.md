@@ -7,6 +7,7 @@ BREAKING:
 ADDED
 
 - TER-392: Allow multiple states configuration for a same backend type
+- TER-497: Allow multiple providers declaration in stack configuration
 
 # 10.0.0 (2022/03/10)
 

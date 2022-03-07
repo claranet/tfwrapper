@@ -35,7 +35,7 @@ def get_sp_profile(profile_name):
         )
 
 
-def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None, backend_context=False):
+def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_profile=None, backend_context=False):
     """
     Configure context and check credentials.
 
@@ -61,31 +61,49 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
     dict
         Terraform variables
     """
+    tf_vars = {}
     if backend_context:
         session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
         if session:
             logger.info("'ARM_SAS_TOKEN' or 'ARM_ACCESS_KEY' already set, don't try to get a new session.")
             logger.debug("Session token found for backend: {}".format(session))
-            os.environ["TF_VAR_azure_state_access_key"] = session
+            tf_vars["azure_state_access_key"] = session
 
     az_config_dir = None
     azure_local_session = wrapper_config.get("config", {}).get("use_local_azure_session_directory", True)
+    if not azure_local_session and context_name:
+        raise AzureError(
+            "Cannot configure multiple providers context without session isolation.\n"
+            "Set `use_local_azure_session_directory: true` in your configuration."
+        )
+
     if azure_local_session and "AZURE_CONFIG_DIR" not in os.environ:
-        az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
-        logger.debug(f"Exporting `AZURE_CONFIG_DIR` to `{az_config_dir}` directory")
-        os.environ["AZURE_CONFIG_DIR"] = az_config_dir
+        suffix = f"_{context_name}" if context_name else ""
+        env_var_name = f"AZURE_CONFIG_DIR{suffix.upper()}"
+        az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", f"azure{suffix}")
+        logger.debug(f"Exporting `{env_var_name}` to `{az_config_dir}` directory")
+        os.environ[env_var_name] = az_config_dir
+
+    vars_prefix = f"{context_name}_" if context_name else ""
+
+    tf_vars.update(
+        {
+            f"{vars_prefix}azure_subscription_id": subscription_id,
+            f"{vars_prefix}azure_tenant_id": tenant_id,
+        }
+    )
 
     if sp_profile is None:
         try:
             _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
         except subprocess.CalledProcessError:
             msg = (
-                "Error accessing subscription, check that you have Azure CLI installed and are authorized "
-                "on this subscription then log yourself in with:\n\n"
+                f"Error accessing subscription {subscription_id}, check that you have Azure CLI installed and "
+                f"are authorized on this subscription then log yourself in with:\n\n"
             )
 
             if az_config_dir:
-                msg += f"AZURE_CONFIG_DIR={az_config_dir} "
+                msg += f"{env_var_name}={az_config_dir} "
             if tenant_id:
                 msg += f"az login --tenant {tenant_id}"
             else:
@@ -125,6 +143,10 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
             os.environ["TF_VAR_azure_state_client_id"] = client_id
             os.environ["TF_VAR_azure_state_client_secret"] = client_secret
             os.environ["TF_VAR_azure_state_client_tenant_id"] = sp_tenant_id
+
+        tf_vars.update({f"{vars_prefix}azure_client_id": client_id, f"{vars_prefix}azure_client_secret": client_secret})
+
+    return tf_vars
 
 
 def _launch_cli_command(command, az_config_dir=None):

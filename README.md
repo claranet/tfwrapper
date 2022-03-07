@@ -288,8 +288,8 @@ state_configuration_name: "aws-demo" # use "aws" backend state configuration
 azure:
   general:
     mode: user # Uses personal credentials with MFA
-    directory_id: &directory_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Tenant/Directory UID
-    subscription_id: &subscription_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Subscription UID
+    directory_id: &directory_id "00000000-0000-0000-0000-000000000000" # Azure Tenant/Directory UID
+    subscription_id: &subscription_id "11111111-1111-1111-1111-111111111111" # Azure Subscription UID
 
 terraform:
   vars:
@@ -308,11 +308,11 @@ Here is an example for a stack on Azure configuration using Service Principal mo
 azure:
   general:
     mode: service_principal # Uses an Azure tenant Service Principal account
-    directory_id: &directory_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Tenant/Directory UID
-    subscription_id: &subscription_id "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz" # Azure Subscription UID
+    directory_id: &directory_id "00000000-0000-0000-0000-000000000000" # Azure Tenant/Directory UID
+    subscription_id: &subscription_id "11111111-1111-1111-1111-111111111111" # Azure Subscription UID
 
-  credentials:
-    profile: azurerm-account-profile # To stay coherent, create an AzureRM profile with the same name than the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
+    credentials:
+      profile: customer-profile # To stay coherent, create an AzureRM profile with the same name as the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
 
 terraform:
   vars:
@@ -325,6 +325,7 @@ terraform:
 It is using the Service Principal's credentials to connect the Azure Subscription. This SP must have access to the subscription.
 The wrapper loads client_id and client_secret from your `config.yml` located in `~/.azurem/config.yml`.
 `~/.azurem/config.yml` file structure example:
+
 
 ```yaml
 # File located at ~/.azurerm/config.yml
@@ -362,6 +363,49 @@ terraform:
     client_name: client-name
     #version: "0.11"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
+
+You can declare multiple providers configurations, context is set up accordingly.
+
+⚠ This feature is only supported for Azure stacks for now and only works with [Azure authentication isolation](#azure-authentication-isolation)
+
+
+```yaml
+---
+azure:
+  general:
+    mode: service_principal # Uses an Azure tenant Service Principal account
+    directory_id: &directory_id "00000000-0000-0000-0000-000000000000" # Azure Tenant/Directory UID
+    subscription_id: &subscription_id "11111111-1111-1111-1111-111111111111" # Azure Subscription UID
+
+    credentials:
+      profile: customer-profile # To stay coherent, create an AzureRM profile with the same name as the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
+
+  alternative:
+    mode: service_principal # Uses an Azure tenant Service Principal account
+    directory_id: "00000000-0000-0000-0000-000000000000" # Azure Tenant/Directory UID
+    subscription_id: "22222222-2222-2222-2222-222222222222" # Azure Subscription UID
+
+    credentials:
+      profile: claranet-sandbox # To stay coherent, create an AzureRM profile with the same name as the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
+
+terraform:
+  vars:
+    subscription_id: *subscription_id
+    directory_id: *directory_id
+    client_name: client-name # Replace it with the name of your client
+    #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
+```
+
+This configuration is useful when having various service principals with a dedicated rights scope for each.
+
+The wrapper will generate the following Terraform variables that can be used in your stack:
+
+* `<config_name>_azure_subscription_id` with Azure subscription ID. From the example, variable is: `alternative_subscription_id = "22222222-2222-2222-2222-222222222222"`
+* `<config_name>_azure_tenant_id` with Azure tenant ID. From the example, variable is: `alternative_tenant_id = "00000000-0000-0000-0000-000000000000"`
+* `<config_name>_azure_client_id` with Service Principal client id. From the example, variable is: `alternative_client_id = "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz"`
+* `<config_name>_azure_client_secret` with Service Principal client secret. From the example, variable is: `alternative_client_secret = "AAbbbCCCzzz=="`
+
+
 
 ### States centralization configuration
 
@@ -594,6 +638,8 @@ Those AzureRM credentials are loaded only if you are using the Service Principal
 ### Azure authentication isolation
 
 `AZURE_CONFIG_DIR` environment variable is set to the local `.run/azure` directory if global configuration value `use_local_azure_session_directory` is set to `true`, which is the default, which is the default.
+
+If you have multiple configuration in your stacks, you also have `<CONFIG_NAME>_AZURE_CONFIG_DIR` which is set to the local `.run/azure-<config_name>` directory.
 
 ### GCP configuration
 

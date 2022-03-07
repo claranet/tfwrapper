@@ -14,7 +14,7 @@ def test_user_context(monkeypatch, tmp_path):
     launch_cli = MagicMock()
     monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
-    azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id)
+    azure.set_context(wrapper_config, subscription_id, tenant_id, "")
 
     launch_cli.assert_called_once_with(
         ["az", "account", "get-access-token", "-s", subscription_id], os.path.join(tmp_path, ".run", "azure")
@@ -30,10 +30,10 @@ def test_user_context_no_isolation(monkeypatch, tmp_path):
     launch_cli = MagicMock()
     monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
-    azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id)
+    azure.set_context(wrapper_config, subscription_id, tenant_id, "")
 
     launch_cli.assert_called_once_with(["az", "account", "get-access-token", "-s", subscription_id], None)
-    assert os.environ.get("AZURE_CONFIG_DIR", "") == ""
+    assert os.environ.get("AZURE_CONFIG_DIR", "should be unset") == "should be unset"
 
 
 def test_sp_context(monkeypatch, tmp_path):
@@ -50,7 +50,7 @@ def test_sp_context(monkeypatch, tmp_path):
     monkeypatch.setattr(azure, "get_sp_profile", sp_profile_mock)
     sp_profile_mock.return_value = (tenant_id, client_id, client_secret)
 
-    azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id, sp_profile="my-profile")
+    azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
 
     launch_cli.assert_called_once_with(
         ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],
@@ -71,7 +71,7 @@ def test_user_context_backend(monkeypatch, tmp_path):
     launch_cli = MagicMock()
     monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
-    azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id, backend_context=True)
+    azure.set_context(wrapper_config, subscription_id, tenant_id, "", backend_context=True)
 
     launch_cli.assert_called_once_with(
         ["az", "account", "get-access-token", "-s", subscription_id], os.path.join(tmp_path, ".run", "azure")
@@ -87,7 +87,7 @@ def test_user_context_backend_no_isolation(monkeypatch, tmp_path):
     launch_cli = MagicMock()
     monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
-    azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id, backend_context=True)
+    azure.set_context(wrapper_config, subscription_id, tenant_id, "", backend_context=True)
 
     launch_cli.assert_called_once_with(["az", "account", "get-access-token", "-s", subscription_id], None)
     assert os.environ.get("AZURE_CONFIG_DIR", "") == ""
@@ -107,7 +107,7 @@ def test_sp_context_backend(monkeypatch, tmp_path):
     monkeypatch.setattr(azure, "get_sp_profile", sp_profile_mock)
     sp_profile_mock.return_value = (tenant_id, client_id, client_secret)
 
-    azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id, sp_profile="my-profile", backend_context=True)
+    azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile", backend_context=True)
 
     launch_cli.assert_called_once_with(
         ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],

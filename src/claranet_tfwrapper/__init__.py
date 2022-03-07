@@ -98,8 +98,9 @@ stack_configuration_schema = Schema(
         Optional("state_configuration_name"): str,
         Optional("aws"): {"general": {"account": str, "region": str}, "credentials": {"profile": str}},
         Optional("azure"): {
-            "general": {"mode": str, "subscription_id": str, "directory_id": str},
-            Optional("credential"): {"profile": str},
+            "general": {"mode": str, "subscription_id": str, "directory_id": str, Optional("credentials"): {"profile": str}},
+            Optional("credentials"): {"profile": str},
+            # FIXME this needs to be updated for provider alias and "credential" VS "credentials"
         },
         Optional("gcp"): {
             "general": {"project": str, "mode": str},
@@ -444,7 +445,9 @@ def get_session(wrapper_config, account, region, profile, backend_type=None, con
         session = _get_aws_session(session_cache_file, region, profile)
     elif backend_type == "azure":
         try:
-            session = azure.set_context(wrapper_config, conf["state_subscription"], sp_profile=profile, backend_context=True)
+            session = azure.set_context(
+                wrapper_config, conf["state_subscription"], None, "", sp_profile=profile, backend_context=True
+            )
         except azure.AzureError as e:
             logger.error(f"Error while configuring Azure context: {e.message}")
             exit(RC_KO)
@@ -1505,49 +1508,60 @@ def main(argv=None):
                 terraform_vars["client_name"] = wrapper_config["account"]
             terraform_vars["azurerm_region"] = wrapper_config["region"]  # Kept for backwards compatibility
             terraform_vars["azure_region"] = wrapper_config["region"]
-            terraform_vars["azure_subscription_id"] = stack_config["azure"]["general"]["subscription_id"]
 
-            directory_id = stack_config["azure"]["general"].get("directory_id", None)
-            terraform_vars["azure_tenant_id"] = stack_config["azure"]["general"].get("tenant_id", directory_id)
-            if not terraform_vars["azure_tenant_id"]:
-                logger.error("Please set the `azure.general.directory_id` variable in your stack configuration.")
-                sys.exit(RC_KO)
+            for provider_alias, provider_config in stack_config["azure"].items():
+                if provider_alias in ["credential", "credentials"]:
+                    continue
 
-            az_login_mode = stack_config["azure"]["general"].get("mode", "user")
-            if az_login_mode.lower() == "user":
-                logger.info("Using Azure user mode")
+                context_name = "" if provider_alias == "general" else provider_alias
 
-                try:
-                    azure.set_context(wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"])
-                except azure.AzureError as e:
-                    logger.error(f"Error while configuring Azure context: {e.message}")
-                    sys.exit(RC_KO)
+                directory_id = provider_config.get("tenant_id", provider_config.get("directory_id", None))
+                subscription_id = provider_config["subscription_id"]
 
-            elif az_login_mode.lower() in [
-                "sp",
-                "serviceprincipal",
-                "service_principal",
-            ]:
-                logger.info("Using Azure Service Principal mode")
-
-                try:
-                    profile = stack_config["azure"]["credentials"]["profile"]
-                except KeyError:
-                    # Backwards compatibility
-                    profile = stack_config["azure"]["credential"]["profile"]
-                try:
-                    azure.set_context(
-                        wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"], profile
+                if not directory_id:
+                    logger.error(
+                        f'Please set the `azure.general.directory_id` variable in your "{provider_alias}" stack configuration.'
                     )
-                except azure.AzureError as e:
-                    logger.error(f"Error while configuring Azure context: {e.message}")
                     sys.exit(RC_KO)
-            else:
-                logger.error(
-                    'Please use a correct Azure authentication mode ("user" or "service_principal") '
-                    "in your stack YAML configuration."
-                )
-                sys.exit(RC_KO)
+
+                az_login_mode = provider_config.get("mode", "user")
+                if az_login_mode.lower() == "user":
+                    logger.info("Using Azure user mode")
+
+                    try:
+                        azure_tf_vars = azure.set_context(wrapper_config, subscription_id, directory_id, context_name)
+                        terraform_vars.update(azure_tf_vars)
+                    except azure.AzureError as e:
+                        logger.error(f"Error while configuring Azure context: {e.message}")
+                        sys.exit(RC_KO)
+
+                elif az_login_mode.lower() in [
+                    "sp",
+                    "serviceprincipal",
+                    "service_principal",
+                ]:
+                    logger.info("Using Azure Service Principal mode")
+
+                    try:
+                        profile = provider_config["credentials"]["profile"]
+                    except KeyError:
+                        try:
+                            profile = stack_config["azure"]["credentials"]["profile"]
+                        except KeyError:
+                            # Backwards compatibility
+                            profile = stack_config["azure"]["credential"]["profile"]
+                    try:
+                        azure_tf_vars = azure.set_context(wrapper_config, subscription_id, directory_id, context_name, profile)
+                        terraform_vars.update(azure_tf_vars)
+                    except azure.AzureError as e:
+                        logger.error(f"Error while configuring Azure context: {e.message}")
+                        sys.exit(RC_KO)
+                else:
+                    logger.error(
+                        'Please use a correct Azure authentication mode ("user" or "service_principal") '
+                        "in your stack YAML configuration."
+                    )
+                    sys.exit(RC_KO)
 
         set_terraform_vars(terraform_vars)
         os.environ["TF_PLUGIN_CACHE_DIR"] = wrapper_config["plugin_cache_dir"]
