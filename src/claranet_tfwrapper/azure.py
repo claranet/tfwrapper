@@ -32,16 +32,20 @@ def get_sp_profile(profile_name):
         )
 
 
-def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None):
+def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None, backend_context=False):
     """Preconfigure context and check credentials."""
+    if backend_context:
+        session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
+        if session:
+            logger.info("'ARM_SAS_TOKEN' or 'ARM_ACCESS_KEY' already set, don't try to get a new session.")
+            logger.debug("Session token found for backend: {}".format(session))
+            os.environ["TF_VAR_azure_state_access_key"] = session
+
     azure_local_session = wrapper_config.get("config", {}).get("use_local_azure_session_directory", True)
-    if azure_local_session:
+    if azure_local_session and "AZURE_CONFIG_DIR" not in os.environ:
         az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
         logger.debug(f"Exporting `AZURE_CONFIG_DIR` to `{az_config_dir}` directory")
         os.environ["AZURE_CONFIG_DIR"] = az_config_dir
-
-    # Backwards compatibility
-    os.environ["TF_VAR_azure_state_access_key"] = os.environ.get("ARM_ACCESS_KEY", "")
 
     if sp_profile is None:
         try:
@@ -63,7 +67,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
         sp_tenant_id, client_id, client_secret = get_sp_profile(sp_profile)
 
         if tenant_id is not None and tenant_id != sp_tenant_id:
-            raise AzureError("Configured tenant id and Service Principal tenant id must be the same.")
+            raise AzureError(f'Configured tenant id and Service Principal tenant id must be the same for service "{sp_profile}".')
 
         # Logging in, useful for az CLI calls from Terraform code
         logger.info(f"Logging in with Service Principal {sp_profile}")
@@ -83,10 +87,18 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
                 check=True,
                 capture_output=True,
                 universal_newlines=True,
+                env={"AZURE_CONFIG_DIR": os.path.join(wrapper_config["rootdir"], ".run", "azure_backend")}
+                if backend_context
+                else None,
             )
         except subprocess.CalledProcessError as e:
             raise AzureError(f"Cannot log in with service principal {sp_profile}: {e.output}")
 
-        os.environ["ARM_CLIENT_ID"] = client_id
-        os.environ["ARM_CLIENT_SECRET"] = client_secret
-        os.environ["ARM_TENANT_ID"] = sp_tenant_id
+        if not backend_context:
+            os.environ["ARM_CLIENT_ID"] = client_id
+            os.environ["ARM_CLIENT_SECRET"] = client_secret
+            os.environ["ARM_TENANT_ID"] = sp_tenant_id
+        else:
+            os.environ["TF_VAR_azure_state_client_id"] = client_id
+            os.environ["TF_VAR_azure_state_client_secret"] = client_secret
+            os.environ["TF_VAR_azure_state_client_tenant_id"] = sp_tenant_id

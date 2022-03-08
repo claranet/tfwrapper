@@ -257,6 +257,11 @@ def load_wrapper_config(wrapper_config):
                 # Global
                 "state_backend_type": config_type,
                 "state_backend_parameters": state_config.get("backend_parameters", {}),
+                # Azure configuration
+                "state_subscription": get_dict_value(config, "general", "subscription_id")
+                or get_dict_value(config, "general", "subscription_uid"),
+                "state_rg": get_dict_value(config, "general", "resource_group_name"),
+                "state_storage": get_dict_value(config, "general", "storage_account_name"),
                 # AWS configuration
                 "state_account": get_dict_value(config, "general", "account"),
                 "state_region": get_dict_value(config, "general", "region"),
@@ -426,12 +431,14 @@ def _get_aws_session(session_cache_file, region, profile):
     return session
 
 
-def get_session(rootdir, account, region, profile, backend_type=None, conf=None):
+def get_session(wrapper_config, account, region, profile, backend_type=None, conf=None):
     """Get/create session credentials for supported providers."""
     if backend_type == "aws":
         # Get or create boto cached session.
-        session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(rootdir, account, profile)
+        session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(wrapper_config["rootdir"], account, profile)
         session = _get_aws_session(session_cache_file, region, profile)
+    elif backend_type == "azure":
+        session = azure.set_context(wrapper_config, conf["state_subscription"], sp_profile=profile, backend_context=True)
     else:
         session = None
 
@@ -1355,7 +1362,7 @@ def main(argv=None):
             state_backend_type = state_config["state_backend_type"]
 
             state_session = get_session(
-                wrapper_config["rootdir"],
+                wrapper_config,
                 state_config.get("state_account"),
                 state_config.get("state_region"),
                 state_config.get("state_profile"),
@@ -1371,6 +1378,8 @@ def main(argv=None):
                 if state_credentials.token:
                     os.environ["AWS_SESSION_TOKEN"] = state_credentials.token
                 logger.info("AWS state backend initialized.")
+            elif state_backend_type == "azure":
+                logger.info("Azure state backend initialized.")
             else:
                 logger.info(
                     f'Using state backend type "{state_backend_type}". No custom implementation, let terraform handle '
@@ -1385,7 +1394,7 @@ def main(argv=None):
         if load_backend and "aws" in stack_config:
             logger.info("Getting stack session")
             stack_session = get_session(
-                wrapper_config["rootdir"],
+                wrapper_config,
                 stack_config["aws"]["general"]["account"],
                 stack_config["aws"]["general"]["region"],
                 stack_config["aws"]["credentials"]["profile"],
