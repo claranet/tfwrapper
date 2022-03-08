@@ -530,6 +530,10 @@ def bootstrap(wrapper_config):
         if state_backend_name
         else wrapper_config.get("default_state_backend_type", None)
     )
+    if state_backend_name:
+        logger.info(f'Using state "{state_backend_name}" of type "{state_backend_type}"')
+    else:
+        logger.info(f'Using state "{state_backend_type}" backend type')
 
     # get stack cloud provider type
     stack_type = None
@@ -570,7 +574,9 @@ def bootstrap(wrapper_config):
             trim_blocks=True,
         )
 
-        state_yml_parameters = wrapper_config["state"].get(state_backend_type) or next(iter(wrapper_config["state"]))
+        state_yml_parameters = wrapper_config["state"].get(state_backend_name or state_backend_type) or next(
+            iter(wrapper_config["state"])
+        )
         logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
 
         state_conf = jinja2_env.get_template("state.tf.jinja2").render(
