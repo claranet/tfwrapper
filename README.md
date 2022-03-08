@@ -573,7 +573,7 @@ Those AzureRM credentials are loaded only if you are using the Service Principal
 
 ### Azure authentication isolation
 
-`AZURE_CONFIG_DIR` environment variable is set to the local `.run/azure` directory if global configuration value `use_local_azure_session_directory` is set to `true`.
+`AZURE_CONFIG_DIR` environment variable is set to the local `.run/azure` directory if global configuration value `use_local_azure_session_directory` is set to `true`, which is the default, which is the default.
 
 ### GCP configuration
 

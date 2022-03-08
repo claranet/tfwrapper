@@ -18,7 +18,7 @@ def test_user_context(monkeypatch, tmp_path):  # noqa: D103
 
     azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id)
 
-    subprocess_mock.assert_called_once_with(["az", "account", "show", "-s", subscription_id], check=True, capture_output=True)
+    subprocess_mock.assert_called_once_with(["az", "account", "get-access-token", "-s", subscription_id], check=True, capture_output=True)
     assert os.environ.get("AZURE_CONFIG_DIR", None) == os.path.join(tmp_path, ".run", "azure")
 
 
@@ -32,7 +32,7 @@ def test_user_context_no_isolation(monkeypatch, tmp_path):  # noqa: D103
 
     azure.set_context(wrapper_config, subscription_id, tenant_id=tenant_id)
 
-    subprocess_mock.assert_called_once_with(["az", "account", "show", "-s", subscription_id], check=True, capture_output=True)
+    subprocess_mock.assert_called_once_with(["az", "account", "get-access-token", "-s", subscription_id], check=True, capture_output=True)
     assert os.environ.get("AZURE_CONFIG_DIR", "") == ""
 
 

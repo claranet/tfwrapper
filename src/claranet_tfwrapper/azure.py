@@ -6,7 +6,7 @@ import subprocess
 
 import yaml
 
-CREDENTIALS_FILE = os.path.expanduser("~/.azurerm/config.yml")
+SP_CREDENTIALS_FILE = os.path.expanduser("~/.azurerm/config.yml")
 
 logger = logging.getLogger()
 
@@ -19,12 +19,12 @@ class AzureError(Exception):
 
 def get_sp_profile(profile_name):
     """Retrieve Service Principal credentials from name."""
-    with open(CREDENTIALS_FILE, "r") as f:
+    with open(SP_CREDENTIALS_FILE, "r") as f:
         load_azure_config = yaml.safe_load(f)
         if load_azure_config is None:
-            raise AzureError(f"Please configure your {CREDENTIALS_FILE} configuration file")
+            raise AzureError(f"Please configure your {SP_CREDENTIALS_FILE} configuration file")
         if profile_name not in load_azure_config.keys():
-            raise AzureError(f'Cannot find "{profile_name}" profile in your {CREDENTIALS_FILE} configuration file')
+            raise AzureError(f'Cannot find "{profile_name}" profile in your {SP_CREDENTIALS_FILE} configuration file')
         return (
             load_azure_config[profile_name]["tenant_id"],
             load_azure_config[profile_name]["client_id"],
@@ -45,7 +45,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
 
     if sp_profile is None:
         try:
-            subprocess.run(["az", "account", "show", "-s", subscription_id], check=True, capture_output=True)
+            subprocess.run(["az", "account", "get-access-token", "-s", subscription_id], check=True, capture_output=True)
         except subprocess.CalledProcessError:
             msg = (
                 "Error accessing subscription, check that you have Azure CLI installed and are authorized "
