@@ -14,7 +14,10 @@ logger = logging.getLogger()
 class AzureError(Exception):
     """Azure specific error class."""
 
-    pass
+    @property
+    def message(self):
+        """Error message."""
+        return self.args[0]
 
 
 def get_sp_profile(profile_name):

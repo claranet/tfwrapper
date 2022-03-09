@@ -441,7 +441,11 @@ def get_session(wrapper_config, account, region, profile, backend_type=None, con
         session_cache_file = "{}/.run/session_cache_{}_{}.pickle".format(wrapper_config["rootdir"], account, profile)
         session = _get_aws_session(session_cache_file, region, profile)
     elif backend_type == "azure":
-        session = azure.set_context(wrapper_config, conf["state_subscription"], sp_profile=profile, backend_context=True)
+        try:
+            session = azure.set_context(wrapper_config, conf["state_subscription"], sp_profile=profile, backend_context=True)
+        except azure.AzureError as e:
+            logger.error(f"Error while configuring Azure context: {e.message}")
+            exit(RC_KO)
     else:
         session = None
 
@@ -1514,7 +1518,7 @@ def main(argv=None):
                 try:
                     azure.set_context(wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"])
                 except azure.AzureError as e:
-                    logger.error(f"Error while configuring Azure context: {e}")
+                    logger.error(f"Error while configuring Azure context: {e.message}")
                     sys.exit(RC_KO)
 
             elif az_login_mode.lower() in [
@@ -1534,7 +1538,7 @@ def main(argv=None):
                         wrapper_config, terraform_vars["azure_subscription_id"], terraform_vars["azure_tenant_id"], profile
                     )
                 except azure.AzureError as e:
-                    logger.error(f"Error while configuring Azure context: {e}")
+                    logger.error(f"Error while configuring Azure context: {e.message}")
                     sys.exit(RC_KO)
             else:
                 logger.error(
