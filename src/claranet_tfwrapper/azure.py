@@ -51,6 +51,8 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         Azure subscription id
     tenant_id : str
         Azure Tenant/Directory id
+    context_name: str
+        Name of the context to set up. Must be empty for default context
     sp_profile : str
         Azure Service Principal profile name to use to configure credentials
     backend_context : bool

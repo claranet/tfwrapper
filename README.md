@@ -326,7 +326,6 @@ It is using the Service Principal's credentials to connect the Azure Subscriptio
 The wrapper loads client_id and client_secret from your `config.yml` located in `~/.azurem/config.yml`.
 `~/.azurem/config.yml` file structure example:
 
-
 ```yaml
 # File located at ~/.azurerm/config.yml
 
@@ -406,7 +405,6 @@ The wrapper will generate the following Terraform variables that can be used in 
 * `<config_name>_azure_client_secret` with Service Principal client secret. From the example, variable is: `alternative_client_secret = "AAbbbCCCzzz=="`
 
 Also, an isolation context is set to the local `.run/aure_<config_name>` directory for each configuration.
-
 
 ### States centralization configuration
 

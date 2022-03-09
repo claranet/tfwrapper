@@ -1510,6 +1510,7 @@ def main(argv=None):
             terraform_vars["azure_region"] = wrapper_config["region"]
 
             for provider_alias, provider_config in stack_config["azure"].items():
+                # Credentials used to be at the same level as providers
                 if provider_alias in ["credential", "credentials"]:
                     continue
 
