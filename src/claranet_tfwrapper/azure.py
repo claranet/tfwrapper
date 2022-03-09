@@ -82,7 +82,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
                     "--password",
                     client_secret,
                     "--tenant",
-                    tenant_id,
+                    sp_tenant_id,
                 ],
                 check=True,
                 capture_output=True,

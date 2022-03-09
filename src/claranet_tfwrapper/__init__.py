@@ -260,7 +260,8 @@ def load_wrapper_config(wrapper_config):
                     "state_backend_type": config_type,
                     "state_backend_parameters": state_config.get("backend_parameters", {}),
                     # Azure configuration
-                    "state_subscription": get_dict_value(config, "general", "subscription_uid"),
+                    "state_subscription": get_dict_value(config, "general", "subscription_id")
+                    or get_dict_value(config, "general", "subscription_uid"),
                     "state_rg": get_dict_value(config, "general", "resource_group_name"),
                     "state_storage": get_dict_value(config, "general", "storage_account_name"),
                     # AWS configuration
@@ -1349,11 +1350,6 @@ def main(argv=None):
                 "version",
             )
         )
-
-        if wrapper_config["config"]["use_local_azure_session_directory"]:
-            az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
-            logger.debug("Exporting `AZURE_CONFIG_DIR` set to `{}` directory".format(az_config_dir))
-            os.environ["AZURE_CONFIG_DIR"] = az_config_dir
 
         if load_backend and wrapper_config["state"]:
             state_config = (
