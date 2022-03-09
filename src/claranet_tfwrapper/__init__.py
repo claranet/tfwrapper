@@ -253,20 +253,22 @@ def load_wrapper_config(wrapper_config):
         normalized_config = [config] if isinstance(config, dict) else config
         for config in normalized_config:
             config_name = config.get("name", config_type)
-            wrapper_config["state"][config_name] = {
-                # Global
-                "state_backend_type": config_type,
-                "state_backend_parameters": state_config.get("backend_parameters", {}),
-                # Azure configuration
-                "state_subscription": get_dict_value(config, "general", "subscription_id")
-                or get_dict_value(config, "general", "subscription_uid"),
-                "state_rg": get_dict_value(config, "general", "resource_group_name"),
-                "state_storage": get_dict_value(config, "general", "storage_account_name"),
-                # AWS configuration
-                "state_account": get_dict_value(config, "general", "account"),
-                "state_region": get_dict_value(config, "general", "region"),
-                "state_profile": get_dict_value(config, "credentials", "profile"),
-            }
+            wrapper_config["state"][config_name] = config["general"]
+            wrapper_config["state"][config_name].update(
+                {
+                    # Global
+                    "state_backend_type": config_type,
+                    "state_backend_parameters": state_config.get("backend_parameters", {}),
+                    # Azure configuration
+                    "state_subscription": get_dict_value(config, "general", "subscription_uid"),
+                    "state_rg": get_dict_value(config, "general", "resource_group_name"),
+                    "state_storage": get_dict_value(config, "general", "storage_account_name"),
+                    # AWS configuration
+                    "state_account": get_dict_value(config, "general", "account"),
+                    "state_region": get_dict_value(config, "general", "region"),
+                    "state_profile": get_dict_value(config, "credentials", "profile"),
+                }
+            )
 
     # The default backend is the first in the list
     wrapper_config["default_state_backend_type"] = next(iter(state_config), None)

@@ -67,6 +67,8 @@ def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, defau
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_region"] == "eu-west-1"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
+    assert wrapper_config["state"]["aws"]["account"] == "12345678910"
+    assert wrapper_config["state"]["aws"]["region"] == "eu-west-1"
 
 
 def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):
@@ -97,6 +99,7 @@ def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_a
     assert wrapper_config["stack"] == "teststack"
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
+    assert wrapper_config["state"]["aws"]["account"] == "12345678910"
 
 
 def test_load_wrapper_config_list(tmp_working_dir_regional, default_args):
@@ -132,9 +135,13 @@ def test_load_wrapper_config_list(tmp_working_dir_regional, default_args):
     assert wrapper_config["environment"] == "testenvironment"
     assert wrapper_config["region"] == "testregion"
     assert wrapper_config["stack"] == "teststack"
+    assert wrapper_config["state"]["aws"]["account"] == "12345678910"
+    assert wrapper_config["state"]["aws"]["region"] == "eu-west-1"
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_region"] == "eu-west-1"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
+    assert wrapper_config["state"]["aws_backend2"]["account"] == "10987654321"
+    assert wrapper_config["state"]["aws_backend2"]["region"] == "eu-west-2"
     assert wrapper_config["state"]["aws_backend2"]["state_account"] == "10987654321"
     assert wrapper_config["state"]["aws_backend2"]["state_region"] == "eu-west-2"
     assert wrapper_config["state"]["aws_backend2"]["state_profile"] == "terraform-states-profile2"
@@ -170,3 +177,5 @@ def test_load_wrapper_config_old_map(tmp_working_dir_regional, default_args):
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_region"] == "eu-west-1"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
+    assert wrapper_config["state"]["aws"]["account"] == "12345678910"
+    assert wrapper_config["state"]["aws"]["region"] == "eu-west-1"
