@@ -1,4 +1,4 @@
-"""Azure related functns for tfwrapper."""
+"""Azure related functions for tfwrapper."""
 
 import logging
 import os
@@ -33,7 +33,31 @@ def get_sp_profile(profile_name):
 
 
 def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None, backend_context=False):
-    """Preconfigure context and check credentials."""
+    """
+    Configure context and check credentials.
+
+    This function configures environment variables needed for the Azure context.
+    It also checks the credentials from Azure CLI context or given Service Principal profile.
+    It returns a dict of Terraform variables to ease Azure configuration
+
+    Parameters
+    ----------
+    wrapper_config : dict
+        The wrapper global configuration
+    subscription_id : str
+        Azure subscription id
+    tenant_id : str
+        Azure Tenant/Directory id
+    sp_profile : str
+        Azure Service Principal profile name to use to configure credentials
+    backend_context : bool
+        True is context has to be set/check for a backend configuration
+
+    Returns
+    -------
+    dict
+        Terraform variables
+    """
     if backend_context:
         session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
         if session:
