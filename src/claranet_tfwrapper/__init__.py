@@ -99,8 +99,9 @@ stack_configuration_schema = Schema(
         Optional("aws"): {"general": {"account": str, "region": str}, "credentials": {"profile": str}},
         Optional("azure"): {
             "general": {"mode": str, "subscription_id": str, "directory_id": str, Optional("credentials"): {"profile": str}},
+            Optional(str): {"mode": str, "subscription_id": str, "directory_id": str, Optional("credentials"): {"profile": str}},
+            Optional("credential"): {"profile": str},
             Optional("credentials"): {"profile": str},
-            # FIXME this needs to be updated for provider alias and "credential" VS "credentials"
         },
         Optional("gcp"): {
             "general": {"project": str, "mode": str},
