@@ -250,6 +250,8 @@ def load_wrapper_config(wrapper_config):
         return
 
     for config_type, config in state_config.items():
+        if config_type == "backend_parameters":
+            continue
         normalized_config = [config] if isinstance(config, dict) else config
         for config in normalized_config:
             config_name = config.get("name", config_type)
