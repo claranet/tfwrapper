@@ -531,12 +531,12 @@ cd ${account}
 tfwrapper -r ${region} foreach -- tfwrapper plan
 ```
 
-Complex commands can be executed in a sub-shell with the `-c` argument, e.g.:
+Complex commands can be executed in a sub-shell with the `-S`/`--shell` argument, e.g.:
 
 ```bash
 # working from an environment directory
 cd ${account}/${environment}
-tfwrapper foreach -c 'pwd && tfwrapper init >/dev/null 2>&1 && tfwrapper plan 2>/dev/null -- -no-color | grep "^Plan: "'
+tfwrapper foreach -S 'pwd && tfwrapper init >/dev/null 2>&1 && tfwrapper plan 2>/dev/null -- -no-color | grep "^Plan: "'
 ```
 
 ### Passing options
