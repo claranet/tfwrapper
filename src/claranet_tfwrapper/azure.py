@@ -68,6 +68,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
             logger.debug("Session token found for backend: {}".format(session))
             os.environ["TF_VAR_azure_state_access_key"] = session
 
+    az_config_dir = None
     azure_local_session = wrapper_config.get("config", {}).get("use_local_azure_session_directory", True)
     if azure_local_session and "AZURE_CONFIG_DIR" not in os.environ:
         az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", "azure")
@@ -76,14 +77,14 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
 
     if sp_profile is None:
         try:
-            subprocess.run(["az", "account", "get-access-token", "-s", subscription_id], check=True, capture_output=True)
+            _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
         except subprocess.CalledProcessError:
             msg = (
                 "Error accessing subscription, check that you have Azure CLI installed and are authorized "
                 "on this subscription then log yourself in with:\n\n"
             )
 
-            if azure_local_session:
+            if az_config_dir:
                 msg += f"AZURE_CONFIG_DIR={az_config_dir} "
             if tenant_id:
                 msg += f"az login --tenant {tenant_id}"
@@ -99,7 +100,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
         # Logging in, useful for az CLI calls from Terraform code
         logger.info(f"Logging in with Service Principal {sp_profile}")
         try:
-            subprocess.run(
+            _launch_cli_command(
                 [
                     "az",
                     "login",
@@ -111,12 +112,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
                     "--tenant",
                     sp_tenant_id,
                 ],
-                check=True,
-                capture_output=True,
-                universal_newlines=True,
-                env={"AZURE_CONFIG_DIR": os.path.join(wrapper_config["rootdir"], ".run", "azure_backend")}
-                if backend_context
-                else None,
+                os.path.join(wrapper_config["rootdir"], ".run", "azure_backend") if backend_context else az_config_dir,
             )
         except subprocess.CalledProcessError as e:
             raise AzureError(f"Cannot log in with service principal {sp_profile}: {e.output}")
@@ -129,3 +125,11 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
             os.environ["TF_VAR_azure_state_client_id"] = client_id
             os.environ["TF_VAR_azure_state_client_secret"] = client_secret
             os.environ["TF_VAR_azure_state_client_tenant_id"] = sp_tenant_id
+
+
+def _launch_cli_command(command, az_config_dir=None):
+    """Launch an Azure CLI command with en given AZURE_CONFIG_DIR context."""
+    env = os.environ.copy()
+    if az_config_dir:
+        env["AZURE_CONFIG_DIR"] = az_config_dir
+    subprocess.run(command, check=True, capture_output=True, env=env)
