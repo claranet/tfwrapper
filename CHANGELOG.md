@@ -1,10 +1,17 @@
-# 9.2.1-alpha.0 (2022/02/10)
+# 10.0.0 (2022/03/10)
+
+BREAKING:
+
+- GH-51: Rename `foreach` subcommand `-c` parameter to `-S`/`--shell` to avoid conflict with main stack parameter
 
 UPDATES:
 
 - Add .github/dependabot.yml
+- Bump azure-common from 1.1.27 to 1.1.28
+- Bump azure-cli-core from 2.30.0 to 2.33.1
+- Bump azure-mgmt-storage from 18.0.0 to 19.1.0
 - Bump black from 21.9b0 to 22.1.0
-- Bump boto3 from 1.18.59 to 1.20.52
+- Bump boto3 from 1.18.59 to 1.21.3
 - Bump cachecontrol from 0.12.6 to 0.12.10
 - Bump colorlog from 5.0.1 to 6.6.0
 - Bump flake8 from 3.9.2 to 4.0.1
@@ -12,9 +19,10 @@ UPDATES:
 - Bump md-toc from 8.0.1 to 8.1.1
 - Bump natsort from 7.1.1 to 8.1.0
 - Bump packaging from 21.0 to 21.3
-- Bump pytest from 6.2.5 to 7.0.0
+- Bump pytest from 6.2.5 to 7.0.1
 - Bump pyyaml from 5.4.1 to 6.0
 - Bump schema from 0.7.4 to 0.7.5
+- Ignore all boto3 patch updates which are too frequent (but not security updates), and allow up to 10 PRs
 
 FIXES:
 
