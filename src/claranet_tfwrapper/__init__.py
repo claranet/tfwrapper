@@ -1319,7 +1319,7 @@ def parse_args(args):
 
     parser_foreach = subparsers.add_parser("foreach", help="execute command for each stack")
     parser_foreach.set_defaults(func=foreach)
-    parser_foreach.add_argument("-c", dest="shell", action="store_true", help="execute command in a shell")
+    parser_foreach.add_argument("-S", "--shell", dest="shell", action="store_true", help="execute command in a shell")
     parser_foreach.add_argument(
         "command",
         nargs=argparse.REMAINDER,
@@ -1343,7 +1343,7 @@ def parse_args(args):
         if len(parsed_args.command) < 1:
             raise ValueError("foreach: error: a command is required")
         if parsed_args.shell and len(parsed_args.command) > 1:
-            raise ValueError("foreach: error: -c must be followed by a single argument (hint: use quotes)")
+            raise ValueError("foreach: error: -S/--shell must be followed by a single argument (hint: use quotes)")
         parsed_args.executable = os.environ.get("SHELL", None) if parsed_args.shell else None
 
     return parsed_args
