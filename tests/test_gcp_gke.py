@@ -124,8 +124,8 @@ def test_dot_kubeconfig_refresh(mock_is_file, monkeypatch, caplog):
 
 def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):
     paths = tmp_working_dir_empty_conf
-    stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
-    stack_config_b.write_text(
+    stack_config_file = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    stack_config_file.write_text(
         textwrap.dedent(
             """
             ---
@@ -145,21 +145,15 @@ def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):
     )
 
     with pytest.raises(SystemExit):
-        tfwrapper.load_stack_config(
-            paths["conf_dir"],
-            "testaccount",
-            "testenvironment",
-            "testregion",
-            "teststack",
-        )
+        tfwrapper.load_stack_config_from_file(stack_config_file)
     assert "Or('always', 'never') did not validate 'invalid'" in caplog.text
 
 
 def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
-    stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    stack_config_file = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 
-    stack_config.write_text(
+    stack_config_file.write_text(
         textwrap.dedent(
             """
             ---
@@ -184,12 +178,11 @@ def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):
         },
         "terraform": {"vars": {"client_name": "claranet"}},
     }
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
-    assert parsed_stack_config == expected_stack_result
 
-    stack_config.write_text(
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
+    assert stack_config == expected_stack_result
+
+    stack_config_file.write_text(
         textwrap.dedent(
             """
             ---
@@ -215,12 +208,11 @@ def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):
         },
         "terraform": {"vars": {"client_name": "claranet"}},
     }
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
-    assert parsed_stack_config == expected_stack_result
 
-    stack_config.write_text(
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
+    assert stack_config == expected_stack_result
+
+    stack_config_file.write_text(
         textwrap.dedent(
             """
             ---
@@ -246,7 +238,6 @@ def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):
         },
         "terraform": {"vars": {"client_name": "claranet"}},
     }
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
-    assert parsed_stack_config == expected_stack_result
+
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
+    assert stack_config == expected_stack_result

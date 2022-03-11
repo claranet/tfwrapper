@@ -1,29 +1,26 @@
 """Test state configuration."""
 
 
-import pytest
 import textwrap
 
 import claranet_tfwrapper as tfwrapper
 
 
-def test_load_stack_config_missing(tmp_working_dir_regional, default_args):
+def test_load_stack_config_missing(tmp_working_dir_regional):
     paths = tmp_working_dir_regional
 
-    stack_config = tfwrapper.load_stack_config(paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack")
+    account = "testaccount"
+    environment = "testenvironment"
+    region = "testregion"
+    stack = "teststack"
+
+    stack_config_file = tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)
+
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
     assert stack_config == {}
 
 
-def test_load_stack_config_missing_but_required(tmp_working_dir_regional, default_args):
-    paths = tmp_working_dir_regional
-
-    with pytest.raises(SystemExit) as e:
-        tfwrapper.load_stack_config(paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack", True)
-    assert e.type == SystemExit
-    assert e.value.code == 1
-
-
-def test_load_stack_config_exists(tmp_working_dir_regional, default_args):
+def test_load_stack_config_from_file_exists(tmp_working_dir_regional):
     paths = tmp_working_dir_regional
 
     account = "testaccount"
@@ -55,7 +52,7 @@ def test_load_stack_config_exists(tmp_working_dir_regional, default_args):
         )
     )
 
-    stack_config = tfwrapper.load_stack_config(paths["conf_dir"], account, environment, region, stack)
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
     assert stack_config == {
         "aws": {
             "credentials": {"profile": "terraform-stack-profile"},
