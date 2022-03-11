@@ -506,7 +506,7 @@ def bootstrap(wrapper_config):
             logger.info("Bootstrapped stack using template {}.".format(template))
         else:
             logger.info("No template specified and no cloud provider defined in configuration, skipping.")
-            os.makedirs(stack_path)
+            os.makedirs(stack_path, exist_ok=True)
     else:
         logger.info(
             "Stack path {} already exists and is not empty, skipping stack bootstrapping from template.".format(stack_path)
