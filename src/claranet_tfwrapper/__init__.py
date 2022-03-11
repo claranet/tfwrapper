@@ -370,7 +370,7 @@ def foreach_select_stacks(wrapper_config):
 def load_stack_config_from_file(stack_config_file):
     """Load configuration from YAML file."""
     if not os.path.exists(stack_config_file):
-        logger.warning("Stack configuration file does not exist: {}".format(stack_config_file))
+        logger.debug("Stack configuration file does not exist: {}".format(stack_config_file))
         return {}
 
     with open(stack_config_file, "r") as f:
@@ -1350,15 +1350,65 @@ def main(argv=None):
     # convert args to dict
     wrapper_config.update(vars(args))
 
-    # pass loaded stack config to bootstrap subcommand
-    if args.subcommand == "bootstrap":
-        if not os.path.exists(stack_config_file):
-            logger.error("A valid stack configuration is required for bootstrap, aborting.")
+    # error if stack folder or config are missing for commands requiring them
+    wrapper_commands_not_requiring_stack_config = (
+        "console",
+        "fmt",
+        "foreach",
+        "providers",
+        "validate",
+        "version",
+    )
+    if args.subcommand not in wrapper_commands_not_requiring_stack_config:
+        if (
+            wrapper_config["environment"] != "global"
+            and not all(
+                [
+                    wrapper_config["account"],
+                    wrapper_config["environment"],
+                    wrapper_config["region"],
+                    wrapper_config["stack"],
+                ]
+            )
+            or not all(
+                [
+                    wrapper_config["account"],
+                    wrapper_config["environment"],
+                    wrapper_config["stack"],
+                ]
+            )
+        ):
+            logger.error("Cannot determine which stack to target for {}, aborting.".format(args.subcommand))
             sys.exit(RC_KO)
 
+        rootdir = wrapper_config["rootdir"]
+        account = wrapper_config["account"]
+        environment = wrapper_config["environment"]
+        region = wrapper_config["region"]
+        stack = wrapper_config["stack"]
+        stack_path = get_stack_dir(rootdir, account, environment, region, stack)
+
+        if args.subcommand != "bootstrap" and not os.path.isdir(stack_path):
+            logger.error(
+                "A valid stack configuration directory {} is required for {} subcommand, aborting.".format(
+                    stack_config_file, args.subcommand
+                )
+            )
+            sys.exit(RC_KO)
+
+        if not os.path.exists(stack_config_file):
+            logger.error(
+                "A valid stack configuration file {} is required for {} subcommand, aborting.".format(
+                    stack_config_file, args.subcommand
+                )
+            )
+            sys.exit(RC_KO)
+
+    # pass loaded stack config to bootstrap subcommand
+    if args.subcommand == "bootstrap":
         wrapper_config["stack_config"] = stack_config
 
-    # process args
+    # get state backend and stack credentials
     wrapper_local_commands = ("foreach",)
     if args.subcommand not in wrapper_local_commands:
         # get sessions
