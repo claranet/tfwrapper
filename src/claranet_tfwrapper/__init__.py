@@ -367,16 +367,21 @@ def foreach_select_stacks(wrapper_config):
     return filtered_stacks
 
 
-def load_stack_config(confdir, account, environment, region, stack):
+def load_stack_config(confdir, account, environment, region, stack, required=False):
     """Load configuration from YAML file."""
     stack_config_file = get_stack_config_path(confdir, account, environment, region, stack)
-    return _load_stack_config_from_file(stack_config_file)
+    return _load_stack_config_from_file(stack_config_file, required)
 
 
-def _load_stack_config_from_file(stack_config_file):
+def _load_stack_config_from_file(stack_config_file, required=False):
     """Load configuration from YAML file."""
     if not os.path.exists(stack_config_file):
-        logger.debug("Stack configuration file does not exist: {}".format(stack_config_file))
+        message = "Stack configuration file does not exist: {}".format(stack_config_file)
+        if required:
+            logger.error(message)
+            sys.exit(RC_KO)
+
+        logger.debug(message)
         return {}
 
     with open(stack_config_file, "r") as f:
@@ -475,7 +480,8 @@ def bootstrap(wrapper_config):
     stack = wrapper_config["stack"]
 
     stack_path = get_stack_dir(rootdir, account, environment, region, stack)
-    stack_config = load_stack_config(confdir, account, environment, region, stack)
+
+    stack_config = load_stack_config(confdir, account, environment, region, stack, True)
     state_backend_name = stack_config.get("state_configuration_name", None)
     state_backend_type = (
         wrapper_config["state"].get(state_backend_name)["state_backend_type"]
