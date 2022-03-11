@@ -81,24 +81,17 @@ def test_user_multiple_context(monkeypatch, tmp_path):  # noqa: D103
     alt_subscription_id = "22222222-2222-2222-2222-222222222222"
     alt_tenant_id = "33333333-3333-3333-3333-333333333333"
 
-    subprocess_mock = MagicMock()
-
-    monkeypatch.setattr(subprocess, "run", subprocess_mock)
+    launch_cli = MagicMock()
+    monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
     tf_vars = azure.set_context(wrapper_config, subscription_id, tenant_id, "")
-    subprocess_mock.assert_called_with(
-        ["az", "account", "get-access-token", "-s", subscription_id],
-        check=True,
-        capture_output=True,
-        env={"AZURE_CONFIG_DIR": os.path.join(tmp_path, ".run", "azure")},
+    launch_cli.assert_called_with(
+        ["az", "account", "get-access-token", "-s", subscription_id], os.path.join(tmp_path, ".run", "azure")
     )
 
     tf_vars_alt = azure.set_context(wrapper_config, alt_subscription_id, alt_tenant_id, "alternative")
-    subprocess_mock.assert_called_with(
-        ["az", "account", "get-access-token", "-s", alt_subscription_id],
-        check=True,
-        capture_output=True,
-        env={"AZURE_CONFIG_DIR": os.path.join(tmp_path, ".run", "azure_alternative")},
+    launch_cli.assert_called_with(
+        ["az", "account", "get-access-token", "-s", alt_subscription_id], os.path.join(tmp_path, ".run", "azure_alternative")
     )
 
     tf_vars.update(tf_vars_alt)
@@ -120,8 +113,8 @@ def test_sp_multiple_context_no_isolation(monkeypatch, tmp_path):  # noqa: D103
     alt_subscription_id = "22222222-2222-2222-2222-222222222222"
     alt_tenant_id = "33333333-3333-3333-3333-333333333333"
 
-    subprocess_mock = MagicMock()
-    monkeypatch.setattr(subprocess, "run", subprocess_mock)
+    launch_cli = MagicMock()
+    monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
     azure.set_context(wrapper_config, subscription_id, tenant_id, "")
     with pytest.raises(azure.AzureError):
@@ -140,8 +133,8 @@ def test_sp_multiple_context(monkeypatch, tmp_path):  # noqa: D103
     alt_client_id = "55555555-5555-5555-5555-555555555555"
     alt_client_secret = "myalternativesecret"
 
-    subprocess_mock = MagicMock()
-    monkeypatch.setattr(subprocess, "run", subprocess_mock)
+    launch_cli = MagicMock()
+    monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
 
     sp_profile_mock = MagicMock()
     monkeypatch.setattr(azure, "get_sp_profile", sp_profile_mock)
@@ -153,12 +146,9 @@ def test_sp_multiple_context(monkeypatch, tmp_path):  # noqa: D103
 
     tf_vars = azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
     sp_profile_mock.assert_called_with("my-profile")
-    subprocess_mock.assert_called_with(
+    launch_cli.assert_called_with(
         ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],
-        check=True,
-        capture_output=True,
-        universal_newlines=True,
-        env={"AZURE_CONFIG_DIR": os.path.join(tmp_path, ".run", "azure")},
+        os.path.join(tmp_path, ".run", "azure"),
     )
 
     tf_vars_alt = azure.set_context(
@@ -166,7 +156,7 @@ def test_sp_multiple_context(monkeypatch, tmp_path):  # noqa: D103
     )
     tf_vars.update(tf_vars_alt)
     sp_profile_mock.assert_called_with("my-alternative-profile")
-    subprocess_mock.assert_called_with(
+    launch_cli.assert_called_with(
         [
             "az",
             "login",
@@ -178,10 +168,7 @@ def test_sp_multiple_context(monkeypatch, tmp_path):  # noqa: D103
             "--tenant",
             alt_tenant_id,
         ],
-        check=True,
-        capture_output=True,
-        universal_newlines=True,
-        env={"AZURE_CONFIG_DIR": os.path.join(tmp_path, ".run", "azure_alternative")},
+        os.path.join(tmp_path, ".run", "azure_alternative"),
     )
 
     assert os.environ.get("AZURE_CONFIG_DIR", None) == os.path.join(tmp_path, ".run", "azure")
