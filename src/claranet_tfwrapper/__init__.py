@@ -1362,11 +1362,16 @@ def main(argv=None):
         )
 
         if load_backend and wrapper_config["state"]:
-            state_config = (
-                wrapper_config["state"].get(state_backend_name)
-                if state_backend_name
-                else next(iter(wrapper_config["state"].values()))
-            )
+            try:
+                state_config = (
+                    wrapper_config["state"]["state_backend_name"]
+                    if state_backend_name
+                    else next(iter(wrapper_config["state"].values()))
+                )
+            except KeyError:
+                logger.error(f'State configuration "{state_backend_name}" does not exist.')
+                exit(RC_KO)
+
             state_backend_type = state_config["state_backend_type"]
 
             state_session = get_session(
