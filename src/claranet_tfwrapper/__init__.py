@@ -501,7 +501,7 @@ def bootstrap(wrapper_config):
             break
 
     if stack_type is None:
-        logger.info("No cloud provider specified in configuration.")
+        logger.info("No cloud provider specified in stack configuration.")
 
     # bootstrap Terraform files from stack template
     if not os.path.isdir(stack_path):
@@ -515,42 +515,50 @@ def bootstrap(wrapper_config):
                     template = "{}/basic".format(stack_type)
 
             shutil.copytree("{}/templates/{}".format(rootdir, template), stack_path)
+            logger.info("Bootstrapped stack using template {}.".format(template))
         else:
             logger.info("No template specified and no cloud provider defined in configuration, skipping.")
             os.makedirs(stack_path)
+    else:
+        logger.info("Stack path {} already exists, skipping stack bootstrapping from template.".format(stack_path))
 
     # bootstrap state.tf from jinja2 template with a specified backend
-    if not os.path.isfile("{}/state.tf".format(stack_path)) and state_backend_type:
-        client_name = stack_config["terraform"]["vars"].get("client_name", account)
+    if not os.path.isfile("{}/state.tf".format(stack_path)):
+        if state_backend_type:
+            client_name = stack_config["terraform"]["vars"].get("client_name", account)
 
-        template_path = "{}/templates/{}/common".format(rootdir, state_backend_type)
-        logger.debug("Using template path {}".format(template_path))
+            template_path = "{}/templates/{}/common".format(rootdir, state_backend_type)
+            logger.debug("Using template path {}".format(template_path))
 
-        jinja2_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(template_path),
-            lstrip_blocks=True,
-            trim_blocks=True,
-        )
+            jinja2_env = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(template_path),
+                lstrip_blocks=True,
+                trim_blocks=True,
+            )
 
-        state_yml_parameters = wrapper_config["state"].get(state_backend_name or state_backend_type) or next(
-            iter(wrapper_config["state"])
-        )
-        logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
+            state_yml_parameters = wrapper_config["state"].get(state_backend_name or state_backend_type) or next(
+                iter(wrapper_config["state"])
+            )
+            logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
 
-        state_conf = jinja2_env.get_template("state.tf.jinja2").render(
-            client_name=client_name,
-            account=account,
-            environment=environment,
-            region=region,
-            stack=stack,
-            state_parameters=state_yml_parameters,
-        )
+            state_conf = jinja2_env.get_template("state.tf.jinja2").render(
+                client_name=client_name,
+                account=account,
+                environment=environment,
+                region=region,
+                stack=stack,
+                state_parameters=state_yml_parameters,
+            )
 
-        with open("{}/state.tf".format(stack_path), "w") as f:
-            f.write(state_conf)
+            with open("{}/state.tf".format(stack_path), "w") as f:
+                f.write(state_conf)
 
-        logger.info('`state.tf` file generated with "{}" backend type configured.'.format(state_backend_type))
-        logger.info("Please run `tfwrapper init` to initialize this stack.")
+            logger.info('Generated state.tf file with "{}" backend type configured.'.format(state_backend_type))
+            logger.info("Run `tfwrapper init` to initialize this new stack.")
+        else:
+            logger.info("No state backend configuration found, skipping state configuration file state.tf generation.")
+    else:
+        logger.info("State configuration file state.tf already exists, skipping its generation.")
 
 
 def search_on_github(repo, minor_version, patch_regex, patch):
@@ -666,7 +674,7 @@ def select_terraform_version(version):
         )
         os.remove(tmp_file)
 
-    logger.warning("Using terraform version {}".format(full_version))
+    logger.info("Using terraform version {}".format(full_version))
 
 
 def download_custom_provider(provider_name, provider_version, extension="zip"):
