@@ -73,6 +73,10 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
 
     az_config_dir = None
     azure_local_session = wrapper_config.get("config", {}).get("use_local_azure_session_directory", True)
+    if azure_local_session:
+        logger.debug("Using Azure isolated session")
+    else:
+        logger.debug("Using Azure global context, no session isolation")
     if not azure_local_session and context_name:
         raise AzureError(
             "Cannot configure multiple providers context without session isolation.\n"
@@ -114,12 +118,18 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
             raise AzureError(msg)
     else:
         sp_tenant_id, client_id, client_secret = get_sp_profile(sp_profile)
+        logger.debug(f'Service principal "{sp_profile}" loaded with client id "{client_id}" and tenant id "{sp_tenant_id}"')
 
         if tenant_id is not None and tenant_id != sp_tenant_id:
             raise AzureError(f'Configured tenant id and Service Principal tenant id must be the same for service "{sp_profile}".')
 
         # Logging in, useful for az CLI calls from Terraform code
-        logger.info(f"Logging in with Service Principal {sp_profile}")
+        log_context = ""
+        if backend_context:
+            log_context = " for backend context"
+        elif context_name:
+            log_context = f' for "{context_name}" stack context'
+        logger.info(f'Logging in with Service Principal "{sp_profile}"{log_context}')
         try:
             _launch_cli_command(
                 [
@@ -154,6 +164,10 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
 
 def _launch_cli_command(command, az_config_dir=None):
     """Launch an Azure CLI command with a given AZURE_CONFIG_DIR context."""
+    if az_config_dir:
+        logger.debug(f'Launching command "{" ".join(command)}" with AZURE_CONFIG_DIR="{az_config_dir}" context')
+    else:
+        logger.debug(f'Launching command "{" ".join(command)}"')
     env = os.environ.copy()
     if az_config_dir:
         env["AZURE_CONFIG_DIR"] = az_config_dir
