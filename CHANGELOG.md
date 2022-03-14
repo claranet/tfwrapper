@@ -2,7 +2,7 @@
 
 BREAKING:
 
-- TER-493: Remove Azure dependencies and fall back to a [standard usage of azure backend configuration](https://www.terraform.io/language/settings/backends/azurerm).
+- TER-493: Remove Azure SDK dependencies, use Azure CLI, and fall back to a [standard usage of azure backend configuration](https://www.terraform.io/language/settings/backends/azurerm).
 
 ADDED
 

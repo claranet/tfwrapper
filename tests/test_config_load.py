@@ -72,3 +72,15 @@ def test_config_load_plan_valid_config(tmp_working_dir_regional_valid):
 
     assert e.type == SystemExit
     assert e.value.code == 0
+
+
+def test_config_load_init_with_use_local_azure_session_directory_default(  # noqa: D103
+    monkeypatch, tmp_working_dir_regional_valid
+):
+    paths = tmp_working_dir_regional_valid
+    os.chdir(paths["stack_dir"])
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(["init"])
+    assert e.type == SystemExit
+    assert e.value.code == 0

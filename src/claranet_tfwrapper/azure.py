@@ -128,7 +128,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
 
 
 def _launch_cli_command(command, az_config_dir=None):
-    """Launch an Azure CLI command with en given AZURE_CONFIG_DIR context."""
+    """Launch an Azure CLI command with a given AZURE_CONFIG_DIR context."""
     env = os.environ.copy()
     if az_config_dir:
         env["AZURE_CONFIG_DIR"] = az_config_dir
