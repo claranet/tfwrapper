@@ -546,9 +546,9 @@ def bootstrap(wrapper_config):
             logger.info('Generated state.tf file with "{}" backend type configured.'.format(state_backend_type))
             logger.info("Run `tfwrapper init` to initialize this new stack.")
         else:
-            logger.info("No state backend configuration found, skipping state configuration file state.tf generation.")
+            logger.warning("No state backend configuration found, skipping state configuration file state.tf generation.")
     else:
-        logger.info("State configuration file state.tf already exists, skipping its generation.")
+        logger.warning("State configuration file state.tf already exists, skipping its generation.")
 
 
 def search_on_github(repo, minor_version, patch_regex, patch):
