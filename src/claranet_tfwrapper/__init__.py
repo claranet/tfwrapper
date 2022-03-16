@@ -1364,7 +1364,7 @@ def main(argv=None):
         if load_backend and wrapper_config["state"]:
             try:
                 state_config = (
-                    wrapper_config["state"]["state_backend_name"]
+                    wrapper_config["state"][state_backend_name]
                     if state_backend_name
                     else next(iter(wrapper_config["state"].values()))
                 )
