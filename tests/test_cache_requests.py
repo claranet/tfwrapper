@@ -12,7 +12,7 @@ import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
-def terraform_releases_html_after_v0_13_0():  # noqa: D103
+def terraform_releases_html_after_v0_13_0():
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -72,7 +72,7 @@ class AutoclosingBytesIO(io.BytesIO):
         return data
 
 
-def test_search_on_github_cache_terraform_releases_200(  # noqa: D103
+def test_search_on_github_cache_terraform_releases_200(
     tmp_working_dir,
     terraform_releases_html_after_v0_13_0,
 ):
@@ -109,7 +109,7 @@ def test_search_on_github_cache_terraform_releases_200(  # noqa: D103
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(  # noqa: D103
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
     tmp_working_dir, terraform_releases_html_after_v0_13_0
 ):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
@@ -155,7 +155,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(  # 
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(  # noqa: D103
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
     tmp_working_dir,
     terraform_releases_html_after_v0_13_0,
 ):
@@ -202,7 +202,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(  # 
             assert not pook.unmatched_requests()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(  # noqa: D103
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
     tmp_working_dir,
     terraform_releases_html_after_v0_13_0,
 ):

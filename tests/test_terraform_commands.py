@@ -7,7 +7,7 @@ import pytest
 import claranet_tfwrapper as tfwrapper
 
 
-def test_terraform_1_0_0_commands(tmp_working_dir_regional_valid):  # noqa: D103
+def test_terraform_1_0_0_commands(tmp_working_dir_regional_valid):
     for command in [
         ["apply", "--unsafe"],
         ["console"],
@@ -41,7 +41,7 @@ def test_terraform_1_0_0_commands(tmp_working_dir_regional_valid):  # noqa: D103
         assert e.value.code == 0
 
 
-def test_terraform_invalid_command(tmp_working_dir_regional_valid):  # noqa: D103
+def test_terraform_invalid_command(tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     os.chdir(paths["stack_dir"])
 

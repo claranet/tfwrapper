@@ -9,7 +9,7 @@ import textwrap
 import claranet_tfwrapper as tfwrapper
 
 
-def test_load_wrapper_config_empty_state_conf(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_empty_state_conf(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text("")
@@ -37,7 +37,7 @@ def test_load_wrapper_config_empty_state_conf(tmp_working_dir_regional, default_
     assert wrapper_config["state"] == {}
 
 
-def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text(
@@ -69,7 +69,7 @@ def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, defau
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
 
 
-def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):  # noqa: D103
+def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):
     paths = tmp_working_dir_global
 
     paths["state_conf"].write_text(

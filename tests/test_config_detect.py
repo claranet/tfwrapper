@@ -10,21 +10,21 @@ import pytest
 import claranet_tfwrapper as tfwrapper
 
 
-def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):  # noqa: D103
+def test_detect_config_dir_confdir_not_found(tmp_working_dir, default_args):
     wrapper_config = deepcopy(vars(default_args))
 
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     assert parents_count == 0
 
 
-def test_detect_config_dir_empty(tmp_working_dir_empty_conf, default_args):  # noqa: D103
+def test_detect_config_dir_empty(tmp_working_dir_empty_conf, default_args):
     wrapper_config = deepcopy(vars(default_args))
 
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     assert parents_count == 0
 
 
-def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
     wrapper_config = deepcopy(vars(default_args))
 
@@ -56,7 +56,7 @@ def test_detect_config_dir_regional(tmp_working_dir_regional, default_args):  # 
     assert parents_count == 4
 
 
-def test_detect_config_dir_global(tmp_working_dir_global, default_args):  # noqa: D103
+def test_detect_config_dir_global(tmp_working_dir_global, default_args):
     paths = tmp_working_dir_global
     wrapper_config = deepcopy(vars(default_args))
 
@@ -82,7 +82,7 @@ def test_detect_config_dir_global(tmp_working_dir_global, default_args):  # noqa
     assert parents_count == 3
 
 
-def test_detect_stack_regional(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_detect_stack_regional(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     wrapper_config = deepcopy(vars(default_args))
@@ -122,7 +122,7 @@ def test_detect_stack_regional(tmp_working_dir_regional, default_args):  # noqa:
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_detect_stack_global(tmp_working_dir_global, default_args):  # noqa: D103
+def test_detect_stack_global(tmp_working_dir_global, default_args):
     paths = tmp_working_dir_global
 
     wrapper_config = deepcopy(vars(default_args))
@@ -155,7 +155,7 @@ def test_detect_stack_global(tmp_working_dir_global, default_args):  # noqa: D10
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_detect_stack_regional_no_error_if_missing(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_detect_stack_regional_no_error_if_missing(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     wrapper_config = deepcopy(vars(default_args))
@@ -203,7 +203,7 @@ def test_detect_stack_regional_no_error_if_missing(tmp_working_dir_regional, def
     assert wrapper_config["stack"] == "teststack"
 
 
-def test_detect_stack_global_no_error_if_missing(tmp_working_dir_global, default_args):  # noqa: D103
+def test_detect_stack_global_no_error_if_missing(tmp_working_dir_global, default_args):
     paths = tmp_working_dir_global
 
     wrapper_config = deepcopy(vars(default_args))

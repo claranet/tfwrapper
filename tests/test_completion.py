@@ -8,7 +8,7 @@ import pytest
 import claranet_tfwrapper as tfwrapper
 
 
-def do_completion_test(monkeypatch, tmp_path, line, point=None):  # noqa: D103
+def do_completion_test(monkeypatch, tmp_path, line, point=None):
     if point is None:
         point = len(line)
 
@@ -39,7 +39,7 @@ def do_completion_test(monkeypatch, tmp_path, line, point=None):  # noqa: D103
         return f.read()
 
 
-def test_completion_no_args(monkeypatch, tmp_path):  # noqa: D103
+def test_completion_no_args(monkeypatch, tmp_path):
     assert do_completion_test(monkeypatch, tmp_path, "tfwrapper ",) == " ".join(
         [
             "-h",
@@ -87,7 +87,7 @@ def test_completion_no_args(monkeypatch, tmp_path):  # noqa: D103
     )
 
 
-def test_completion_arg_dash(monkeypatch, tmp_path):  # noqa: D103
+def test_completion_arg_dash(monkeypatch, tmp_path):
     assert do_completion_test(monkeypatch, tmp_path, "tfwrapper -",) == " ".join(
         [
             "-h",
@@ -113,7 +113,7 @@ def test_completion_arg_dash(monkeypatch, tmp_path):  # noqa: D103
     )
 
 
-def test_completion_arg_dash_d(monkeypatch, tmp_path):  # noqa: D103
+def test_completion_arg_dash_d(monkeypatch, tmp_path):
     assert do_completion_test(monkeypatch, tmp_path, "tfwrapper -d",) == " ".join(
         [
             "-d ",
@@ -121,7 +121,7 @@ def test_completion_arg_dash_d(monkeypatch, tmp_path):  # noqa: D103
     )
 
 
-def test_completion_arg_work(monkeypatch, tmp_path):  # noqa: D103
+def test_completion_arg_work(monkeypatch, tmp_path):
     assert do_completion_test(monkeypatch, tmp_path, "tfwrapper work",) == " ".join(
         [
             "workspace ",
@@ -129,7 +129,7 @@ def test_completion_arg_work(monkeypatch, tmp_path):  # noqa: D103
     )
 
 
-def test_completion_arg_workspace(monkeypatch, tmp_path):  # noqa: D103
+def test_completion_arg_workspace(monkeypatch, tmp_path):
     assert do_completion_test(monkeypatch, tmp_path, "tfwrapper workspace ",) == " ".join(
         [
             "-h",
@@ -143,7 +143,7 @@ def test_completion_arg_workspace(monkeypatch, tmp_path):  # noqa: D103
     )
 
 
-def test_completion_arg_workspace_select(monkeypatch, tmp_path):  # noqa: D103
+def test_completion_arg_workspace_select(monkeypatch, tmp_path):
     assert do_completion_test(monkeypatch, tmp_path, "tfwrapper workspace select ",) == " ".join(
         [
             "default ",
