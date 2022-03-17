@@ -9,13 +9,13 @@ import pytest
 import claranet_tfwrapper as tfwrapper
 
 
-def test_config_load_help():  # noqa: D103
+def test_config_load_help():
     with pytest.raises(SystemExit) as e:
         tfwrapper.parse_args([])
     assert e.value.code == 0
 
 
-def test_config_load_init_not_in_stack(tmp_working_dir_regional):  # noqa: D103
+def test_config_load_init_not_in_stack(tmp_working_dir_regional):
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["init"])
 
@@ -23,7 +23,7 @@ def test_config_load_init_not_in_stack(tmp_working_dir_regional):  # noqa: D103
     assert e.value.code == 0
 
 
-def test_config_load_init_missing_config(tmp_working_dir_regional):  # noqa: D103
+def test_config_load_init_missing_config(tmp_working_dir_regional):
     paths = tmp_working_dir_regional
     os.chdir(paths["stack_dir"])
 
@@ -34,7 +34,7 @@ def test_config_load_init_missing_config(tmp_working_dir_regional):  # noqa: D10
     assert e.value.code == 0
 
 
-def test_config_load_init_valid_config(tmp_working_dir_regional_valid):  # noqa: D103
+def test_config_load_init_valid_config(tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     os.chdir(paths["stack_dir"])
 
@@ -45,7 +45,7 @@ def test_config_load_init_valid_config(tmp_working_dir_regional_valid):  # noqa:
     assert e.value.code == 0
 
 
-def test_config_load_plan_not_in_stack(tmp_working_dir_regional):  # noqa: D103
+def test_config_load_plan_not_in_stack(tmp_working_dir_regional):
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["plan"])
 
@@ -53,7 +53,7 @@ def test_config_load_plan_not_in_stack(tmp_working_dir_regional):  # noqa: D103
     assert e.value.code == 1
 
 
-def test_config_load_plan_missing_config(tmp_working_dir_regional):  # noqa: D103
+def test_config_load_plan_missing_config(tmp_working_dir_regional):
     paths = tmp_working_dir_regional
     os.chdir(paths["stack_dir"])
 
@@ -64,7 +64,7 @@ def test_config_load_plan_missing_config(tmp_working_dir_regional):  # noqa: D10
     assert e.value.code == 1
 
 
-def test_config_load_plan_valid_config(tmp_working_dir_regional_valid):  # noqa: D103
+def test_config_load_plan_valid_config(tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     os.chdir(paths["stack_dir"])
 
@@ -75,9 +75,7 @@ def test_config_load_plan_valid_config(tmp_working_dir_regional_valid):  # noqa:
     assert e.value.code == 0
 
 
-def test_config_load_init_with_use_local_azure_session_directory_default(  # noqa: D103
-    monkeypatch, tmp_working_dir_regional_valid
-):
+def test_config_load_init_with_use_local_azure_session_directory_default(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     os.chdir(paths["stack_dir"])
 
@@ -92,7 +90,7 @@ def test_config_load_init_with_use_local_azure_session_directory_default(  # noq
     assert os.environ.get("AZURE_CONFIG_DIR").endswith("/a/b/c/d/e/.run/azure")
 
 
-def test_config_load_init_with_use_local_azure_session_directory_true(monkeypatch, tmp_working_dir_regional_valid):  # noqa: D103
+def test_config_load_init_with_use_local_azure_session_directory_true(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     os.chdir(paths["stack_dir"])
 
@@ -115,7 +113,7 @@ def test_config_load_init_with_use_local_azure_session_directory_true(monkeypatc
     assert os.environ.get("AZURE_CONFIG_DIR").endswith("/a/b/c/d/e/.run/azure")
 
 
-def test_config_load_init_with_use_local_azure_session_directory_false(monkeypatch, tmp_working_dir_regional_valid):  # noqa: D103
+def test_config_load_init_with_use_local_azure_session_directory_false(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     os.chdir(paths["stack_dir"])
 

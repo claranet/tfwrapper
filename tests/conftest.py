@@ -10,7 +10,7 @@ from unittest import mock
 
 
 @pytest.fixture(autouse=True)
-def mock_environment_variables():  # noqa: D103
+def mock_environment_variables():
     # ensure external environment variables do not infer with tests,
     # and that the ones that are set by tfwrapper are cleared between tests
     path = os.environ["PATH"]
@@ -19,7 +19,7 @@ def mock_environment_variables():  # noqa: D103
 
 
 @pytest.fixture
-def default_args():  # noqa: D103
+def default_args():
     parser = argparse.ArgumentParser()
     args = parser.parse_args([])
     args.confdir = "conf"
@@ -31,7 +31,7 @@ def default_args():  # noqa: D103
 
 
 @pytest.fixture
-def tmp_working_dir(tmp_path):  # noqa: D103
+def tmp_working_dir(tmp_path):
     # use path with more than 5 directories to avoid getting an unrelated conf dir outside tmp_path
     working_dir = tmp_path / "a" / "b" / "c" / "d" / "e"
     working_dir.mkdir(parents=True)
@@ -43,7 +43,7 @@ def tmp_working_dir(tmp_path):  # noqa: D103
 
 
 @pytest.fixture
-def tmp_working_dir_empty_conf(tmp_working_dir, default_args):  # noqa: D103
+def tmp_working_dir_empty_conf(tmp_working_dir, default_args):
     paths = tmp_working_dir
     paths["conf_dir"] = paths["working_dir"] / default_args.confdir
     paths["conf_dir"].mkdir()
@@ -54,7 +54,7 @@ def tmp_working_dir_empty_conf(tmp_working_dir, default_args):  # noqa: D103
 
 
 @pytest.fixture
-def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
+def tmp_working_dir_regional(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
     paths["environment_dir"] = paths["account_dir"] / "testenvironment"
@@ -66,7 +66,7 @@ def tmp_working_dir_regional(tmp_working_dir_empty_conf):  # noqa: D103
 
 
 @pytest.fixture
-def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
+def tmp_working_dir_global(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     paths["account_dir"] = paths["working_dir"] / "testaccount"
     paths["environment_dir"] = paths["account_dir"] / "_global"
@@ -77,7 +77,7 @@ def tmp_working_dir_global(tmp_working_dir_empty_conf):  # noqa: D103
 
 
 @pytest.fixture
-def tmp_working_dir_regional_valid(tmp_working_dir_regional):  # noqa: D103
+def tmp_working_dir_regional_valid(tmp_working_dir_regional):
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text("---")

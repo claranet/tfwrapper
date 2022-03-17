@@ -8,7 +8,7 @@ import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
-def provider_releases_html_after_v2_6_0():  # noqa: D103
+def provider_releases_html_after_v2_6_0():
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -35,7 +35,7 @@ def provider_releases_html_after_v2_6_0():  # noqa: D103
 
 
 @pytest.fixture
-def provider_releases_html_after_v1_3_0():  # noqa: D103
+def provider_releases_html_after_v1_3_0():
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +61,7 @@ def provider_releases_html_after_v1_3_0():  # noqa: D103
     """
 
 
-def test_search_on_github_provider_releases(  # noqa: D103
+def test_search_on_github_provider_releases(
     requests_mock,
     provider_releases_html_after_v2_6_0,
     provider_releases_html_after_v1_3_0,

@@ -13,7 +13,7 @@ import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
-def multiple_stacks():  # noqa: D103
+def multiple_stacks():
     return [
         ("account0", "global", None, "default"),
         ("account0", "preprod", "eu-west-1", "default"),
@@ -114,7 +114,7 @@ def tmp_working_dir_multiple_stacks(tmp_working_dir_empty_conf, multiple_stacks)
     return paths
 
 
-def test_foreach_select_all_stacks(tmp_working_dir_multiple_stacks, multiple_stacks, default_args, caplog):  # noqa: D103
+def test_foreach_select_all_stacks(tmp_working_dir_multiple_stacks, multiple_stacks, default_args, caplog):
     wrapper_config = deepcopy(vars(default_args))
     parents_count = tfwrapper.detect_config_dir(wrapper_config)
     tfwrapper.detect_stack(wrapper_config, parents_count, raise_on_missing=False)
@@ -139,7 +139,7 @@ def test_foreach_select_all_stacks(tmp_working_dir_multiple_stacks, multiple_sta
     assert "Stack config conf/account2_global_default.yml has no matching directory at" in caplog.text
 
 
-def test_foreach_select_from_dir_account0(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_dir_account0(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     paths = tmp_working_dir_multiple_stacks
 
     os.chdir((paths["working_dir"] / "account0"))
@@ -171,7 +171,7 @@ def test_foreach_select_from_dir_account0(tmp_working_dir_multiple_stacks, multi
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_dir_account0_prod(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_dir_account0_prod(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     paths = tmp_working_dir_multiple_stacks
 
     os.chdir((paths["working_dir"] / "account0/prod"))
@@ -193,7 +193,7 @@ def test_foreach_select_from_dir_account0_prod(tmp_working_dir_multiple_stacks, 
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_dir_account0_prod_euw1(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_dir_account0_prod_euw1(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     paths = tmp_working_dir_multiple_stacks
 
     os.chdir((paths["working_dir"] / "account0/prod/eu-west-1"))
@@ -213,7 +213,7 @@ def test_foreach_select_from_dir_account0_prod_euw1(tmp_working_dir_multiple_sta
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_account0(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_args_account0(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     default_args.account = "account0"
 
     wrapper_config = deepcopy(vars(default_args))
@@ -243,7 +243,7 @@ def test_foreach_select_from_args_account0(tmp_working_dir_multiple_stacks, mult
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_env_preprod(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_args_env_preprod(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     default_args.environment = "preprod"
 
     wrapper_config = deepcopy(vars(default_args))
@@ -267,7 +267,7 @@ def test_foreach_select_from_args_env_preprod(tmp_working_dir_multiple_stacks, m
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_region_euw1(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):  # noqa: D103
+def test_foreach_select_from_args_region_euw1(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     default_args.region = "eu-west-1"
 
     wrapper_config = deepcopy(vars(default_args))
@@ -293,7 +293,7 @@ def test_foreach_select_from_args_region_euw1(tmp_working_dir_multiple_stacks, m
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_stack_default(  # noqa: D103
+def test_foreach_select_from_args_stack_default(
     tmp_working_dir_multiple_stacks,
     multiple_stacks,
     default_args,
@@ -326,9 +326,7 @@ def test_foreach_select_from_args_stack_default(  # noqa: D103
     assert len(stacks) == len(expected_stacks)
 
 
-def test_foreach_select_from_args_env_preprod_stack_default(  # noqa: D103
-    tmp_working_dir_multiple_stacks, multiple_stacks, default_args
-):
+def test_foreach_select_from_args_env_preprod_stack_default(tmp_working_dir_multiple_stacks, multiple_stacks, default_args):
     default_args.environment = "preprod"
     default_args.stack = "default"
 

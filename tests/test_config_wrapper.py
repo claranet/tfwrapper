@@ -9,7 +9,7 @@ import textwrap
 import claranet_tfwrapper as tfwrapper
 
 
-def test_load_wrapper_config_empty_confdir(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_empty_confdir(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     os.chdir(paths["stack_dir"])
@@ -19,7 +19,7 @@ def test_load_wrapper_config_empty_confdir(tmp_working_dir_regional, default_arg
     assert wrapper_config["state"] == {}
 
 
-def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     os.chdir(paths["stack_dir"])
@@ -53,7 +53,7 @@ def test_load_wrapper_config_confdir_empty(tmp_working_dir_regional, default_arg
     assert wrapper_config["state"] == {}
 
 
-def test_load_wrapper_config_empty_wrapper_config(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_empty_wrapper_config(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     os.chdir(paths["stack_dir"])
@@ -87,7 +87,7 @@ def test_load_wrapper_config_empty_wrapper_config(tmp_working_dir_regional, defa
     assert wrapper_config["state"] == {}
 
 
-def test_load_wrapper_config_use_local_azure_session_directory(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_use_local_azure_session_directory(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     os.chdir(paths["stack_dir"])
@@ -134,7 +134,7 @@ def test_load_wrapper_config_use_local_azure_session_directory(tmp_working_dir_r
     assert wrapper_config["config"]["use_local_azure_session_directory"] is False
 
 
-def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text(
@@ -166,7 +166,7 @@ def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, defau
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
 
 
-def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):  # noqa: D103
+def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):
     paths = tmp_working_dir_global
 
     paths["state_conf"].write_text(

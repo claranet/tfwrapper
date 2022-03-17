@@ -7,19 +7,19 @@ import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
-def terraform_versions_json():  # noqa: D103
+def terraform_versions_json():
     with open(os.path.join(os.path.dirname(__file__), "test_terraform_versions.json")) as f:
         return f.read()
 
 
 @pytest.fixture
-def terraform_versions_json_error():  # noqa: D103
+def terraform_versions_json_error():
     return """
 {"name":"terraform","versions":""}
 """
 
 
-def test_get_terraform_last_patch(  # noqa: D103
+def test_get_terraform_last_patch(
     requests_mock,
     terraform_versions_json,
 ):
@@ -67,7 +67,7 @@ def test_get_terraform_last_patch(  # noqa: D103
     assert "The terraform minor version 0.666 does not exist" in str(e)
 
 
-def test_get_terraform_last_patch_error(  # noqa: D103
+def test_get_terraform_last_patch_error(
     requests_mock,
     terraform_versions_json_error,
 ):

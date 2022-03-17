@@ -14,7 +14,7 @@ import claranet_tfwrapper as tfwrapper
 
 
 @patch("pathlib.Path.is_file")
-def test_dot_kubeconfig_refresh(mock_is_file, monkeypatch, caplog):  # noqa: D103
+def test_dot_kubeconfig_refresh(mock_is_file, monkeypatch, caplog):
     adc_path = "/home/test/.config/gcloud/application_default_credentials.json"
     gke_name = "gke-testproject"
     project = "testproject"
@@ -122,7 +122,7 @@ def test_dot_kubeconfig_refresh(mock_is_file, monkeypatch, caplog):  # noqa: D10
         assert 'refresh_kubeconfig must be one of "always", "never" but is invalid' in caplog.text
 
 
-def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):  # noqa: D103
+def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):
     paths = tmp_working_dir_empty_conf
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     stack_config_b.write_text(
@@ -155,7 +155,7 @@ def test_refresh_kubeconfig_invalid_setting(tmp_working_dir_empty_conf, caplog):
     assert "Or('always', 'never') did not validate 'invalid'" in caplog.text
 
 
-def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):  # noqa: D103
+def test_refresh_kubeconfig_setting(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
 

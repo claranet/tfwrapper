@@ -4,7 +4,7 @@
 import claranet_tfwrapper as tfwrapper
 
 
-def test_get_stack_dir(tmp_working_dir):  # noqa: D103
+def test_get_stack_dir(tmp_working_dir):
     working_dir = tmp_working_dir["working_dir"]
     for account, environment, region, stack, expected in [
         (
@@ -25,7 +25,7 @@ def test_get_stack_dir(tmp_working_dir):  # noqa: D103
         assert tfwrapper.get_stack_dir(working_dir, account, environment, region, stack) == str(expected)
 
 
-def test_get_stack_config_filename():  # noqa: D103
+def test_get_stack_config_filename():
     for account, environment, region, stack, expected in [
         (
             "*",
@@ -59,7 +59,7 @@ def test_get_stack_config_filename():  # noqa: D103
         assert tfwrapper.get_stack_config_filename(account, environment, region, stack) == str(expected)
 
 
-def test_get_stack_config_path(tmp_working_dir_empty_conf):  # noqa: D103
+def test_get_stack_config_path(tmp_working_dir_empty_conf):
     conf_dir = tmp_working_dir_empty_conf["conf_dir"]
     for account, environment, region, stack, expected in [
         (
@@ -80,7 +80,7 @@ def test_get_stack_config_path(tmp_working_dir_empty_conf):  # noqa: D103
         assert tfwrapper.get_stack_config_path(conf_dir, account, environment, region, stack) == str(expected)
 
 
-def test_get_stack_from_config_path(tmp_working_dir_empty_conf):  # noqa: D103
+def test_get_stack_from_config_path(tmp_working_dir_empty_conf):
     conf_dir = tmp_working_dir_empty_conf["conf_dir"]
     for config_path, expected in [
         (
