@@ -1409,7 +1409,10 @@ def main(argv=None):
         wrapper_config["stack_config"] = stack_config
 
     # get state backend and stack credentials
-    wrapper_local_commands = ("foreach",)
+    wrapper_local_commands = (
+        "bootstrap",
+        "foreach",
+    )
     if args.subcommand not in wrapper_local_commands:
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
@@ -1417,8 +1420,8 @@ def main(argv=None):
             (args.subcommand == "init" and args.backend == "false")
             or args.subcommand
             in (
-                "get",
                 "fmt",
+                "get",
                 "test",
                 "validate",
                 "version",
