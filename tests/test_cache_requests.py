@@ -43,7 +43,7 @@ def terraform_releases_html_after_v0_13_0():
 #   CacheControl at the same time as it also works at the Adapter level.
 # - pook intercepts requests at a lower level by replacing urllib3.urlopen() by its
 #   own handler. This allows to actually verify what network requests would happen.
-# See https://github.com/h2non/pook/blob/v0.2.8/pook/interceptors/urllib3.py#L19-L20
+# See See https://github.com/h2non/pook/blob/v1.0.2/pook/interceptors/urllib3.py#L24-L27
 
 
 class AutoclosingBytesIO(io.BytesIO):
@@ -107,6 +107,7 @@ def test_search_on_github_cache_terraform_releases_200(
             assert pook.isdone()
             assert not pook.pending_mocks()
             assert not pook.unmatched_requests()
+    assert not pook.isactive()
 
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
@@ -153,6 +154,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
             assert pook.isdone()
             assert not pook.pending_mocks()
             assert not pook.unmatched_requests()
+    assert not pook.isactive()
 
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
@@ -200,6 +202,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
             assert pook.isdone()
             assert not pook.pending_mocks()
             assert not pook.unmatched_requests()
+    assert not pook.isactive()
 
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
@@ -247,3 +250,4 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
             assert pook.isdone()
             assert not pook.pending_mocks()
             assert not pook.unmatched_requests()
+    assert not pook.isactive()

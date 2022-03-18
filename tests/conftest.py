@@ -9,6 +9,9 @@ import pytest
 from unittest import mock
 
 
+import claranet_tfwrapper as tfwrapper
+
+
 @pytest.fixture(autouse=True)
 def mock_environment_variables():
     # ensure external environment variables do not infer with tests,
@@ -32,6 +35,10 @@ def default_args():
 
 @pytest.fixture
 def tmp_working_dir(tmp_path):
+    # alter default HTTP cache dir to ensure all tests have their own empty cache
+    tfwrapper.DEFAULT_HTTP_CACHE_DIR = str(tmp_path / ".terraform.d/http-cache")
+    tfwrapper.CachedRequestsSession.set_cache_dir(tfwrapper.DEFAULT_HTTP_CACHE_DIR)
+
     # use path with more than 5 directories to avoid getting an unrelated conf dir outside tmp_path
     working_dir = tmp_path / "a" / "b" / "c" / "d" / "e"
     working_dir.mkdir(parents=True)
