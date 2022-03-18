@@ -502,7 +502,10 @@ def bootstrap(wrapper_config):
                 else:
                     template = "{}/basic".format(stack_type)
 
-            shutil.copytree("{}/templates/{}".format(rootdir, template), stack_path, dirs_exist_ok=True)
+            # shutil.copytree()'s dirs_exist_ok is new in python 3.8
+            if os.path.isdir(stack_path):
+                os.rmdir(stack_path)
+            shutil.copytree("{}/templates/{}".format(rootdir, template), stack_path)
             logger.info("Bootstrapped stack using template {}.".format(template))
         else:
             logger.info("No template specified and no cloud provider defined in configuration, skipping.")
