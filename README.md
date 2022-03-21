@@ -322,13 +322,14 @@ terraform:
     #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
-It is using the Service Principal's credentials to connect the Azure Subscription. This SP must have access to the subscription.
-The wrapper loads client_id and client_secret from your `config.yml` located in `~/.azurem/config.yml`.
-`~/.azurem/config.yml` file structure example:
+The wrapper uses the Service Principal's credentials to connect the Azure subscription. The given Service Principal must have access to the subscription.
+The wrapper loads `client_id`, `client_secret` and `tenant_id` properties from your `config.yml` file located in `~/.azurerm/config.yml`.
+
+
+`~/.azurerm/config.yml` file structure example:
 
 ```yaml
-# File located at ~/.azurerm/config.yml
-
+---
 claranet-sandbox:
   client_id: aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz
   client_secret: AAbbbCCCzzz==
