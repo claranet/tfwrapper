@@ -245,6 +245,19 @@ def test_bootstrap_from_stack_dir_with_stack_config_and_state_config_and_templat
     assert os.path.isdir(stack_dir)
     assert len(os.listdir(stack_dir)) == 2
     assert os.path.exists(stack_dir / "state.tf")
+    assert (stack_dir / "state.tf").read_text() == textwrap.dedent(
+        """
+
+        terraform {
+            backend "s3" {
+                bucket = "mybucket"
+                key    = "testclient/testaccount/testenvironment/testregion/teststack/terraform.state"
+                region = "eu-west-1"
+
+                dynamodb_table = "terraform-states-lock"
+            }
+        }"""
+    )
     assert os.path.exists(stack_dir / "terraform.tf")
 
 
@@ -343,6 +356,19 @@ def test_bootstrap_from_stack_dir_with_stack_config_and_state_config_and_empty_s
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
     assert len(os.listdir(paths["stack_dir"])) == 2
     assert os.path.exists(paths["stack_dir"] / "state.tf")
+    assert (paths["stack_dir"] / "state.tf").read_text() == textwrap.dedent(
+        """
+
+        terraform {
+            backend "s3" {
+                bucket = "mybucket"
+                key    = "testclient/testaccount/testenvironment/testregion/teststack/terraform.state"
+                region = "eu-west-1"
+
+                dynamodb_table = "terraform-states-lock"
+            }
+        }"""
+    )
     assert os.path.exists(paths["stack_dir"] / "terraform.tf")
 
 
@@ -452,4 +478,17 @@ def test_bootstrap_from_stack_dir_with_stack_config_and_non_empty_stack_director
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
     assert len(os.listdir(paths["stack_dir"])) == 2
     assert os.path.exists(paths["stack_dir"] / "state.tf")
+    assert (paths["stack_dir"] / "state.tf").read_text() == textwrap.dedent(
+        """
+
+        terraform {
+            backend "s3" {
+                bucket = "mybucket"
+                key    = "testclient/testaccount/testenvironment/testregion/teststack/terraform.state"
+                region = "eu-west-1"
+
+                dynamodb_table = "terraform-states-lock"
+            }
+        }"""
+    )
     assert os.path.exists(paths["stack_dir"] / "already_existing_file.tf")
