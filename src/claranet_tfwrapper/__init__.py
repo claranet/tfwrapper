@@ -117,20 +117,19 @@ class CachedRequestsSession:
     """
 
     _session = None
-    _cache_dir = ""
+    _file_cache = FileCache(DEFAULT_HTTP_CACHE_DIR)
 
     def set_cache_dir(cache_dir):
         """Configure requests session's HTTP(S) cache directory."""
-        CachedRequestsSession._cache_dir = cache_dir
+        CachedRequestsSession._file_cache.directory = cache_dir
 
     def get(*args, **kwargs):
         """Wrap requests session's get after having initialized it if needed."""
         if not CachedRequestsSession._session:
-            file_cache = FileCache(CachedRequestsSession._cache_dir)
             retries = Retry(total=3, backoff_factor=0.3, respect_retry_after_header=True)
             cache_adapter = CacheControlAdapter(
                 heuristic=ExpiresAfter(minutes=15),
-                cache=file_cache,
+                cache=CachedRequestsSession._file_cache,
                 max_retries=retries,
             )
 
