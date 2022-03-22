@@ -1059,6 +1059,7 @@ def foreach(wrapper_config):
         executable = wrapper_config["executable"]
 
         wrapper_stack_config = deepcopy(wrapper_config)
+        wrapper_stack_config["confdir"] = "conf/"
         parents_count = detect_config_dir(wrapper_stack_config, dir=stack)
         detect_stack(wrapper_stack_config, parents_count, raise_on_missing=True, dir=stack)
         stack_env = get_stack_envvars(stack_config, wrapper_stack_config)
@@ -1138,14 +1139,14 @@ def parse_args(args):
         description="Terraform wrapper.",
         argument_default=argparse.SUPPRESS,
     )
-    parser.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output.")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug output.")
     parser.add_argument("-V", "--version", action="store_true", default=False, help="Show tfwrapper version.")
-    parser.add_argument("-c", "--confdir", help=confdir_help, default=DEFAULT_CONF_DIRNAME)
+    parser.add_argument("-c", "--confdir", help=confdir_help)
     parser.add_argument("-a", "--account", help=target_help.format("account"), nargs="?")
     parser.add_argument("-e", "--environment", help=target_help.format("environment"), nargs="?")
     parser.add_argument("-r", "--region", help=target_help.format("region"), nargs="?")
     parser.add_argument("-s", "--stack", help=target_help.format("stack"), nargs="?")
-    parser.add_argument("--http-cache-dir", help="HTTP(S) requests cache directory.", default=DEFAULT_HTTP_CACHE_DIR)
+    parser.add_argument("--http-cache-dir", help="HTTP(S) requests cache directory.")
     parser.add_argument(
         "-p",
         "--plugin-cache-dir",

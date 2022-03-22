@@ -345,3 +345,257 @@ def test_foreach_select_from_args_env_preprod_stack_default(tmp_working_dir_mult
     for i in range(len(stacks)):
         assert str(stacks[i]) == tfwrapper.get_stack_dir(wrapper_config["rootdir"], *expected_stacks[i])
     assert len(stacks) == len(expected_stacks)
+
+
+def test_foreach_from_root_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/_global/default
+            {cwd}/account0/preprod/eu-west-1/default
+            {cwd}/account0/preprod/eu-west-1/infra
+            {cwd}/account0/preprod/eu-west-2/default
+            {cwd}/account0/preprod/eu-west-2/infra
+            {cwd}/account0/prod/eu-west-1/default
+            {cwd}/account0/prod/eu-west-1/infra
+            {cwd}/account0/prod/eu-west-4/default
+            {cwd}/account0/prod/eu-west-4/infra
+            {cwd}/account0/test/eu-west-1/default
+            {cwd}/account0/test/eu-west-1/infra
+            {cwd}/account0/test/eu-west-2/default
+            {cwd}/account0/test/eu-west-2/infra
+            {cwd}/account0/test/eu-west-3/default
+            {cwd}/account1/_global/default
+            {cwd}/account1/preprod/eu-west-1/default
+            {cwd}/account1/preprod/eu-west-1/infra
+            {cwd}/account1/preprod/eu-west-2/default
+            {cwd}/account1/preprod/eu-west-2/infra
+            {cwd}/account1/prod/eu-west-1/default
+            {cwd}/account1/prod/eu-west-1/infra
+            {cwd}/account1/prod/eu-west-4/default
+            {cwd}/account1/prod/eu-west-4/infra
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
+
+
+def test_foreach_from_account0_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    os.chdir((paths["working_dir"] / "account0"))
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/_global/default
+            {cwd}/account0/preprod/eu-west-1/default
+            {cwd}/account0/preprod/eu-west-1/infra
+            {cwd}/account0/preprod/eu-west-2/default
+            {cwd}/account0/preprod/eu-west-2/infra
+            {cwd}/account0/prod/eu-west-1/default
+            {cwd}/account0/prod/eu-west-1/infra
+            {cwd}/account0/prod/eu-west-4/default
+            {cwd}/account0/prod/eu-west-4/infra
+            {cwd}/account0/test/eu-west-1/default
+            {cwd}/account0/test/eu-west-1/infra
+            {cwd}/account0/test/eu-west-2/default
+            {cwd}/account0/test/eu-west-2/infra
+            {cwd}/account0/test/eu-west-3/default
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
+
+
+def test_foreach_from_account0_global_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    os.chdir((paths["working_dir"] / "account0" / "_global"))
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/_global/default
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
+
+
+def test_foreach_from_account0_global_default_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    os.chdir((paths["working_dir"] / "account0" / "_global" / "default"))
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/_global/default
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
+
+
+def test_foreach_from_account0_preprod_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    os.chdir((paths["working_dir"] / "account0" / "preprod"))
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/preprod/eu-west-1/default
+            {cwd}/account0/preprod/eu-west-1/infra
+            {cwd}/account0/preprod/eu-west-2/default
+            {cwd}/account0/preprod/eu-west-2/infra
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
+
+
+def test_foreach_from_account0_preprod_euw1_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    os.chdir((paths["working_dir"] / "account0" / "preprod" / "eu-west-1"))
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/preprod/eu-west-1/default
+            {cwd}/account0/preprod/eu-west-1/infra
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
+
+
+def test_foreach_from_account0_preprod_euw1_default_dir(tmp_working_dir_multiple_stacks, capfd):
+    paths = tmp_working_dir_multiple_stacks
+
+    os.chdir((paths["working_dir"] / "account0" / "preprod" / "eu-west-1" / "default"))
+
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "foreach",
+                "-S",
+                "pwd",
+            ]
+        )
+    captured = capfd.readouterr()
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert (
+        textwrap.dedent(
+            """
+            {cwd}/account0/preprod/eu-west-1/default
+            """.format(
+                cwd=paths["working_dir"]
+            ).lstrip(
+                "\n"
+            )
+        )
+        == captured.out
+    )
