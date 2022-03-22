@@ -1,3 +1,4 @@
+.coverage
 .pytest_cache
 .tox
 .venv
@@ -6,5 +7,6 @@
 .webcache
 __pycache__
 bin/terraform
+coverage.xml
 dist
 venv

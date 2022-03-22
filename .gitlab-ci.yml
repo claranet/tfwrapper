@@ -22,3 +22,7 @@ tox:
   script:
     - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
     - tox -e py
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+  coverage: '/^TOTAL.+?(\d+\%)$/'
