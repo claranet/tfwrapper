@@ -5,7 +5,7 @@ import textwrap
 import claranet_tfwrapper as tfwrapper
 
 
-def test_aws(tmp_working_dir_empty_conf):  # noqa: D103
+def test_aws(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     paths["state_conf"].write_text(
@@ -55,7 +55,7 @@ def test_aws(tmp_working_dir_empty_conf):  # noqa: D103
     assert parsed_stack_config == expected_config
 
 
-def test_azure_user(tmp_working_dir_empty_conf):  # noqa: D103
+def test_azure_user(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     stack_config_b.write_text(
@@ -101,7 +101,7 @@ def test_azure_user(tmp_working_dir_empty_conf):  # noqa: D103
     assert parsed_stack_config == expected_config
 
 
-def test_azure_sp(tmp_working_dir_empty_conf):  # noqa: D103
+def test_azure_sp(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     stack_config_b.write_text(
@@ -150,7 +150,7 @@ def test_azure_sp(tmp_working_dir_empty_conf):  # noqa: D103
     assert parsed_stack_config == expected_config
 
 
-def test_azure_sp_compat(tmp_working_dir_empty_conf):  # noqa: D103
+def test_azure_sp_compat(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     stack_config_b.write_text(
@@ -199,7 +199,7 @@ def test_azure_sp_compat(tmp_working_dir_empty_conf):  # noqa: D103
     assert parsed_stack_config == expected_config
 
 
-def test_azure_sp_multiple(tmp_working_dir_empty_conf):  # noqa: D103
+def test_azure_sp_multiple(tmp_working_dir_empty_conf):
     paths = tmp_working_dir_empty_conf
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     stack_config_b.write_text(

@@ -9,7 +9,7 @@ import claranet_tfwrapper as tfwrapper
 from claranet_tfwrapper import azure
 
 
-def test_basic_aws_backend(monkeypatch, tmp_working_dir_regional_valid):  # noqa: D103
+def test_basic_aws_backend(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     paths["state_conf"].write_text(
@@ -128,7 +128,7 @@ def test_basic_aws_backend(monkeypatch, tmp_working_dir_regional_valid):  # noqa
     tf_init.assert_called_once()
 
 
-def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):  # noqa: D103
+def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     paths["state_conf"].write_text(
@@ -232,7 +232,7 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):  # no
     tf_init.assert_called_once()
 
 
-def test_basic_azure_aws_backend(monkeypatch, tmp_working_dir_regional_valid):  # noqa: D103
+def test_basic_azure_aws_backend(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     paths["state_conf"].write_text(
@@ -356,7 +356,7 @@ def test_basic_azure_aws_backend(monkeypatch, tmp_working_dir_regional_valid):  
     tf_init.assert_called_once()
 
 
-def test_basic_named_backend(monkeypatch, tmp_working_dir_regional_valid):  # noqa: D103
+def test_basic_named_backend(monkeypatch, tmp_working_dir_regional_valid):
     paths = tmp_working_dir_regional_valid
     stack_config_b = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
     paths["state_conf"].write_text(

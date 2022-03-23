@@ -73,7 +73,7 @@ def test_sp_context(monkeypatch, tmp_path):
     assert tf_vars["azure_client_secret"] == client_secret
 
 
-def test_user_multiple_context(monkeypatch, tmp_path):  # noqa: D103
+def test_user_multiple_context(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -105,7 +105,7 @@ def test_user_multiple_context(monkeypatch, tmp_path):  # noqa: D103
     assert tf_vars["alternative_azure_tenant_id"] == alt_tenant_id
 
 
-def test_sp_multiple_context_no_isolation(monkeypatch, tmp_path):  # noqa: D103
+def test_sp_multiple_context_no_isolation(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": False}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -121,7 +121,7 @@ def test_sp_multiple_context_no_isolation(monkeypatch, tmp_path):  # noqa: D103
         azure.set_context(wrapper_config, alt_subscription_id, alt_tenant_id, "alternative")
 
 
-def test_sp_multiple_context(monkeypatch, tmp_path):  # noqa: D103
+def test_sp_multiple_context(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
