@@ -99,7 +99,7 @@ def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_a
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
 
 
-def test_load_wrapper_config_list(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_list(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text(
@@ -140,7 +140,7 @@ def test_load_wrapper_config_list(tmp_working_dir_regional, default_args):  # no
     assert wrapper_config["state"]["aws_backend2"]["state_profile"] == "terraform-states-profile2"
 
 
-def test_load_wrapper_config_old_map(tmp_working_dir_regional, default_args):  # noqa: D103
+def test_load_wrapper_config_old_map(tmp_working_dir_regional, default_args):
     paths = tmp_working_dir_regional
 
     paths["state_conf"].write_text(
