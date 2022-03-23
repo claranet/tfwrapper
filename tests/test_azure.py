@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import claranet_tfwrapper.azure as azure
 
 
-def test_user_context(monkeypatch, tmp_path):  # noqa: D103
+def test_user_context(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -22,7 +22,7 @@ def test_user_context(monkeypatch, tmp_path):  # noqa: D103
     assert os.environ.get("AZURE_CONFIG_DIR", None) == os.path.join(tmp_path, ".run", "azure")
 
 
-def test_user_context_no_isolation(monkeypatch, tmp_path):  # noqa: D103
+def test_user_context_no_isolation(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": False}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -36,7 +36,7 @@ def test_user_context_no_isolation(monkeypatch, tmp_path):  # noqa: D103
     assert os.environ.get("AZURE_CONFIG_DIR", "") == ""
 
 
-def test_sp_context(monkeypatch, tmp_path):  # noqa: D103
+def test_sp_context(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -63,7 +63,7 @@ def test_sp_context(monkeypatch, tmp_path):  # noqa: D103
     assert os.environ.get("ARM_TENANT_ID", None) == tenant_id
 
 
-def test_user_context_backend(monkeypatch, tmp_path):  # noqa: D103
+def test_user_context_backend(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -79,7 +79,7 @@ def test_user_context_backend(monkeypatch, tmp_path):  # noqa: D103
     assert os.environ.get("AZURE_CONFIG_DIR", None) == os.path.join(tmp_path, ".run", "azure")
 
 
-def test_user_context_backend_no_isolation(monkeypatch, tmp_path):  # noqa: D103
+def test_user_context_backend_no_isolation(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": False}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
@@ -93,7 +93,7 @@ def test_user_context_backend_no_isolation(monkeypatch, tmp_path):  # noqa: D103
     assert os.environ.get("AZURE_CONFIG_DIR", "") == ""
 
 
-def test_sp_context_backend(monkeypatch, tmp_path):  # noqa: D103
+def test_sp_context_backend(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
     subscription_id = "00000000-0000-0000-0000-000000000000"
     tenant_id = "11111111-1111-1111-1111-111111111111"
