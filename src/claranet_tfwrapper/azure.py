@@ -64,12 +64,13 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         Terraform variables
     """
     tf_vars = {}
+    backend_session = None
     if backend_context:
-        session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
-        if session:
+        backend_session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
+        if backend_session:
             logger.info("'ARM_SAS_TOKEN' or 'ARM_ACCESS_KEY' already set, don't try to get a new session.")
-            logger.debug("Session token found for backend: {}".format(session))
-            tf_vars["azure_state_access_key"] = session
+            logger.debug("Session token found for backend: {}".format(backend_session))
+            tf_vars["azure_state_access_key"] = backend_session
 
     az_config_dir = None
     azure_local_session = wrapper_config.get("config", {}).get("use_local_azure_session_directory", True)
@@ -100,7 +101,7 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         }
     )
 
-    if sp_profile is None:
+    if sp_profile is None or (backend_context and not backend_session):
         try:
             _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
         except subprocess.CalledProcessError:
@@ -125,9 +126,7 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
 
         # Logging in, useful for az CLI calls from Terraform code
         log_context = ""
-        if backend_context:
-            log_context = " for backend context"
-        elif context_name:
+        if context_name:
             log_context = f' for "{context_name}" stack context'
         logger.info(f'Logging in with Service Principal "{sp_profile}"{log_context}')
         try:
@@ -152,10 +151,6 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
             os.environ["ARM_CLIENT_ID"] = client_id
             os.environ["ARM_CLIENT_SECRET"] = client_secret
             os.environ["ARM_TENANT_ID"] = sp_tenant_id
-        if backend_context:
-            os.environ["TF_VAR_azure_state_client_id"] = client_id
-            os.environ["TF_VAR_azure_state_client_secret"] = client_secret
-            os.environ["TF_VAR_azure_state_client_tenant_id"] = sp_tenant_id
 
         tf_vars.update({f"{vars_prefix}azure_client_id": client_id, f"{vars_prefix}azure_client_secret": client_secret})
 

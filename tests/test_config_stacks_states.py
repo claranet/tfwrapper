@@ -141,8 +141,6 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
                     resource_group_name: 'rg-test' # The Azure resource group with state storage
                     storage_account_name: 'sttest' # The Azure storage account
                     additional_param: additional_value
-                    credentials:
-                        profile: state-profile
             backend_parameters:
                 state_snaphot: "false"
             """
@@ -184,7 +182,6 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
                 "subscription_id": "00000000-0000-0000-0000-000000000000",
                 "resource_group_name": "rg-test",
                 "storage_account_name": "sttest",
-                "credentials": {"profile": "state-profile"},
                 "state_backend_type": "azure",
                 "state_backend_parameters": {"state_snaphot": "false"},
                 "state_subscription": "00000000-0000-0000-0000-000000000000",
@@ -196,10 +193,7 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
                 "additional_param": "additional_value",
             }
         }
-        if conf is None:  # Stack session
-            return "stack session"
-        else:  # State session
-            return "state session"
+        return {"state_session": "yes"}
 
     get_session.side_effect = get_session_func
     monkeypatch.setattr(tfwrapper, "get_session", get_session)
@@ -208,7 +202,7 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
         assert context_name == ""
         if backend_context:
             assert subscription_id == "00000000-0000-0000-0000-000000000000"
-            assert sp_profile == "state-profile"
+            assert sp_profile is None
         else:
             assert subscription_id == "22222222-2222-2222-2222-222222222222"
             assert sp_profile == "stack-profile"
@@ -227,6 +221,7 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
     assert e.type == SystemExit
     assert e.value.code == 0
     assert os.environ["TF_VAR_my_var"] == "my_value"
+    assert os.environ["TF_VAR_state_session"] == "yes"
 
     get_session.assert_called_once()
     tf_init.assert_called_once()
@@ -320,10 +315,7 @@ def test_basic_azure_aws_backend(monkeypatch, tmp_working_dir_regional_valid):
                 "state_profile": "terraform-states-profile",
             },
         }
-        if conf is None:  # Stack session
-            return "stack session"
-        else:  # State session
-            return "state session"
+        return {"state_session": "yes"}
 
     get_session.side_effect = get_session_func
     monkeypatch.setattr(tfwrapper, "get_session", get_session)
@@ -351,6 +343,7 @@ def test_basic_azure_aws_backend(monkeypatch, tmp_working_dir_regional_valid):
     assert e.type == SystemExit
     assert e.value.code == 0
     assert os.environ["TF_VAR_my_var"] == "my_value"
+    assert os.environ["TF_VAR_state_session"] == "yes"
 
     get_session.assert_called_once()
     tf_init.assert_called_once()
@@ -468,10 +461,7 @@ def test_basic_named_backend(monkeypatch, tmp_working_dir_regional_valid):
                 "state_profile": "terraform-states-profile",
             },
         }
-        if conf is None:  # Stack session
-            return "stack session"
-        else:  # State session
-            return "state session"
+        return {"state_session": "yes"}
 
     get_session.side_effect = get_session_func
     monkeypatch.setattr(tfwrapper, "get_session", get_session)
@@ -499,6 +489,7 @@ def test_basic_named_backend(monkeypatch, tmp_working_dir_regional_valid):
     assert e.type == SystemExit
     assert e.value.code == 0
     assert os.environ["TF_VAR_my_var"] == "my_value"
+    assert os.environ["TF_VAR_state_session"] == "yes"
 
     get_session.assert_called_once()
     tf_init.assert_called_once()

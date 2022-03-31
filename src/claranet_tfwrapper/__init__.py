@@ -1392,6 +1392,7 @@ def main(argv=None):
                     os.environ["AWS_SESSION_TOKEN"] = state_credentials.token
                 logger.info("AWS state backend initialized.")
             elif state_backend_type == "azure":
+                set_terraform_vars(state_session)
                 logger.info("Azure state backend initialized.")
             else:
                 logger.info(

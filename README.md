@@ -31,7 +31,6 @@
     - [Passing options](#passing-options)
   - [Environment](#environment)
     - [S3 state backend credentials](#s3-state-backend-credentials)
-    - [Azure storage state backend credentials](#azure-storage-state-backend-credentials)
     - [Azure Service Principal credentials](#azure-service-principal-credentials)
     - [Azure authentication isolation](#azure-authentication-isolation)
     - [GCP configuration](#gcp-configuration)
@@ -441,14 +440,6 @@ azure:
       subscription_id: "xxxxxxx" # the Azure account to use for state storage
       resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
       storage_account_name: "tfstatesxxxxx"
-  # This backend use service principal credentials
-  - name: "azure-service-principal"
-    general:
-      subscription_id: "xxxxxxx" # the Azure account to use for state storage
-      resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
-      storage_account_name: "tfstatesxxxxx"
-    credentials:
-      profile: my-state-azure-profile # should be configured in .azurerm/config.yml
   # This backend use Azure AD authentication 
   - name: "azure-ad-auth"
     general:
@@ -615,17 +606,6 @@ The default AWS credentials of the environment are set to point to the S3 state 
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_SESSION_TOKEN`
-
-### Azure storage state backend credentials
-
-When using Azure storage (container blob), needed credentials are set as terraform variables in the environment if using a service principal. 
-Those credentials are acquired from the profile defined in `conf/state.yml` and can be ignored if stack and states use the same profile credentials. Otherwise, you can pass it to your backend configuration
-
-Terraform variables set:
-
-- `azure_state_tenant_id`
-- `azure_state_client_id`
-- `azure_state_client_secret`
 
 ### Azure Service Principal credentials
 
