@@ -166,4 +166,4 @@ def _launch_cli_command(command, az_config_dir=None):
     env = os.environ.copy()
     if az_config_dir:
         env["AZURE_CONFIG_DIR"] = az_config_dir
-    subprocess.run(command, check=True, capture_output=True, env=env)
+    subprocess.run(command, check=True, env=env, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
