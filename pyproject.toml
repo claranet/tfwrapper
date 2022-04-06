@@ -41,7 +41,7 @@ termcolor = "^1.1.0"
 
 azure-cli-core = {version = "^2.30.0", optional = true}
 azure-common = {version = "^1.1.27", optional = true}
-azure-mgmt-storage = {version = ">=18,<20", optional = true}
+azure-mgmt-storage = {version = ">=18,<21", optional = true}
 msrestazure = {version = "^0.6.4", optional = true}
 argcomplete = "<2.0"
 
