@@ -1,3 +1,9 @@
+# Unreleased
+
+ADDED
+
+- TER-392: Allow multiple states configuration for a same backend type
+
 # 10.0.0 (2022/03/10)
 
 BREAKING:
