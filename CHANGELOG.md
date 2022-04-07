@@ -1,5 +1,9 @@
 # Unreleased
 
+BREAKING:
+
+- TER-493: Remove Azure SDK dependencies, use Azure CLI, and fall back to a [standard usage of azure backend configuration](https://www.terraform.io/language/settings/backends/azurerm).
+
 ADDED
 
 - TER-392: Allow multiple states configuration for a same backend type

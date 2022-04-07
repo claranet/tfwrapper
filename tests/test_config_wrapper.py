@@ -147,6 +147,9 @@ def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, defau
                     region: eu-west-1
                 credentials:
                     profile: terraform-states-profile # the AWS profile to use for state storage
+
+            backend_parameters:
+                state_snaphot: "false"
             """
         )
     )
@@ -164,6 +167,7 @@ def test_load_wrapper_config_autodetect_regional(tmp_working_dir_regional, defau
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_region"] == "eu-west-1"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
+    assert wrapper_config["state"]["aws"]["state_backend_parameters"]["state_snaphot"] == "false"
 
 
 def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_args):
@@ -178,6 +182,9 @@ def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_a
                     account: '12345678910' # the AWS account to use for state storage
                 credentials:
                     profile: terraform-states-profile # the AWS profile to use for state storage
+
+            backend_parameters:
+                state_snaphot: "false"
             """
         )
     )
@@ -194,3 +201,4 @@ def test_load_wrapper_config_autodetect_global(tmp_working_dir_global, default_a
     assert wrapper_config["stack"] == "teststack"
     assert wrapper_config["state"]["aws"]["state_account"] == "12345678910"
     assert wrapper_config["state"]["aws"]["state_profile"] == "terraform-states-profile"
+    assert wrapper_config["state"]["aws"]["state_backend_parameters"]["state_snaphot"] == "false"
