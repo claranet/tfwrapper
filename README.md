@@ -78,7 +78,7 @@
 
 ## Runtime Dependencies
 
-- `terraform` `>= 0.10` (`>= 0.13` for fully working Azure backend)
+- `terraform` `>= 0.10` (`>= 0.15` for fully working Azure backend with isolation due to https://github.com/hashicorp/terraform/issues/25416)
 - `azure-cli` when using context based Azure authentication
 
 ## Recommended setup

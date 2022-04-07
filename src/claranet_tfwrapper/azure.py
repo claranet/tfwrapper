@@ -54,7 +54,7 @@ def set_context(wrapper_config, subscription_id, tenant_id=None, sp_profile=None
     sp_profile : str
         Azure Service Principal profile name to use to configure credentials
     backend_context : bool
-        True is context has to be set/check for a backend configuration
+        True if context has to be set/check for a backend configuration
 
     Returns
     -------
