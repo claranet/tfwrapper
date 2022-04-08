@@ -3,12 +3,14 @@
 BREAKING:
 
 - TER-493: Remove Azure SDK dependencies, use Azure CLI, and fall back to a [standard usage of azure backend configuration](https://www.terraform.io/language/settings/backends/azurerm).
+  - Specific installation procedure with azure dependencies does not exist anymore, more details in [installation instructions](https://github.com/claranet/terraform-wrapper#installation).
+  - Previous Azure backend state and data remote states configurations files may now be incomplete. It is necessary to define `subscription_id` and `resource_group_name` attributes if not present. See [azurerm backend documentation ](https://www.terraform.io/language/settings/backends/azurerm).
 
 ADDED
 
-- TER-392: Allow multiple states configuration for a same backend type
-- TER-497: Allow multiple providers declaration in stack configuration. Only supported for Azure stacks for now.
 - TER-468: Allow templates outside templates directory
+- TER-492: Allow multiple states configuration for a same backend type, see [states centralization configuration](https://github.com/claranet/terraform-wrapper#states-centralization-configuration).
+- TER-497: Allow multiple providers declaration in stack configuration. Only supported for Azure stacks for now, see [stacks-configurations](https://github.com/claranet/terraform-wrapper#stacks-configurations).
 
 # 10.0.0 (2022/03/10)
 
