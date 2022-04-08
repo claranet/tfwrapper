@@ -19,7 +19,7 @@ def test_config_load_init_not_in_stack(tmp_working_dir_regional):
         tfwrapper.main(["init"])
 
     assert e.type == SystemExit
-    assert e.value.code == 0
+    assert e.value.code == 1
 
 
 def test_config_load_init_missing_config(tmp_working_dir_regional):
@@ -30,7 +30,7 @@ def test_config_load_init_missing_config(tmp_working_dir_regional):
         tfwrapper.main(["init"])
 
     assert e.type == SystemExit
-    assert e.value.code == 0
+    assert e.value.code == 1
 
 
 def test_config_load_init_valid_config(tmp_working_dir_regional_valid):

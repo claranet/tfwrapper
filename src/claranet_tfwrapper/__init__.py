@@ -362,18 +362,12 @@ def foreach_select_stacks(wrapper_config):
             logger.warning("Stack config {} has no matching directory at {}, skipping.".format(stack_config, stack_dir))
             continue
         logger.debug("Added stack {} => {}".format(stack_dir, stack_config))
-        filtered_stacks[stack_dir] = _load_stack_config_from_file(stack_config)
+        filtered_stacks[stack_dir] = load_stack_config_from_file(stack_config)
 
     return filtered_stacks
 
 
-def load_stack_config(confdir, account, environment, region, stack):
-    """Load configuration from YAML file."""
-    stack_config_file = get_stack_config_path(confdir, account, environment, region, stack)
-    return _load_stack_config_from_file(stack_config_file)
-
-
-def _load_stack_config_from_file(stack_config_file):
+def load_stack_config_from_file(stack_config_file):
     """Load configuration from YAML file."""
     if not os.path.exists(stack_config_file):
         logger.debug("Stack configuration file does not exist: {}".format(stack_config_file))
@@ -468,14 +462,14 @@ def set_terraform_vars(vars):
 def bootstrap(wrapper_config):
     """Bootstrap project."""
     rootdir = wrapper_config["rootdir"]
-    confdir = wrapper_config["confdir"]
     account = wrapper_config["account"]
     environment = wrapper_config["environment"]
     region = wrapper_config["region"]
     stack = wrapper_config["stack"]
+    stack_config = wrapper_config["stack_config"]
 
     stack_path = get_stack_dir(rootdir, account, environment, region, stack)
-    stack_config = load_stack_config(confdir, account, environment, region, stack)
+
     state_backend_name = stack_config.get("state_configuration_name", None)
     state_backend_type = (
         wrapper_config["state"].get(state_backend_name)["state_backend_type"]
@@ -495,10 +489,10 @@ def bootstrap(wrapper_config):
             break
 
     if stack_type is None:
-        logger.info("No cloud provider specified in configuration.")
+        logger.info("No cloud provider specified in stack configuration.")
 
     # bootstrap Terraform files from stack template
-    if not os.path.isdir(stack_path):
+    if not os.path.isdir(stack_path) or len(os.listdir(path=stack_path)) == 0:
         if wrapper_config.get("template") or stack_type:
             if wrapper_config.get("template"):
                 template = wrapper_config["template"].lower()
@@ -508,43 +502,56 @@ def bootstrap(wrapper_config):
                 else:
                     template = "{}/basic".format(stack_type)
 
+            # shutil.copytree()'s dirs_exist_ok is new in python 3.8
+            if os.path.isdir(stack_path):
+                os.rmdir(stack_path)
             shutil.copytree("{}/templates/{}".format(rootdir, template), stack_path)
+            logger.info("Bootstrapped stack using template {}.".format(template))
         else:
             logger.info("No template specified and no cloud provider defined in configuration, skipping.")
-            os.makedirs(stack_path)
+            os.makedirs(stack_path, exist_ok=True)
+    else:
+        logger.info(
+            "Stack path {} already exists and is not empty, skipping stack bootstrapping from template.".format(stack_path)
+        )
 
     # bootstrap state.tf from jinja2 template with a specified backend
-    if not os.path.isfile("{}/state.tf".format(stack_path)) and state_backend_type:
-        client_name = stack_config["terraform"]["vars"].get("client_name", account)
+    if not os.path.isfile("{}/state.tf".format(stack_path)):
+        if state_backend_type:
+            client_name = stack_config["terraform"]["vars"].get("client_name", account)
 
-        template_path = "{}/templates/{}/common".format(rootdir, state_backend_type)
-        logger.debug("Using template path {}".format(template_path))
+            template_path = "{}/templates/{}/common".format(rootdir, state_backend_type)
+            logger.debug("Using template path {}".format(template_path))
 
-        jinja2_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(template_path),
-            lstrip_blocks=True,
-            trim_blocks=True,
-        )
+            jinja2_env = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(template_path),
+                lstrip_blocks=True,
+                trim_blocks=True,
+            )
 
-        state_yml_parameters = wrapper_config["state"].get(state_backend_name or state_backend_type) or next(
-            iter(wrapper_config["state"])
-        )
-        logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
+            state_yml_parameters = wrapper_config["state"].get(state_backend_name or state_backend_type) or next(
+                iter(wrapper_config["state"])
+            )
+            logger.debug("Parameters from state.yml: {}".format(state_yml_parameters))
 
-        state_conf = jinja2_env.get_template("state.tf.jinja2").render(
-            client_name=client_name,
-            account=account,
-            environment=environment,
-            region=region,
-            stack=stack,
-            state_parameters=state_yml_parameters,
-        )
+            state_conf = jinja2_env.get_template("state.tf.jinja2").render(
+                client_name=client_name,
+                account=account,
+                environment=environment,
+                region=region,
+                stack=stack,
+                state_parameters=state_yml_parameters,
+            )
 
-        with open("{}/state.tf".format(stack_path), "w") as f:
-            f.write(state_conf)
+            with open("{}/state.tf".format(stack_path), "w") as f:
+                f.write(state_conf)
 
-        logger.info('`state.tf` file generated with "{}" backend type configured.'.format(state_backend_type))
-        logger.info("Please run `tfwrapper init` to initialize this stack.")
+            logger.info('Generated state.tf file with "{}" backend type configured.'.format(state_backend_type))
+            logger.info("Run `tfwrapper init` to initialize this new stack.")
+        else:
+            logger.warning("No state backend configuration found, skipping state configuration file state.tf generation.")
+    else:
+        logger.warning("State configuration file state.tf already exists, skipping its generation.")
 
 
 def search_on_github(repo, minor_version, patch_regex, patch):
@@ -660,7 +667,7 @@ def select_terraform_version(version):
         )
         os.remove(tmp_file)
 
-    logger.warning("Using terraform version {}".format(full_version))
+    logger.info("Using terraform version {}".format(full_version))
 
 
 def download_custom_provider(provider_name, provider_version, extension="zip"):
@@ -1052,6 +1059,7 @@ def foreach(wrapper_config):
         executable = wrapper_config["executable"]
 
         wrapper_stack_config = deepcopy(wrapper_config)
+        wrapper_stack_config["confdir"] = "conf/"
         parents_count = detect_config_dir(wrapper_stack_config, dir=stack)
         detect_stack(wrapper_stack_config, parents_count, raise_on_missing=True, dir=stack)
         stack_env = get_stack_envvars(stack_config, wrapper_stack_config)
@@ -1131,14 +1139,14 @@ def parse_args(args):
         description="Terraform wrapper.",
         argument_default=argparse.SUPPRESS,
     )
-    parser.add_argument("-d", "--debug", action="store_true", default=False, help="Enable debug output.")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug output.")
     parser.add_argument("-V", "--version", action="store_true", default=False, help="Show tfwrapper version.")
-    parser.add_argument("-c", "--confdir", help=confdir_help, default=DEFAULT_CONF_DIRNAME)
+    parser.add_argument("-c", "--confdir", help=confdir_help)
     parser.add_argument("-a", "--account", help=target_help.format("account"), nargs="?")
     parser.add_argument("-e", "--environment", help=target_help.format("environment"), nargs="?")
     parser.add_argument("-r", "--region", help=target_help.format("region"), nargs="?")
     parser.add_argument("-s", "--stack", help=target_help.format("stack"), nargs="?")
-    parser.add_argument("--http-cache-dir", help="HTTP(S) requests cache directory.", default=DEFAULT_HTTP_CACHE_DIR)
+    parser.add_argument("--http-cache-dir", help="HTTP(S) requests cache directory.")
     parser.add_argument(
         "-p",
         "--plugin-cache-dir",
@@ -1327,25 +1335,88 @@ def main(argv=None):
     load_wrapper_config(wrapper_config)
 
     # load stack config
-    stack_config = load_stack_config(
+    stack_config_file = get_stack_config_path(
         wrapper_config["confdir"],
         wrapper_config["account"],
         wrapper_config["environment"],
         wrapper_config["region"],
         wrapper_config["stack"],
     )
+    stack_config = load_stack_config_from_file(stack_config_file)
 
     # select terraform version for the stack if selected with a fallback on v1.0
     tf_version = stack_config.get("terraform", {}).get("vars", {}).get("version", "1.0")
     select_terraform_version(tf_version)
 
+    # parse all args
     args = parse_args(argv or sys.argv[1:])
 
     # convert args to dict
     wrapper_config.update(vars(args))
 
-    # process args
-    wrapper_local_commands = ("foreach",)
+    # error if stack folder or config are missing for commands requiring them
+    wrapper_commands_not_requiring_stack_config = (
+        "console",
+        "fmt",
+        "foreach",
+        "providers",
+        "validate",
+        "version",
+    )
+    if args.subcommand not in wrapper_commands_not_requiring_stack_config:
+        if (
+            wrapper_config["environment"] != "global"
+            and not all(
+                [
+                    wrapper_config["account"],
+                    wrapper_config["environment"],
+                    wrapper_config["region"],
+                    wrapper_config["stack"],
+                ]
+            )
+            or not all(
+                [
+                    wrapper_config["account"],
+                    wrapper_config["environment"],
+                    wrapper_config["stack"],
+                ]
+            )
+        ):
+            logger.error("Cannot determine which stack to target for {}, aborting.".format(args.subcommand))
+            sys.exit(RC_KO)
+
+        rootdir = wrapper_config["rootdir"]
+        account = wrapper_config["account"]
+        environment = wrapper_config["environment"]
+        region = wrapper_config["region"]
+        stack = wrapper_config["stack"]
+        stack_path = get_stack_dir(rootdir, account, environment, region, stack)
+
+        if args.subcommand != "bootstrap" and not os.path.isdir(stack_path):
+            logger.error(
+                "A valid stack configuration directory {} is required for {} subcommand, aborting.".format(
+                    stack_config_file, args.subcommand
+                )
+            )
+            sys.exit(RC_KO)
+
+        if not os.path.exists(stack_config_file):
+            logger.error(
+                "A valid stack configuration file {} is required for {} subcommand, aborting.".format(
+                    stack_config_file, args.subcommand
+                )
+            )
+            sys.exit(RC_KO)
+
+    # pass loaded stack config to bootstrap subcommand
+    if args.subcommand == "bootstrap":
+        wrapper_config["stack_config"] = stack_config
+
+    # get state backend and stack credentials
+    wrapper_local_commands = (
+        "bootstrap",
+        "foreach",
+    )
     if args.subcommand not in wrapper_local_commands:
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
@@ -1353,8 +1424,8 @@ def main(argv=None):
             (args.subcommand == "init" and args.backend == "false")
             or args.subcommand
             in (
-                "get",
                 "fmt",
+                "get",
                 "test",
                 "validate",
                 "version",
@@ -1583,6 +1654,7 @@ def main(argv=None):
             else:
                 # config should be a hash of version / extension
                 download_custom_provider(provider, config["version"], config["extension"])
+
     # call subcommand
     returncode = args.func(wrapper_config)
 

@@ -43,9 +43,13 @@ def test_aws(tmp_working_dir_empty_conf):
         )
     )
 
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    account = "testaccount"
+    environment = "testenvironment"
+    region = "testregion"
+    stack = "teststack"
+
+    stack_config_file = tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)
+    parsed_stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
 
     expected_config = {
         "aws": {"general": {"account": "12345678910", "region": "eu-west-1"}, "credentials": {"profile": "account-alias"}},
@@ -77,9 +81,13 @@ def test_azure_user(tmp_working_dir_empty_conf):
         )
     )
 
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    account = "testaccount"
+    environment = "testenvironment"
+    region = "testregion"
+    stack = "teststack"
+
+    stack_config_file = tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)
+    parsed_stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
 
     expected_config = {
         "azure": {
@@ -125,9 +133,13 @@ def test_azure_sp(tmp_working_dir_empty_conf):
         )
     )
 
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    account = "testaccount"
+    environment = "testenvironment"
+    region = "testregion"
+    stack = "teststack"
+
+    stack_config_file = tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)
+    parsed_stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
 
     expected_config = {
         "azure": {
@@ -174,9 +186,13 @@ def test_azure_sp_compat(tmp_working_dir_empty_conf):
         )
     )
 
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    account = "testaccount"
+    environment = "testenvironment"
+    region = "testregion"
+    stack = "teststack"
+
+    stack_config_file = tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)
+    parsed_stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
 
     expected_config = {
         "azure": {
@@ -229,9 +245,13 @@ def test_azure_sp_multiple(tmp_working_dir_empty_conf):
         )
     )
 
-    parsed_stack_config = tfwrapper.load_stack_config(
-        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
-    )
+    account = "testaccount"
+    environment = "testenvironment"
+    region = "testregion"
+    stack = "teststack"
+
+    stack_config_file = tfwrapper.get_stack_config_path(paths["conf_dir"], account, environment, region, stack)
+    parsed_stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
 
     expected_config = {
         "azure": {

@@ -62,7 +62,12 @@ def test_stack_config_parsing(tmp_working_dir_empty_conf):
             "vars": {"client_name": "claranet", "version": "0.11.14"},
         }
     }
-    stack_config = tfwrapper.load_stack_config(paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack")
+
+    stack_config_file = tfwrapper.get_stack_config_path(
+        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
+    )
+
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
     assert stack_config == expected_stack_result
 
 
@@ -98,7 +103,12 @@ def test_stack_config_parsing_extended_custom_provider(
             "vars": {"client_name": "claranet", "version": "0.11.14"},
         }
     }
-    stack_config = tfwrapper.load_stack_config(paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack")
+
+    stack_config_file = tfwrapper.get_stack_config_path(
+        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
+    )
+
+    stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
     assert stack_config == expected_stack_result
 
 
@@ -125,14 +135,12 @@ def test_stack_config_parsing_invalid_custom_provider_missing_extension(
         )
     )
 
+    stack_config_file = tfwrapper.get_stack_config_path(
+        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
+    )
+
     with pytest.raises(SystemExit):
-        stack_config = tfwrapper.load_stack_config(
-            paths["conf_dir"],
-            "testaccount",
-            "testenvironment",
-            "testregion",
-            "teststack",
-        )
+        stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
     assert "Missing key: 'extension'" in caplog.text
 
 
@@ -156,12 +164,10 @@ def test_stack_config_parsing_invalid_custom_provider_missing_version(tmp_workin
         )
     )
 
+    stack_config_file = tfwrapper.get_stack_config_path(
+        paths["conf_dir"], "testaccount", "testenvironment", "testregion", "teststack"
+    )
+
     with pytest.raises(SystemExit):
-        stack_config = tfwrapper.load_stack_config(
-            paths["conf_dir"],
-            "testaccount",
-            "testenvironment",
-            "testregion",
-            "teststack",
-        )
+        stack_config = tfwrapper.load_stack_config_from_file(stack_config_file)
     assert "Missing key: 'version'" in caplog.text
