@@ -542,3 +542,136 @@ def test_bootstrap_from_root_with_stack_config_and_non_empty_stack_directory_and
         }"""
     )
     assert os.path.exists(paths["stack_dir"] / "already_existing_file.tf")
+
+
+def test_bootstrap_from_root_with_external_valid_template(tmp_working_dir_regional, default_args, caplog):
+    paths = tmp_working_dir_regional
+    state_conf = paths["conf_dir"] / "state.yml"
+    state_conf.write_text(
+        textwrap.dedent(
+            """
+            ---
+            aws:
+                general:
+                    account: '123456789012'
+                    region: eu-west-1
+                credentials:
+                    profile: stateaccount
+            """
+        )
+    )
+    stack_conf = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    stack_conf.write_text(
+        textwrap.dedent(
+            """
+            ---
+            aws:
+                general:
+                    account: &aws_account "123456789012"
+                    region: &aws_region eu-west-3
+                credentials:
+                    profile: &aws_account_alias testaccount
+
+            terraform:
+                vars:
+                    aws_account: *aws_account
+                    aws_account_alias: *aws_account_alias
+                    aws_region: *aws_region
+                    client_name: testclient
+                    version: "1.1.7"
+            """
+        )
+    )
+    aws_templates_dir = paths["working_dir"] / "templates" / "aws"
+    aws_basic_template_dir = aws_templates_dir / "basic"
+    aws_common_template_dir = aws_templates_dir / "common"
+    aws_basic_template_dir.mkdir(parents=True)
+    aws_basic_tf = aws_basic_template_dir / "terraform.tf"
+    aws_basic_tf.write_text(
+        textwrap.dedent(
+            """
+            terraform {
+                required_version = "~> 1.0"
+            }
+            """
+        )
+    )
+
+    aws_common_template_dir.mkdir(parents=True)
+    state_tf_jinja2 = aws_common_template_dir / "state.tf.jinja2"
+    state_tf_jinja2.write_text(
+        textwrap.dedent(
+            """
+            {% if region is not none %}
+            {% set region = '/' + region + '/' %}
+            {% else %}
+            {% set region = '/' %}
+            {% endif %}
+
+            terraform {
+                backend "s3" {
+                    bucket = "mybucket"
+                    key    = "{{ client_name }}/{{ account }}/{{ environment }}{{ region }}{{ stack }}/terraform.state"
+                    region = "eu-west-1"
+
+                    dynamodb_table = "terraform-states-lock"
+                }
+            }
+            """
+        )
+    )
+
+    custom_template_dir = paths["working_dir"] / "custom_template"
+    custom_template_dir.mkdir(parents=True)
+    custom_basic_tf = custom_template_dir / "terraform.tf"
+    custom_basic_tf.write_text(
+        textwrap.dedent(
+            """
+            terraform {
+                required_version = "~> 1.1"
+            }
+            """
+        )
+    )
+    with pytest.raises(SystemExit) as e:
+        tfwrapper.main(
+            [
+                "-a",
+                "testaccount",
+                "-e",
+                "testenvironment",
+                "-r",
+                "testregion",
+                "-s",
+                "teststack",
+                "bootstrap",
+                str(custom_template_dir),
+            ]
+        )
+
+    assert e.type == SystemExit
+    assert e.value.code == 0
+    assert f"Bootstrapped stack using template {str(custom_template_dir)}." in caplog.text
+    assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
+    assert len(os.listdir(paths["stack_dir"])) == 2
+    assert os.path.exists(paths["stack_dir"] / "state.tf")
+    assert (paths["stack_dir"] / "state.tf").read_text() == textwrap.dedent(
+        """
+
+        terraform {
+            backend "s3" {
+                bucket = "mybucket"
+                key    = "testclient/testaccount/testenvironment/testregion/teststack/terraform.state"
+                region = "eu-west-1"
+
+                dynamodb_table = "terraform-states-lock"
+            }
+        }"""
+    )
+    assert (paths["stack_dir"] / "terraform.tf").read_text() == textwrap.dedent(
+        """
+            terraform {
+                required_version = "~> 1.1"
+            }
+            """
+    )
