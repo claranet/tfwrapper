@@ -8,6 +8,7 @@ ADDED
 
 - TER-392: Allow multiple states configuration for a same backend type
 - TER-497: Allow multiple providers declaration in stack configuration. Only supported for Azure stacks for now.
+- TER-468: Allow templates outside templates directory
 
 # 10.0.0 (2022/03/10)
 
