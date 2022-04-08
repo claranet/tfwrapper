@@ -159,7 +159,7 @@ terraform {
     key    = "{{ client_name }}/{{ account }}/{{ environment }}{{ region }}{{ stack }}/terraform.state"
     region = "eu-west-1"
 
-    lock_table = "my-terraform-states-lock-table"
+    dynamodb_table = "my-terraform-states-lock-table"
   }
 }
 
@@ -229,11 +229,10 @@ Adding the following `.gitignore` at the root of your project is recommended:
 
 ```bash
 cat << 'EOF' > .gitignore
-*/**/terraform.tfstate
-*/**/terraform.tfstate.backup
-*/**/terraform.tfvars
-*/**/.terraform/modules
-*/**/.terraform/plugins
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
 EOF
 ```
 
@@ -277,6 +276,7 @@ terraform:
     aws_account: *aws_account
     aws_region: *aws_region
     client_name: my-client-name # arbitrary client name
+    version: "1.0"  # Terraform version that tfwrapper will automatically download if it's not present, and use for this stack.
 ```
 
 Here is an example for a stack on Azure configuration using user mode and AWS S3 backend for state storage:
