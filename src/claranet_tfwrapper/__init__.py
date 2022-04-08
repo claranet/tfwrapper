@@ -505,8 +505,7 @@ def bootstrap(wrapper_config):
             # shutil.copytree()'s dirs_exist_ok is new in python 3.8
             if os.path.isdir(stack_path):
                 os.rmdir(stack_path)
-            local_template = f"{rootdir}/templates/{template}"
-            template_path = local_template if os.path.isdir(local_template) else template
+            template_path = template if os.path.isdir(template) else f"{rootdir}/templates/{template}"
             shutil.copytree(template_path, stack_path)
             logger.info("Bootstrapped stack using template {}.".format(template))
         else:
