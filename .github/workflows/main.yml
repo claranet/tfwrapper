@@ -1,8 +1,8 @@
 name: Tests
 
 env:
-  POETRY_VERSION: 1.1.8
-  TOX_VERSION: 3.24.3
+  POETRY_VERSION: 1.1.13
+  TOX_VERSION: 3.25.0
 
 on: [push, pull_request]
 

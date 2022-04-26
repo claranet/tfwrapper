@@ -1,6 +1,6 @@
 variables:
-  POETRY_VERSION: 1.1.11
-  TOX_VERSION: 3.24.4
+  POETRY_VERSION: 1.1.13
+  TOX_VERSION: 3.25.0
 
 stages:
   - lint
