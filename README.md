@@ -71,7 +71,7 @@
 - `build-essential` (provides C/C++ compilers)
 - `libffi-dev`
 - `libssl-dev`
-- `python3` `>= 3.6.2 <4.0` (3.8+ recommended)
+- `python3` `>= 3.7 <4.0` (3.8+ recommended)
 - `python3-dev`
 - `python3-venv`
 
@@ -429,7 +429,7 @@ aws:
     credentials:
       profile: my-state-aws-profile # should be configured in .aws/config
 azure:
-  # This backend use storage keys for authentication 
+  # This backend use storage keys for authentication
   - name: "azure-backend"
     general:
       subscription_id: "xxxxxxx" # the Azure account to use for state storage
@@ -440,14 +440,14 @@ azure:
       subscription_id: "xxxxxxx" # the Azure account to use for state storage
       resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
       storage_account_name: "tfstatesxxxxx"
-  # This backend use Azure AD authentication 
+  # This backend use Azure AD authentication
   - name: "azure-ad-auth"
     general:
       subscription_id: "xxxxxxx" # the Azure account to use for state storage
       resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
       storage_account_name: "tfstatesxxxxx"
       azuread_auth: true
-  
+
 
 backend_parameters: # Parameters or options which can be used by `state.j2.tf` template file
   state_snaphot: "false" # Example of Azure storage backend option
