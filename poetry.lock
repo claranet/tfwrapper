@@ -205,7 +205,7 @@ pydocstyle = ">=2.1"
 
 [[package]]
 name = "fpyutils"
-version = "2.1.0"
+version = "2.2.0"
 description = "A collection of useful non-standard Python functions which aim to be simple to use, highly readable but not efficient."
 category = "dev"
 optional = false
@@ -341,14 +341,14 @@ python-versions = "*"
 
 [[package]]
 name = "md-toc"
-version = "8.1.3"
+version = "8.1.4"
 description = "A utility that is able to generate a table of contents for a markdown file."
 category = "dev"
 optional = false
 python-versions = ">=3.5, <4"
 
 [package.dependencies]
-fpyutils = ">=2.1,<3"
+fpyutils = ">=2.2,<3"
 
 [[package]]
 name = "mock"
@@ -710,7 +710,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4.0"
-content-hash = "e01bb290b6bc0922f33f005344f961a18a9008fc636197fc42b92c47f082564d"
+content-hash = "aa1aff731ed616efee002fe5c5ffc289b850080f8322fa33550982df0679c503"
 
 [metadata.files]
 argcomplete = [
@@ -838,8 +838,8 @@ flake8-docstrings = [
     {file = "flake8_docstrings-1.6.0-py2.py3-none-any.whl", hash = "sha256:99cac583d6c7e32dd28bbfbef120a7c0d1b6dde4adb5a9fd441c4227a6534bde"},
 ]
 fpyutils = [
-    {file = "fpyutils-2.1.0-py3-none-any.whl", hash = "sha256:d2970d42034c0128319ffaba1d7a9657cf0d6031a042f6761a55c353fc1cdfdd"},
-    {file = "fpyutils-2.1.0.tar.gz", hash = "sha256:87eec40ab2a04a67cb8e69c047a9d7aa306642641d904bb8016bddf5e2600803"},
+    {file = "fpyutils-2.2.0-py3-none-any.whl", hash = "sha256:fcce8027be304044950c593b68e6a1c81178d852b40fc93082a4d31654ba7dbe"},
+    {file = "fpyutils-2.2.0.tar.gz", hash = "sha256:0885e90d5effdb2ca2ea1374e8be7097db071f964d1fdbb184a2f1a1354b31f5"},
 ]
 furl = [
     {file = "furl-2.1.3-py2.py3-none-any.whl", hash = "sha256:9ab425062c4217f9802508e45feb4a83e54324273ac4b202f1850363309666c0"},
@@ -924,8 +924,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 md-toc = [
-    {file = "md_toc-8.1.3-py3-none-any.whl", hash = "sha256:79f1c5685aa3d1131e38f6cca438ba420c570e2e6ae1f11138ac34f50afa7d1d"},
-    {file = "md_toc-8.1.3.tar.gz", hash = "sha256:c7cdca678856acee24e9c4890239c6953322125f283a7aaebef0f1d227e1c005"},
+    {file = "md_toc-8.1.4-py3-none-any.whl", hash = "sha256:0ac0fb39d2640a08b466a653521cd0a6af7be76e39a7361ce6ba0a8f0ce8e789"},
+    {file = "md_toc-8.1.4.tar.gz", hash = "sha256:5271481ee979faf27d8ad05598f8d16b0d52eba50328a1cc85034cc9e3bd42db"},
 ]
 mock = [
     {file = "mock-4.0.3-py3-none-any.whl", hash = "sha256:122fcb64ee37cfad5b3f48d7a7d51875d7031aaf3d8be7c42e2bee25044eee62"},
