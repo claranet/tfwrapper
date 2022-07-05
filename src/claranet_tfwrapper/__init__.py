@@ -506,7 +506,7 @@ def bootstrap(wrapper_config):
             if os.path.isdir(stack_path):
                 os.rmdir(stack_path)
             template_path = template if os.path.isdir(template) else f"{rootdir}/templates/{template}"
-            shutil.copytree(template_path, stack_path)
+            shutil.copytree(template_path, stack_path, ignore=shutil.ignore_patterns("state.tf", ".terraform"))
             logger.info("Bootstrapped stack using template {}.".format(template))
         else:
             logger.info("No template specified and no cloud provider defined in configuration, skipping.")

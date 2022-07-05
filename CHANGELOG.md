@@ -1,3 +1,9 @@
+# Unreleased
+
+ADDED
+
+- TER-510: When bootstrapping a stack from an existent one, do not copy the state.tf file and .terraform folder
+
 # 11.0.0 (2022/04/08)
 
 BREAKING:

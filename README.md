@@ -538,6 +538,9 @@ tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap
 
 # or another stack template, for example: templates/aws/foobar
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap aws/foobar
+
+# or from an existent stack, for example: customer/env/region/stack
+tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap mycustomer/dev/eu-west/run
 ```
 
 ### Working on stacks

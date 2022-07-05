@@ -1,3 +1,4 @@
+---
 variables:
   POETRY_VERSION: 1.1.13
   TOX_VERSION: 3.25.0
@@ -28,3 +29,4 @@ tox:
         coverage_format: cobertura
         path: coverage.xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
+...
