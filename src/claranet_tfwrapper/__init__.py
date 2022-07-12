@@ -1475,6 +1475,8 @@ def main(argv=None):
         terraform_vars = stack_config.get("terraform", {}).get("vars", {})
         terraform_vars["environment"] = wrapper_config["environment"]
         terraform_vars["stack"] = wrapper_config["stack"]
+        terraform_vars["account"] = wrapper_config["account"]
+        terraform_vars["region"] = wrapper_config["region"]
 
         # AWS support
         if load_backend and "aws" in stack_config:
@@ -1489,8 +1491,6 @@ def main(argv=None):
 
             # set terraform environment variables for AWS Stack
             stack_credentials = stack_session.get_credentials().get_frozen_credentials()
-            terraform_vars["account"] = wrapper_config["account"]
-            terraform_vars["region"] = wrapper_config["region"]
             terraform_vars["aws_access_key"] = stack_credentials.access_key
             terraform_vars["aws_secret_key"] = stack_credentials.secret_key
             terraform_vars["aws_token"] = stack_credentials.token
@@ -1583,8 +1583,6 @@ def main(argv=None):
 
         # Azure support
         if load_backend and "azure" in stack_config:
-            if "client_name" not in terraform_vars:
-                terraform_vars["client_name"] = wrapper_config["account"]
             terraform_vars["azurerm_region"] = wrapper_config["region"]  # Kept for backwards compatibility
             terraform_vars["azure_region"] = wrapper_config["region"]
 

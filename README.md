@@ -629,8 +629,8 @@ If you have multiple configurations in your stacks, you also have `<CONFIG_NAME>
 Those GCP related variables are available from the environment when using the example configuration:
 
 - `TF_VAR_gcp_region`
-- `TF_VAR_gcp_gcp_zone`
-- `TF_VAR_gcp_gcp_project`
+- `TF_VAR_gcp_zone`
+- `TF_VAR_gcp_project`
 
 ### GKE configurations
 
