@@ -661,7 +661,7 @@ The `terraform['vars']` dictionary from the stack configuration is accessible as
 The profile defined in the stack configuration is used to acquire credentials accessible from Terraform.
 There is two supported providers, the variables which will be loaded depends on the used provider.
 
-- `TF_VAR_client_name`
+- `TF_VAR_client_name` (if set in .yml stack configuration file)
 - `TF_VAR_aws_account`
 - `TF_VAR_aws_region`
 - `TF_VAR_aws_access_key`
@@ -671,7 +671,7 @@ There is two supported providers, the variables which will be loaded depends on 
 - `TF_VAR_azure_region`
 - `TF_VAR_azure_subscription_id`
 - `TF_VAR_azure_tenant_id`
-- `TF_VAR_azure_state_access_key`
+- ~~`TF_VAR_azure_state_access_key`~~ (removed in `v11.0.0`)
 
 ### Stack path
 
