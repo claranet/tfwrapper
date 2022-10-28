@@ -352,7 +352,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "md-toc"
-version = "8.1.4"
+version = "8.1.5"
 description = "A utility that is able to generate a table of contents for a markdown file."
 category = "dev"
 optional = false
@@ -715,7 +715,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4.0"
-content-hash = "376345d29486f0a79453d89f1de0c5c65d894e9352d9bd61f3b1121a5aaa87ad"
+content-hash = "14287114ccd265bfd61a39930a19f5598d4bd602ab942bf935ad9237efab32b0"
 
 [metadata.files]
 argcomplete = [
@@ -940,8 +940,8 @@ mccabe = [
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
 ]
 md-toc = [
-    {file = "md_toc-8.1.4-py3-none-any.whl", hash = "sha256:0ac0fb39d2640a08b466a653521cd0a6af7be76e39a7361ce6ba0a8f0ce8e789"},
-    {file = "md_toc-8.1.4.tar.gz", hash = "sha256:5271481ee979faf27d8ad05598f8d16b0d52eba50328a1cc85034cc9e3bd42db"},
+    {file = "md_toc-8.1.5-py3-none-any.whl", hash = "sha256:c73a4ac95ea088f472e1ae503f85b7140dafceafed00eb783947733bf579bb67"},
+    {file = "md_toc-8.1.5.tar.gz", hash = "sha256:6260a0e69f6055bd795a243f23a834f27574bda97a2179e3507dec608dc6d67b"},
 ]
 mock = [
     {file = "mock-4.0.3-py3-none-any.whl", hash = "sha256:122fcb64ee37cfad5b3f48d7a7d51875d7031aaf3d8be7c42e2bee25044eee62"},
