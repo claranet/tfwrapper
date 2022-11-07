@@ -101,7 +101,8 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         }
     )
 
-    if sp_profile is None or (backend_context and not backend_session):
+    if sp_profile is None and not backend_session:
+        logger.debug(f"Trying to fetch Azure access token to ensure " f"{'backend' if backend_context else 'stack'} access.")
         try:
             _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
         except subprocess.CalledProcessError:
@@ -117,7 +118,7 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
             else:
                 msg += "az login"
             raise AzureError(msg)
-    else:
+    elif sp_profile:
         sp_tenant_id, client_id, client_secret = get_sp_profile(sp_profile)
         logger.debug(f'Service principal "{sp_profile}" loaded with client id "{client_id}" and tenant id "{sp_tenant_id}"')
 
