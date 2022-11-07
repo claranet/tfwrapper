@@ -1,8 +1,9 @@
 # Unreleased
 
-ADDED
+ADDED:
 
 - TER-510: When bootstrapping a stack from an existent one, do not copy the state.tf file and .terraform folder
+- TER-511: Fix environment variable set like documented in README, `account` and `region` are now always set (not only for AWS context).
 
 # 11.0.0 (2022/04/08)
 
@@ -17,10 +18,10 @@ ADDED
 - TER-468: Allow templates outside templates directory
 - TER-492: Allow multiple states configuration for a same backend type, see [states centralization configuration](https://github.com/claranet/terraform-wrapper#states-centralization-configuration).
 - TER-497: Allow multiple providers declaration in stack configuration. Only supported for Azure stacks for now, see [stacks-configurations](https://github.com/claranet/terraform-wrapper#stacks-configurations).
-- TER-499: fix regressions on `bootstrap` and `foreach` introduced in v9.2.0
-- TER-500: add coverage
+- TER-499: Fix regressions on `bootstrap` and `foreach` introduced in v9.2.0
+- TER-500: Add coverage
 - TER-501: Improve HTTP requests cache initialization and ensure all unit tests have their own empty cache
-- TER-502: ignore flake8 rule D103 on all unit test files
+- TER-502: Ignore flake8 rule D103 on all unit test files
 
 UPDATES
 
