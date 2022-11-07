@@ -1,9 +1,33 @@
-# Unreleased
+# 12.0.0 (2022/11/07)
+
+BREAKING:
+
+- TER-505: drop support for python 3.6 and use python 3.10 as main target version everywhere
 
 ADDED:
 
 - TER-510: When bootstrapping a stack from an existent one, do not copy the state.tf file and .terraform folder
 - TER-511: Fix environment variable set like documented in README, `account` and `region` are now always set (not only for AWS context).
+- TER-513: Fix azurerm backend initialization
+
+UPDATES
+
+- Bump actions/download-artifact from 2 to 3
+- Bump actions/setup-python from 3 to 4.3.0
+- Bump actions/upload-artifact from 2 to 3
+- Bump argcomplete from 1.12.3 to 2.0.0
+- Bump black from 22.1.0 to 22.10.0
+- Bump boto3 from 1.22.0 to 1.26.1
+- Bump colorlog from 6.6.0 to 6.7.0
+- Bump coverage from 6.3.2 to 6.5.0
+- Bump flake8 from 4.0.1 to 5.0.4
+- Bump jinja2 from 3.1.1 to 3.1.2
+- Bump md-toc from 8.1.1 to 8.1.5
+- Bump natsort from 8.1.0 to 8.2.0
+- Bump pytest from 7.1.2 to 7.2.0
+- Bump requests from 2.27.1 to 2.28.1
+- Bump requests-mock from 1.9.3 to 1.10.0
+- Bump termcolor from 1.1.0 to 2.1.0
 
 # 11.0.0 (2022/04/08)
 
