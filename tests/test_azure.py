@@ -215,3 +215,19 @@ def test_user_context_backend_no_isolation(monkeypatch, tmp_path):
 
     launch_cli.assert_called_once_with(["az", "account", "get-access-token", "-s", subscription_id], None)
     assert os.environ.get("AZURE_CONFIG_DIR", "") == ""
+
+
+def test_sas_context_backend_user_stack(monkeypatch, tmp_path):
+    wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
+    subscription_id = "00000000-0000-0000-0000-000000000000"
+    tenant_id = "11111111-1111-1111-1111-111111111111"
+
+    os.environ["ARM_SAS_TOKEN"] = "azurerm-sas-token"
+
+    launch_cli = MagicMock()
+    monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
+
+    tf_vars = azure.set_context(wrapper_config, subscription_id, tenant_id, "", backend_context=True)
+
+    launch_cli.assert_not_called()
+    assert tf_vars.get("azure_state_access_key") == "azurerm-sas-token"
