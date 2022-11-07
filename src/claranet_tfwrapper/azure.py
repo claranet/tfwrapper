@@ -22,6 +22,8 @@ class AzureError(Exception):
 
 def get_sp_profile(profile_name):
     """Retrieve Service Principal credentials from name."""
+    logger.debug(f"Reading {SP_CREDENTIALS_FILE} to fetch {profile_name} credentials.")
+
     with open(SP_CREDENTIALS_FILE, "r") as f:
         load_azure_config = yaml.safe_load(f)
         if load_azure_config is None:
@@ -63,6 +65,8 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
     dict
         Terraform variables
     """
+    logger.debug(f"Configuring azurerm {'backend' if backend_context else 'stack'} context.")
+
     tf_vars = {}
     backend_session = None
     if backend_context:
