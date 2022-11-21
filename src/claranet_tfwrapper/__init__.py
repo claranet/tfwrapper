@@ -1427,6 +1427,7 @@ def main(argv=None):
             in (
                 "fmt",
                 "get",
+                "providers",
                 "test",
                 "validate",
                 "version",
