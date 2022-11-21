@@ -1,3 +1,9 @@
+# 12.1.0 (2022/11/21)
+
+ADDED:
+
+- TER-515: no need to load backend configuration for terraform providers command
+
 # 12.0.0 (2022/11/07)
 
 BREAKING:
