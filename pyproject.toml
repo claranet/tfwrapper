@@ -47,7 +47,7 @@ flake8-docstrings = "^1.6.0"
 md-toc = "^8.1.8"
 mock = "^5.0.1"
 pook = "^1.1.1"
-pytest = "^7.2.0"
+pytest = "^7.2.1"
 requests-mock = "^1.10.0"
 toml = "^0.10.2"
 
