@@ -730,15 +730,14 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pook"
-version = "1.0.2"
+version = "1.1.1"
 description = "HTTP traffic mocking and expectations made easy"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pook-1.0.2-py2-none-any.whl", hash = "sha256:cd3cbfe280d544e672f41a5b9482883841ba247f865858b57fd59f729e37616a"},
-    {file = "pook-1.0.2-py3-none-any.whl", hash = "sha256:2e16d231ec9fe071c14cad7fe41261f65b401f6cb30935a169cf6fc229bd0a1d"},
-    {file = "pook-1.0.2.tar.gz", hash = "sha256:f28112db062d17db245b351c80f2bb5bf1e56ebfa93d3d75cc44f500c15c40eb"},
+    {file = "pook-1.1.1-py3-none-any.whl", hash = "sha256:0bf4f8b53739e165722263c894a27140cf7f3ae6e7a378e4cbf48fdca4abe037"},
+    {file = "pook-1.1.1.tar.gz", hash = "sha256:53da04930616d94eeede77a39d6b5f0fac1f7bbd160d8f54bc468cd798b93956"},
 ]
 
 [package.dependencies]
@@ -1141,4 +1140,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<4.0"
-content-hash = "13214579c0931c6f3da7bde1bb432b2ede67392bf87c3f195696cd6470cf2a0d"
+content-hash = "700e27a07ad51a649243e018394572c6d62138d8542441ab13331ef39854d14b"
