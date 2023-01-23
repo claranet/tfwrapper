@@ -55,7 +55,7 @@ toml = "^0.10.2"
 tfwrapper = 'claranet_tfwrapper:main'
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
