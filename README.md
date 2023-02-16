@@ -276,7 +276,7 @@ terraform:
     aws_account: *aws_account
     aws_region: *aws_region
     client_name: my-client-name # arbitrary client name
-    version: "1.0"  # Terraform version that tfwrapper will automatically download if it's not present, and use for this stack.
+    version: "1.0" # Terraform version that tfwrapper will automatically download if it's not present, and use for this stack.
 ```
 
 Here is an example for a stack on Azure configuration using user mode and AWS S3 backend for state storage:
@@ -324,7 +324,6 @@ terraform:
 The wrapper uses the Service Principal's credentials to connect the Azure subscription. The given Service Principal must have access to the subscription.
 The wrapper loads `client_id`, `client_secret` and `tenant_id` properties from your `config.yml` file located in `~/.azurerm/config.yml`.
 
-
 `~/.azurerm/config.yml` file structure example:
 
 ```yaml
@@ -367,7 +366,6 @@ You can declare multiple providers configurations, context is set up accordingly
 
 ⚠ This feature is only supported for Azure stacks for now and only works with [Azure authentication isolation](#azure-authentication-isolation)
 
-
 ```yaml
 ---
 azure:
@@ -399,10 +397,10 @@ This configuration is useful when having various service principals with a dedic
 
 The wrapper will generate the following Terraform variables that can be used in your stack:
 
-* `<config_name>_azure_subscription_id` with Azure subscription ID. From the example, variable is: `alternative_subscription_id = "22222222-2222-2222-2222-222222222222"`
-* `<config_name>_azure_tenant_id` with Azure tenant ID. From the example, variable is: `alternative_tenant_id = "00000000-0000-0000-0000-000000000000"`
-* `<config_name>_azure_client_id` with Service Principal client id. From the example, variable is: `alternative_client_id = "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz"`
-* `<config_name>_azure_client_secret` with Service Principal client secret. From the example, variable is: `alternative_client_secret = "AAbbbCCCzzz=="`
+- `<config_name>_azure_subscription_id` with Azure subscription ID. From the example, variable is: `alternative_subscription_id = "22222222-2222-2222-2222-222222222222"`
+- `<config_name>_azure_tenant_id` with Azure tenant ID. From the example, variable is: `alternative_tenant_id = "00000000-0000-0000-0000-000000000000"`
+- `<config_name>_azure_client_id` with Service Principal client id. From the example, variable is: `alternative_client_id = "aaaaaaaa-bbbb-cccc-dddd-zzzzzzzzzzzz"`
+- `<config_name>_azure_client_secret` with Service Principal client secret. From the example, variable is: `alternative_client_secret = "AAbbbCCCzzz=="`
 
 Also, an isolation context is set to the local `.run/aure_<config_name>` directory for each configuration.
 
@@ -447,7 +445,6 @@ azure:
       resource_group_name: "tfstates-xxxxx-rg" # The Azure resource group with state storage
       storage_account_name: "tfstatesxxxxx"
       azuread_auth: true
-
 
 backend_parameters: # Parameters or options which can be used by `state.j2.tf` template file
   state_snaphot: "false" # Example of Azure storage backend option
@@ -688,7 +685,19 @@ The stack path is passed to Terraform. This is especially useful for resource na
 
 All new code contributions should come with unit and/or integrations tests.
 
-To run those tests locally, use [tox](https://github.com/tox-dev/tox).
+To run those tests locally, use [tox](https://github.com/tox-dev/tox):
+
+```bash
+poetry run tox -e py
+```
+
+Linters are also used to ensure code respects our standards.
+
+To run those linters locally:
+
+```bash
+poetry run tox -e lint
+```
 
 ## Debug command-line completion
 

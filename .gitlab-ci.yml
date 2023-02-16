@@ -1,7 +1,6 @@
 ---
 variables:
   POETRY_VERSION: "1.3.2"
-  TOX_VERSION: 3.25.0
   KUBERNETES_MEMORY_REQUEST: "600Mi"
   KUBERNETES_MEMORY_LIMIT: "1Gi"
   KUBERNETES_CPU_REQUEST: "1"
@@ -14,18 +13,18 @@ lint:
   stage: lint
   image: python:3
   script:
-    - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
-    - tox -e lint
+    - pip install poetry==${POETRY_VERSION}
+    - poetry run tox -e lint
 
 tox:
   stage: unit-test
   image: python:${PYTHON_VERSION}
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10"]
+      - PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10", "3.11"]
   script:
-    - pip install poetry==${POETRY_VERSION} tox==${TOX_VERSION}
-    - tox -e py
+    - pip install poetry==${POETRY_VERSION}
+    - poetry run tox -e py
   artifacts:
     reports:
       coverage_report:
