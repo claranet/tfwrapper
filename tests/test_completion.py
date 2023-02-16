@@ -40,7 +40,11 @@ def do_completion_test(monkeypatch, tmp_path, line, point=None):
 
 
 def test_completion_no_args(monkeypatch, tmp_path):
-    assert do_completion_test(monkeypatch, tmp_path, "tfwrapper ",) == " ".join(
+    assert do_completion_test(
+        monkeypatch,
+        tmp_path,
+        "tfwrapper ",
+    ) == " ".join(
         [
             "-h",
             "--help",
@@ -88,7 +92,11 @@ def test_completion_no_args(monkeypatch, tmp_path):
 
 
 def test_completion_arg_dash(monkeypatch, tmp_path):
-    assert do_completion_test(monkeypatch, tmp_path, "tfwrapper -",) == " ".join(
+    assert do_completion_test(
+        monkeypatch,
+        tmp_path,
+        "tfwrapper -",
+    ) == " ".join(
         [
             "-h",
             "--help",
@@ -114,7 +122,11 @@ def test_completion_arg_dash(monkeypatch, tmp_path):
 
 
 def test_completion_arg_dash_d(monkeypatch, tmp_path):
-    assert do_completion_test(monkeypatch, tmp_path, "tfwrapper -d",) == " ".join(
+    assert do_completion_test(
+        monkeypatch,
+        tmp_path,
+        "tfwrapper -d",
+    ) == " ".join(
         [
             "-d ",
         ]
@@ -122,7 +134,11 @@ def test_completion_arg_dash_d(monkeypatch, tmp_path):
 
 
 def test_completion_arg_work(monkeypatch, tmp_path):
-    assert do_completion_test(monkeypatch, tmp_path, "tfwrapper work",) == " ".join(
+    assert do_completion_test(
+        monkeypatch,
+        tmp_path,
+        "tfwrapper work",
+    ) == " ".join(
         [
             "workspace ",
         ]
@@ -130,7 +146,11 @@ def test_completion_arg_work(monkeypatch, tmp_path):
 
 
 def test_completion_arg_workspace(monkeypatch, tmp_path):
-    assert do_completion_test(monkeypatch, tmp_path, "tfwrapper workspace ",) == " ".join(
+    assert do_completion_test(
+        monkeypatch,
+        tmp_path,
+        "tfwrapper workspace ",
+    ) == " ".join(
         [
             "-h",
             "--help",
@@ -144,7 +164,11 @@ def test_completion_arg_workspace(monkeypatch, tmp_path):
 
 
 def test_completion_arg_workspace_select(monkeypatch, tmp_path):
-    assert do_completion_test(monkeypatch, tmp_path, "tfwrapper workspace select ",) == " ".join(
+    assert do_completion_test(
+        monkeypatch,
+        tmp_path,
+        "tfwrapper workspace select ",
+    ) == " ".join(
         [
             "default ",
         ]
