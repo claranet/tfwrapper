@@ -71,7 +71,7 @@
 - `build-essential` (provides C/C++ compilers)
 - `libffi-dev`
 - `libssl-dev`
-- `python3` `>= 3.7 <4.0` (3.8+ recommended)
+- `python3` `>= 3.8.1 <4.0`
 - `python3-dev`
 - `python3-venv`
 

@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<4.0"
+python = ">=3.8.1,<4.0"
 argcomplete = "<3.0"
 boto3 = "^1.17.94"
 CacheControl = "^0.12.6"
@@ -42,7 +42,7 @@ termcolor = ">=1.1,<3.0"
 [tool.poetry.group.test.dependencies]
 black = "*"
 coverage = "*"
-flake8 = "*"
+flake8 = ">=6.0.0"
 flake8-docstrings = "*"
 Flake8-pyproject = "*"
 md-toc = "*"
@@ -76,10 +76,11 @@ exclude = '''
 '''
 
 [tool.flake8]
+verbose = 3
 max-line-length = 130
-per-file-ignores = """
-  tests/*.py: D103
-"""
+per-file-ignores = [
+  'tests/*.py:D103',
+]
 exclude = ['.git', '.tox', '.venv', '.virtualenv', '__pycache__']
 # See https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
 ignore = ['E203', 'W503']
