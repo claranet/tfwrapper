@@ -14,6 +14,7 @@ lint:
   image: python:3
   script:
     - pip install poetry==${POETRY_VERSION}
+    - poetry install
     - poetry run tox -e lint
 
 tox:
@@ -24,6 +25,7 @@ tox:
       - PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11"]
   script:
     - pip install poetry==${POETRY_VERSION}
+    - poetry install
     - poetry run tox -e py
   artifacts:
     reports:

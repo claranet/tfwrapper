@@ -24,7 +24,9 @@ jobs:
 
       - name: Run tox
         shell: bash
-        run: poetry run tox -e lint
+        run: |
+          poetry install
+          poetry run tox -e lint
 
   tests:
     name: Test with Python ${{ matrix.python_version }}
@@ -52,6 +54,7 @@ jobs:
           # Using relative is mandated by ewjoachim/python-coverage-comment-action@v3
           printf "[run]\nrelative_files = true" > .coveragerc
 
+          poetry install
           poetry run tox -e py
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
