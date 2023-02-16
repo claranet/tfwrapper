@@ -1,8 +1,25 @@
-# Unreleased
+# 12.2.0 (2023/02/16)
 
 FIXES:
 
 - TER-504: fix exit code management on Ctrl-C during plan
+
+UPDATES:
+
+- Bump actions/setup-python from 4.3.0 to 4.5.0
+- Bump black from 22.10.0 to 23.1.0
+- Bump certifi from 2021.10.8 to 2022.12.7
+- Bump coverage from 6.5.0 to 7.1.0
+- Bump ewjoachim/python-coverage-comment-action from 2 to 3
+- Bump flake8-docstrings from 1.6.0 to 1.7.0
+- Bump md-toc from 8.1.5 to 8.1.9
+- Bump mock from 4.0.3 to 5.0.1
+- Bump packaging from 21.3 to 23.0
+- Bump poetry from 1.1.13 to 1.3.2
+- Bump pook from 1.0.2 to 1.1.1
+- Bump pytest from 7.2.0 to 7.2.1
+- Bump requests from 2.28.1 to 2.28.2
+- Bump termcolor from 2.1.0 to 2.2.0
 
 # 12.1.0 (2022/11/21)
 
