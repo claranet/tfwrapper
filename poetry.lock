@@ -565,14 +565,14 @@ files = [
 
 [[package]]
 name = "md-toc"
-version = "8.1.8"
+version = "8.1.9"
 description = "Automatically generate and add an accurate table of contents to markdown files"
 category = "dev"
 optional = false
 python-versions = "<4,>=3.5"
 files = [
-    {file = "md_toc-8.1.8-py3-none-any.whl", hash = "sha256:879100ed2947cb8c23dbd99a4a1e3cc85b8750d1667b407575bc4918209f3202"},
-    {file = "md_toc-8.1.8.tar.gz", hash = "sha256:8c7748141d228517dc6bfe60eb369ae738bc0049246990843eee20553ce45f84"},
+    {file = "md_toc-8.1.9-py3-none-any.whl", hash = "sha256:9f11af07ba77557bf1b92763cfb9886ef15d7d57436faa8ceb386bd374a472db"},
+    {file = "md_toc-8.1.9.tar.gz", hash = "sha256:bc44bea9b1117142b61c22e8fa1a6aa1d33e046a7cb81e02064e2b40be304d51"},
 ]
 
 [package.dependencies]
@@ -1154,4 +1154,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<4.0"
-content-hash = "059e74298ea4d49403e6b5f4eba35bc41c7075e9d665ea73255b11dd242abadd"
+content-hash = "804edc84fa3d75f7cba630dd13d66450eff2e279fb5ae7a3cee7dbf4bc6e5818"
