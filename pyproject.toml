@@ -16,10 +16,10 @@ classifiers = [
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: System :: Systems Administration",
     "Topic :: Utilities",
 ]
@@ -65,7 +65,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 # Make sure to match flake8's max-line-length.
 line-length = 130 # black's default
-target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+target-version = ['py38', 'py39', 'py310', 'py311']
 exclude = '''
 /(
   \.git
