@@ -869,6 +869,7 @@ def run_terraform(action, wrapper_config):
             process.communicate()
         except KeyboardInterrupt:
             logger.warning("Received Ctrl+C")
+            return -1
         except:  # noqa
             process.kill()
             process.wait()
@@ -898,7 +899,7 @@ def terraform_apply(wrapper_config):
         plan_return_code = run_terraform("plan", plan_wrapper_config)
 
         # return Terraform return code if plan fails
-        if plan_return_code > 0:
+        if plan_return_code != 0:
             return plan_return_code
 
         # ask for confirmation

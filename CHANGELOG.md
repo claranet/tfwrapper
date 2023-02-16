@@ -1,3 +1,9 @@
+# Unreleased
+
+FIXES:
+
+- TER-504: fix exit code management on Ctrl-C during plan
+
 # 12.1.0 (2022/11/21)
 
 ADDED:
