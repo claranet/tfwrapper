@@ -45,6 +45,7 @@
   - [README TOC](#readme-toc)
   - [Using terraform development builds](#using-terraform-development-builds)
   - [git pre-commit hooks](#git-pre-commit-hooks)
+  - [Review and merge open Dependabot PRs](#review-and-merge-open-dependabot-prs)
   - [Tagging and publishing new releases to PyPI](#tagging-and-publishing-new-releases-to-pypi)
 
 <!--TOC-->
@@ -762,6 +763,26 @@ If updating hooks configuration, run checks against all files to make sure every
 ```
 
 Note: the `pre-commit` tool itself can be installed with `pip` or `pipx`.
+
+## Review and merge open Dependabot PRs
+
+Use the `scripts/merge-dependabot-mrs.sh` script from `master` branch to:
+
+- list open Dependabot PRs that are mergeable,
+- review, approve and merge them,
+- pull changes from github and pushing them to origin.
+
+Just invoke the script without any argument:
+
+```bash
+# ./scripts/merge-dependabot-mrs.sh
+```
+
+Check the help:
+
+```bash
+# ./scripts/merge-dependabot-mrs.sh --help
+```
 
 ## Tagging and publishing new releases to PyPI
 
