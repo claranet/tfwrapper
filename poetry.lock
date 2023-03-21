@@ -2,14 +2,14 @@
 
 [[package]]
 name = "argcomplete"
-version = "2.1.1"
+version = "3.0.3"
 description = "Bash tab completion for argparse"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "argcomplete-2.1.1-py3-none-any.whl", hash = "sha256:17041f55b8c45099428df6ce6d0d282b892471a78c71375d24f227e21c13f8c5"},
-    {file = "argcomplete-2.1.1.tar.gz", hash = "sha256:72e08340852d32544459c0c19aad1b48aa2c3a96de8c6e5742456b4f538ca52f"},
+    {file = "argcomplete-3.0.3-py3-none-any.whl", hash = "sha256:54608afc0dcab4f4b60b5f881d013d4a9a4ed362f81c3e0191b5aec934dbdc21"},
+    {file = "argcomplete-3.0.3.tar.gz", hash = "sha256:10b932b66c039c8de16f98f4b2022822f4a60e64861b98719eafdd871ca11539"},
 ]
 
 [package.extras]
@@ -1454,4 +1454,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "2c3771a9efb271db437a11fbb666109733573c07dc05bd708e26c849c17fe9b4"
+content-hash = "d74c26f7006fa35ae6a7b39547abf8ffba62a4eee66113e17ce93fa99e3922cd"
