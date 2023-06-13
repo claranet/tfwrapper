@@ -1,3 +1,23 @@
+# 13.0.0 (2023/06/13)
+
+BREAKING:
+
+- Drop support for Python 3.7
+
+FIXES:
+
+- fix(TER-515): Only lock and mirror sub-commands of providers sub-command do not require state access
+
+ADDED:
+
+- Add script to automate Dependabot PRs review and merge workflow
+
+UPDATES:
+
+- Use poetry 1.5.1 in CI
+- Update all dependencies
+
+
 # 12.2.0 (2023/02/16)
 
 FIXES:
