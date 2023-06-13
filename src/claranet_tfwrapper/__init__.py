@@ -1422,18 +1422,29 @@ def main(argv=None):
     if args.subcommand not in wrapper_local_commands:
         # get sessions
         state_backend_name = stack_config.get("state_configuration_name", None)
+
         load_backend = wrapper_config["backend"] = not (
             (args.subcommand == "init" and args.backend == "false")
             or args.subcommand
             in (
                 "fmt",
                 "get",
-                "providers",
                 "test",
                 "validate",
                 "version",
             )
         )
+
+        # Only "lock" and "mirror" sub-commands of "providers" sub-command do not require state access
+        if (
+            args.subcommand == "providers"
+            and (tf_params := wrapper_config.get("tf_params"))
+            and (
+                (len(tf_params) > 0 and tf_params[0] in ("lock", "mirror"))
+                or (len(tf_params) > 1 and tf_params[0] == "--" and tf_params[1] in ("lock", "mirror"))
+            )
+        ):
+            load_backend = False
 
         if load_backend and wrapper_config["state"]:
             try:
