@@ -28,7 +28,7 @@ classifiers = [
 python = ">=3.8.1,<4.0"
 argcomplete = "<4.0"
 boto3 = "^1.17.94"
-CacheControl = "^0.12.6"
+CacheControl = ">=0.12.6,<0.14.0"
 colorlog = ">=5.0.1,<7.0.0"
 Jinja2 = "^3.0.1"
 lockfile = "^0.12.2"
