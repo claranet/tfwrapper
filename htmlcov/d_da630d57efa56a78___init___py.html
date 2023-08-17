@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_da630d57efa56a78_azure_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.0">coverage.py v7.3.0</a>,
-            created at 2023-08-17 07:05 +0000
+            created at 2023-08-17 07:54 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -1742,7 +1742,7 @@
     <p class="pln"><span class="n"><a id="t1660" href="#t1660">1660</a></span><span class="t">    <span class="com"># do we need a custom provider ?</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1661" href="#t1661">1661</a></span><span class="t">    <span class="key">if</span> <span class="nam">args</span><span class="op">.</span><span class="nam">subcommand</span> <span class="key">in</span> <span class="op">[</span><span class="str">"init"</span><span class="op">,</span> <span class="str">"bootstrap"</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1662" href="#t1662">1662</a></span><span class="t">        <span class="key">for</span> <span class="nam">provider</span><span class="op">,</span> <span class="nam">config</span> <span class="key">in</span> <span class="nam">stack_config</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"terraform"</span><span class="op">,</span> <span class="op">{</span><span class="op">}</span><span class="op">)</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"custom-providers"</span><span class="op">,</span> <span class="op">{</span><span class="op">}</span><span class="op">)</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1663" href="#t1663">1663</a></span><span class="t">            <span class="key">if</span> <span class="nam">type</span><span class="op">(</span><span class="nam">config</span><span class="op">)</span> <span class="op">==</span> <span class="nam">str</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1663" href="#t1663">1663</a></span><span class="t">            <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">config</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1664" href="#t1664">1664</a></span><span class="t">                <span class="com"># This should be the version</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1665" href="#t1665">1665</a></span><span class="t">                <span class="nam">download_custom_provider</span><span class="op">(</span><span class="nam">provider</span><span class="op">,</span> <span class="nam">config</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1666" href="#t1666">1666</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -1769,7 +1769,7 @@
             <a id="nextFileLink" class="nav" href="d_da630d57efa56a78_azure_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.3.0">coverage.py v7.3.0</a>,
-            created at 2023-08-17 07:05 +0000
+            created at 2023-08-17 07:54 +0000
         </p>
     </div>
 </footer>
