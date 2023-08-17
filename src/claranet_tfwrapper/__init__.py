@@ -1660,7 +1660,7 @@ def main(argv=None):
     # do we need a custom provider ?
     if args.subcommand in ["init", "bootstrap"]:
         for provider, config in stack_config.get("terraform", {}).get("custom-providers", {}).items():
-            if type(config) == str:
+            if isinstance(config, str):
                 # This should be the version
                 download_custom_provider(provider, config)
             else:
