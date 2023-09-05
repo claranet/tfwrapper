@@ -1,3 +1,10 @@
+# 13.1.0 (2023/09/05)
+
+UPDATES:
+
+- Use poetry 1.5.1 in CI
+- Update all dependencies
+
 # 13.0.0 (2023/06/13)
 
 BREAKING:
