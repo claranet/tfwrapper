@@ -1,3 +1,9 @@
+# 13.1.1a0 (2023/09/05)
+
+FIXES:
+
+- replace deprecated usage of set-output in Github Actions
+
 # 13.1.0 (2023/09/05)
 
 UPDATES:
