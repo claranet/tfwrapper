@@ -8,7 +8,7 @@ FIXES:
 
 UPDATES:
 
-- Use poetry 1.5.1 in CI
+- Use poetry 1.6.1 in CI
 - Update all dependencies
 
 # 13.0.0 (2023/06/13)
