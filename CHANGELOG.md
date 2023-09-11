@@ -1,3 +1,14 @@
+# 13.1.1 (2023/09/11)
+
+FIXES:
+
+- deps: require filecache extra of CacheControl to ensure filelock is installed
+- doc: fix poetry version in changelog
+
+UPDATES:
+
+- Update all dependencies
+
 # 13.1.1a0 (2023/09/05)
 
 FIXES:
