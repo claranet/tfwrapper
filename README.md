@@ -2,7 +2,9 @@
 
 [![Changelog](https://img.shields.io/badge/changelog-release-blue.svg)](CHANGELOG.md) [![Mozilla Public License](https://img.shields.io/badge/license-mozilla-orange.svg)](LICENSE) [![Pypi](https://img.shields.io/badge/python-pypi-green.svg)](https://pypi.org/project/claranet-tfwrapper/)
 
-`tfwrapper` is a python wrapper for [Terraform](https://www.terraform.io/) which aims to simplify Terraform usage and enforce best practices.
+`tfwrapper` is a python wrapper for [OpenToFu](https://opentofu.org/) and legacy [Terraform](https://www.terraform.io/) which aims to simplify their usage and enforce best practices.
+
+Note: the term _Terraform_ is used in this documentation when talking about concepts like providers, modules, stacks and the HCL based domain specific language.
 
 ## Table Of Contents
 
@@ -51,7 +53,7 @@
 
 ## Features
 
-- Terraform behaviour overriding
+- OpenTofu and Terraform behaviour overriding
 - State centralization enforcement
 - Standardized file structure
 - Stack initialization from templates
@@ -75,7 +77,7 @@
 
 ## Recommended setup
 
-- Terraform 1.0+
+- OpenToFu 1.6+ (recommended) or Terraform 1.0+ (warning: versions above 1.6 are not open-source, and may cause legal issues depending on the context you are using it).
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 
