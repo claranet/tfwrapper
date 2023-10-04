@@ -26,7 +26,7 @@ tox:
   script:
     - pip install poetry==${POETRY_VERSION}
     - poetry install
-    - poetry run tox -e py
+    - poetry run tox -e coverage
   artifacts:
     reports:
       coverage_report:

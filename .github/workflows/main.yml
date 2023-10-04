@@ -58,7 +58,7 @@ jobs:
           printf "[run]\nrelative_files = true" > .coveragerc
 
           poetry install
-          poetry run tox -e py
+          poetry run tox -e coverage
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
 
