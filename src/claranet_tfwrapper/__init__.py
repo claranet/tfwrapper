@@ -35,6 +35,7 @@ from cachecontrol.heuristics import ExpiresAfter
 from cachecontrol.caches import FileCache
 from natsort import natsorted
 from schema import Schema, SchemaError, Optional, Or
+from semver import Version
 from termcolor import colored
 
 from . import azure
@@ -71,6 +72,11 @@ TERRAFORM_RELEASES_URL = "https://releases.hashicorp.com/terraform/index.json"
 TERRAFORM_MINOR_VERSION_REGEX = r"[0-9]+\.[0-9]+"
 TERRAFORM_PATCH_REGEX = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
 
+TOOL_PROVIDER = "provider"
+TOOL_OPENTOFU = "tofu"  # FIXME: maybe set this to "opentofu", and only name the binary "tofu"
+TOOL_TERRAFORM = "terraform"
+TOOL_BIN_PATH = None
+
 ARCH_NAME = get_architecture()
 PLATFORM_SYSTEM = platform.system().lower()
 
@@ -80,11 +86,11 @@ TFWRAPPER_DEFAULT_CONFIG = {
     "use_local_azure_session_directory": True,
 }
 
-TERRAFORM_BIN_PATH = None
-
 HOME_DIR = str(Path.home())
 DEFAULT_CONF_DIRNAME = "conf"
-DEFAULT_HTTP_CACHE_DIR = "{}/.terraform.d/http-cache".format(HOME_DIR)
+DEFAULT_HTTP_CACHE_DIR = "{}/.terraform.d/http-cache".format(
+    HOME_DIR
+)  # FIXME: maybe move this to $XDG_CACHE_DIR/claranet-tfwrapper/http-cache
 
 # setup logging parameters
 LOG_FORMAT = "{log_color}{levelname: <7}{reset} {purple}tfwrapper{reset} : {bold}{message}{reset}"
@@ -107,7 +113,12 @@ stack_configuration_schema = Schema(
             "general": {"project": str, "mode": str},
             Optional("gke"): [{Or("zone", "region"): str, "name": str, Optional("refresh_kubeconfig"): Or("always", "never")}],
         },
-        "terraform": {"vars": {str: str}, Optional("custom-providers"): {str: Or(str, {"version": str, "extension": str})}},
+        "terraform": {
+            Optional("legacy"): bool,
+            Optional("version"): str,
+            "vars": {str: str},
+            Optional("custom-providers"): {str: Or(str, {"version": str, "extension": str})},
+        },
     }
 )
 
@@ -555,6 +566,7 @@ def bootstrap(wrapper_config):
         logger.warning("State configuration file state.tf already exists, skipping its generation.")
 
 
+# FIXME: use https://pygithub.readthedocs.io/en/stable/github_objects/Repository.html#github.Repository.Repository.get_releases
 def search_on_github(repo, minor_version, patch_regex, patch):
     """Search release on github."""
     # Start search from the next incremented minor version
@@ -597,7 +609,7 @@ def get_terraform_last_patch(minor_version):
                 logger.debug("Found {} for {}".format(release, minor_version))
                 return release.split(".")[-1]
 
-        raise ValueError("The terraform minor version {} does not exist".format(minor_version))
+        error("The terraform minor version {} does not exist".format(minor_version))
 
     message = releases.get("message", "Unknown error")
     logger.warning("Failed to retrieve terraform releases from {}: {}".format(TERRAFORM_RELEASES_URL, message))
@@ -616,7 +628,7 @@ def select_terraform_version(version):
         version,
     )
     if not m:
-        error('The terraform version seems not correct, it should be a version number like "X.Y" or "X.Y.Z"')
+        error('The terraform version does not seem correct, it should be a version number like "X.Y" or "X.Y.Z"')
     minor_version, patch, dev = m.group("minor", "patch", "dev")
 
     # Getting latest patch version if not defined
@@ -624,121 +636,138 @@ def select_terraform_version(version):
         patch = get_terraform_last_patch(minor_version)
     full_version = "{}.{}".format(minor_version, patch)
 
+    # FIXME: maybe move this to $XDG_CACHE_DIR/claranet-tfwrapper/terraform/versions
     version_path = os.path.expanduser(os.path.join("~/.terraform.d/versions", minor_version, full_version))
-    global TERRAFORM_BIN_PATH
-    TERRAFORM_BIN_PATH = os.path.join(version_path, "terraform")
+    global TOOL_BIN_PATH
+    TOOL_BIN_PATH = os.path.join(version_path, "terraform")
     os.makedirs(version_path, exist_ok=True)
 
-    if not os.path.isfile(TERRAFORM_BIN_PATH):
+    if not os.path.isfile(TOOL_BIN_PATH):
         if patch.endswith("-dev"):
-            error("The development version {} for terraform does not exist locally".format(version))
+            error(f"The development version {version} for terraform does not exist locally")
 
+        # FIXME: use semver for version comparison
         if PLATFORM_SYSTEM == "darwin" and ARCH_NAME == "arm64" and full_version < "1.0.2":
             arch = "amd64"
             logger.warning(
                 "Terraform only supports darwin (MacOS) on arm64 (Apple Silicon M1) since v1.0.2, "
-                "so force usage of {} binaries with Rosetta on darwin for older terraform versions".format(arch)
+                f"so force usage of {arch} binaries with Rosetta on darwin for older terraform versions"
             )
         else:
             arch = ARCH_NAME
 
         # Download and extract in user's home if needed
-        logger.warning("Terraform version {} does not exist locally, downloading it".format(full_version))
+        logger.warning(f"Terraform version {full_version} does not exist locally, downloading it")
         handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix=".zip")
         r = CachedRequestsSession.get(
-            "https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{platform}_{arch}.zip".format(
-                full_version=full_version, platform=PLATFORM_SYSTEM, arch=arch
-            ),
+            f"https://releases.hashicorp.com/terraform/{full_version}/terraform_{full_version}_{PLATFORM_SYSTEM}_{arch}.zip",
             stream=True,
         )
         if r.status_code != 200:
-            raise ValueError(
-                "Failed to download terraform version {}, it probably does not exist: {}".format(full_version, r.status_code)
-            )
+            error(f"Failed to download terraform version {full_version}, it probably does not exist: {r.status_code}")
 
         with open(tmp_file, "wb") as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
         with zipfile.ZipFile(tmp_file, "r") as zip:
             zip.extractall(path=version_path)
-        # Permissions not preserved on extract https://bugs.python.org/issue15795
+        # Permissions not preserved on extract https://github.com/python/cpython/issues/59999
         os.chmod(
-            TERRAFORM_BIN_PATH,
-            os.stat(TERRAFORM_BIN_PATH).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+            TOOL_BIN_PATH,
+            os.stat(TOOL_BIN_PATH).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
         )
         os.remove(tmp_file)
 
-    logger.info("Using terraform version {}".format(full_version))
+    logger.info(f"Using terraform version {full_version} at {TOOL_BIN_PATH}")
 
 
-def download_custom_provider(provider_name, provider_version, extension="zip"):
-    """Download Terraform custom provider."""
-    logger.info("Checking custom Terraform provider '{}' at version '{}'".format(provider_name, provider_version))
+def download_tool_from_github(repo, tool_version, tool_type, extension="zip"):
+    """
+    Download tool from GitHub.
+
+    :param repo: string: the GitHub repository hosting the tool
+    :param tool_version: string: desired tool version
+    :param tool_type: string: the type of the tool to use, one of "tofu" or "provider"
+    :param extension: string: the extension of the tool release artifact to download
+    """
+    logger.debug(f"Searching version '{tool_version}' for tool {tool_type} from '{repo}' GitHub repository.")
     github_base = "https://github.com/"
-    github_endpoint = "{g}{p}".format(g=github_base, p=provider_name)
+    github_endpoint = "{g}{p}".format(g=github_base, p=repo)
     supported_extensions = ["zip", "tar.gz", "tar.bz2"]
 
     if extension not in supported_extensions:
-        error("Extension {} is not supported. Only {} are.".format(extension, ", ".join(supported_extensions)))
+        error(f"Extension {extension} is not supported. Only {', '.join(supported_extensions)} are.")
 
     r = CachedRequestsSession.get(github_endpoint)
     if r.status_code != 200:
-        error("The terraform provider {} does not exist ({})".format(provider_name, github_endpoint))
+        error(f"The repository {repo} does not exist at {github_endpoint}")
 
-    m = re.match(r"^v?([0-9]+.[0-9]+).?([0-9]+)?(-[a-z0-9]+)?$", provider_version)
+    m = re.match(r"^v?([0-9]+.[0-9]+).?([0-9]+)?(-[a-z0-9]+)?$", tool_version)
     if not m:
         error(
-            'The provider version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or ' '"X.Y.Z-custom"'
+            'The tool version does not seem correct, it should be a version number like "X.Y", "X.Y.Z" or '
+            '"X.Y.Z-custom" with or without a "v" prefix'
         )
     minor_version, patch, custom = m.groups()
-
-    patch = search_on_github(provider_name, minor_version, r"[0-9]+(-[a-z0-9_-]+)?", patch)
+    logger.debug(
+        f"Searching for tool {tool_type} version matching minor version '{minor_version}', patch '{patch}', custom '{custom}'"
+    )
 
     if not patch:
-        error("The provider version '{}-{}' does not exist".format(provider_name, provider_version))
+        patch = search_on_github(repo, minor_version, r"[0-9]+(-[a-z0-9_-]+)?", patch)
 
-    full_version = "{}.{}".format(minor_version, patch)
+    if not patch:
+        error(f"The version '{tool_version}' does not exist for tool {tool_type} in '{repo}' GitHub repository")
 
-    # Getting current version
-    plugins_path = os.path.expanduser("~/.terraform.d/plugins/{platform}_{arch}".format(platform=PLATFORM_SYSTEM, arch=ARCH_NAME))
-    os.makedirs(plugins_path, exist_ok=True)
-    provider_short_name = provider_name.split("/", 1)[1]
-    bin_name = "{n}_{v}".format(n=provider_short_name, v=full_version)
-    if provider_version.startswith("v"):
-        # Do it now so we keep full_version clean for building url
-        bin_name = "{n}_v{v}".format(n=provider_short_name, v=full_version)
+    full_version = f"{minor_version}.{patch}{custom if custom else ''}"
+
+    # Getting tool path
+    if tool_type == TOOL_OPENTOFU:
+        # FIXME: maybe move this to $XDG_CACHE_DIR/claranet-tfwrapper/opentofu/versions
+        tool_path = os.path.expanduser(os.path.join("~/.terraform.d/versions", minor_version, full_version))
+        tool_short_name = TOOL_OPENTOFU
+        tool_bin_path = os.path.join(tool_path, tool_short_name)
     else:
-        bin_name = "{n}_{v}".format(n=provider_short_name, v=full_version)
-    TERRAFORM_BIN_PATH = os.path.join(plugins_path, "{n}_v{v}".format(n=provider_short_name, v=full_version))
+        tool_path = os.path.expanduser(f"~/.terraform.d/plugins/{PLATFORM_SYSTEM}_{ARCH_NAME}")
+        tool_short_name = repo.split("/", 1)[1]
+        tool_bin_path = os.path.join(tool_path, "{n}_v{v}".format(n=tool_short_name, v=full_version))
 
-    if not os.path.isfile(TERRAFORM_BIN_PATH):
+    bin_name = "{n}_{v}".format(n=tool_short_name, v=full_version)
+    if tool_version.startswith("v"):
+        # Do it now so we keep full_version clean for building url
+        bin_name = "{n}_v{v}".format(n=tool_short_name, v=full_version)
+    else:
+        bin_name = "{n}_{v}".format(n=tool_short_name, v=full_version)
+
+    os.makedirs(tool_path, exist_ok=True)
+
+    if tool_type == TOOL_OPENTOFU:
+        global TOOL_BIN_PATH
+        TOOL_BIN_PATH = tool_bin_path
+
+    if not os.path.isfile(tool_bin_path):
         # Download and extract in user's home if needed
-        logger.warning("Provider version does not exist locally, downloading it")
-        handle, tmp_file = tempfile.mkstemp(prefix="terraform-", suffix="." + extension)
+        logger.warning(f"Tool {tool_type} version {full_version} does not exist locally, downloading it")
+        handle, tmp_file = tempfile.mkstemp(prefix=f"{tool_type}-", suffix="." + extension)
         r = CachedRequestsSession.get(
-            "https://github.com/{p}/releases/download/v{v}/{b}_{platform}_{arch}.{extension}".format(
-                p=provider_name,
-                v=full_version,
-                b=bin_name,
-                platform=PLATFORM_SYSTEM,
-                arch=ARCH_NAME,
-                extension=extension,
-            ),
+            f"https://github.com/{repo}/releases/download/v{full_version}/{bin_name}_{PLATFORM_SYSTEM}_{ARCH_NAME}.{extension}",
             stream=True,
         )
         with open(tmp_file, "wb") as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
-        shutil.unpack_archive(tmp_file, plugins_path)
-        # Permissions not preserved on extract https://bugs.python.org/issue15795
-        os.chmod(
-            TERRAFORM_BIN_PATH,
-            os.stat(TERRAFORM_BIN_PATH).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
-        )
+        shutil.unpack_archive(tmp_file, tool_path)
         os.remove(tmp_file)
-        logger.info("Download done, current provider version is {}".format(full_version))
+        # Permissions not preserved on extract https://github.com/python/cpython/issues/59999
+        os.chmod(
+            tool_bin_path,
+            os.stat(tool_bin_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+        )
+        logger.debug(f"Tool {tool_type} version {full_version} was downloaded")
     else:
-        logger.debug("Current provider version is already {}".format(full_version))
+        logger.debug(f"Tool {tool_type} version {full_version} is already available")
+
+    logger.info(f"Using {tool_type} version {full_version} at {TOOL_BIN_PATH}")
 
 
 def adc_check_gke_credentials(
@@ -830,7 +859,7 @@ def run_terraform(action, wrapper_config):
     stack = wrapper_config["stack"]
 
     # support for custom parameters
-    command = [TERRAFORM_BIN_PATH, action]
+    command = [TOOL_BIN_PATH, action]
 
     if action == "init" and not wrapper_config["backend"]:
         command.append("-backend=false")
@@ -1090,7 +1119,7 @@ def terraform_completer(prefix, action, parser, parsed_args):
     )
 
     working_dir = "."
-    command = [TERRAFORM_BIN_PATH]
+    command = [TOOL_BIN_PATH]
     # Pass environment variables unchanged, including COMP_LINE which is defined by the shell
     # when invoked during auto-completion
     logger.debug('Execute command "{}" with environment {}'.format(command, os.environ))
@@ -1305,9 +1334,9 @@ def parse_args(args):
         if len(parsed_args.command) > 0 and parsed_args.command[0] == "--":
             parsed_args.command = parsed_args.command[1:]
         if len(parsed_args.command) < 1:
-            raise ValueError("foreach: error: a command is required")
+            error("foreach: error: a command is required")
         if parsed_args.shell and len(parsed_args.command) > 1:
-            raise ValueError("foreach: error: -S/--shell must be followed by a single argument (hint: use quotes)")
+            error("foreach: error: -S/--shell must be followed by a single argument (hint: use quotes)")
         parsed_args.executable = os.environ.get("SHELL", None) if parsed_args.shell else None
 
     return parsed_args
@@ -1346,9 +1375,23 @@ def main(argv=None):
     )
     stack_config = load_stack_config_from_file(stack_config_file)
 
-    # select terraform version for the stack if selected with a fallback on v1.0
-    tf_version = stack_config.get("terraform", {}).get("vars", {}).get("version", "1.0")
-    select_terraform_version(tf_version)
+    # select tool version for the stack if selected, with a fallback on v1.0
+    tool_version = (tf_config := stack_config.get(TOOL_TERRAFORM, {})).get(
+        "version", tf_config.get("vars", {}).get("version", "1.0")
+    )
+    if (v := Version.parse(tool_version, optional_minor_and_patch=True)).major < 1 or (v.major == 1 and v.minor < 6):
+        legacy_tool = True
+    else:
+        legacy_tool = stack_config.get("terraform", {}).get("legacy", False)
+
+    if not legacy_tool:
+        download_tool_from_github(
+            "opentofu/opentofu",
+            tool_version,
+            TOOL_OPENTOFU,
+        )
+    else:
+        select_terraform_version(tool_version)
 
     # parse all args
     args = parse_args(argv or sys.argv[1:])
@@ -1662,10 +1705,10 @@ def main(argv=None):
         for provider, config in stack_config.get("terraform", {}).get("custom-providers", {}).items():
             if isinstance(config, str):
                 # This should be the version
-                download_custom_provider(provider, config)
+                download_tool_from_github(provider, config, TOOL_PROVIDER)
             else:
                 # config should be a hash of version / extension
-                download_custom_provider(provider, config["version"], config["extension"])
+                download_tool_from_github(provider, config["version"], TOOL_PROVIDER, extension=config["extension"])
 
     # call subcommand
     returncode = args.func(wrapper_config)

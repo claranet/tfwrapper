@@ -2,9 +2,9 @@
 
 [![Changelog](https://img.shields.io/badge/changelog-release-blue.svg)](CHANGELOG.md) [![Mozilla Public License](https://img.shields.io/badge/license-mozilla-orange.svg)](LICENSE) [![Pypi](https://img.shields.io/badge/python-pypi-green.svg)](https://pypi.org/project/claranet-tfwrapper/)
 
-`tfwrapper` is a python wrapper for [OpenToFu](https://opentofu.org/) and legacy [Terraform](https://www.terraform.io/) which aims to simplify their usage and enforce best practices.
+`tfwrapper` is a python wrapper for [OpenTofu](https://opentofu.org/) and legacy [Terraform](https://www.terraform.io/) which aims to simplify their usage and enforce best practices.
 
-Note: the term _Terraform_ is used in this documentation when talking about concepts like providers, modules, stacks and the HCL based domain specific language.
+Note: the term _Terraform_ is used in this documentation when talking about generic concepts like providers, modules, stacks and the HCL based domain specific language.
 
 ## Table Of Contents
 
@@ -44,7 +44,7 @@ Note: the term _Terraform_ is used in this documentation when talking about conc
   - [Python code formatting](#python-code-formatting)
   - [Checks](#checks)
   - [README TOC](#readme-toc)
-  - [Using terraform development builds](#using-terraform-development-builds)
+  - [Using OpenTofu development builds](#using-opentofu-development-builds)
   - [git pre-commit hooks](#git-pre-commit-hooks)
   - [Review and merge open Dependabot PRs](#review-and-merge-open-dependabot-prs)
   - [Tagging and publishing new releases to PyPI](#tagging-and-publishing-new-releases-to-pypi)
@@ -77,7 +77,7 @@ Note: the term _Terraform_ is used in this documentation when talking about conc
 
 ## Recommended setup
 
-- OpenToFu 1.6+ (recommended) or Terraform 1.0+ (warning: versions above 1.6 are not open-source, and may cause legal issues depending on the context you are using it).
+- OpenTofu 1.6+ (recommended) or Terraform 1.0+ (warning: versions above 1.6 are not open-source, and may cause legal issues depending on the context you are using it).
 - An AWS S3 bucket and DynamoDB table for state centralization in AWS.
 - An Azure Blob Storage container for state centralization in Azure.
 
@@ -267,11 +267,12 @@ aws:
     profile: my-aws-profile # should be configured in .aws/config
 
 terraform:
+  legacy: false # Use legacy version of the tool instead of OpenTofu, defaults to false. Only used if version >= 1.6.0.
+  version: "1.0" # OpenTofu version that tfwrapper will use for this stack. Automatically downloaded if it's not available locally. Defaults to 1.0
   vars: # variables passed to terraform
     aws_account: *aws_account
     aws_region: *aws_region
     client_name: my-client-name # arbitrary client name
-    version: "1.0" # Terraform version that tfwrapper will automatically download if it's not present, and use for this stack.
 ```
 
 Here is an example for a stack on Azure configuration using user mode and AWS S3 backend for state storage:
@@ -286,11 +287,12 @@ azure:
     subscription_id: &subscription_id "11111111-1111-1111-1111-111111111111" # Azure Subscription UID
 
 terraform:
+  legacy: false # Use legacy version of the tool instead of OpenTofu, defaults to false. Only used if version >= 1.6.0.
+  version: "1.0" # OpenTofu version that tfwrapper will use for this stack. Automatically downloaded if it's not available locally. Defaults to 1.0
   vars:
     subscription_id: *subscription_id
     directory_id: *directory_id
     client_name: client-name #Replace it with the name of your client
-    #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
 It is using your account linked to a Microsoft Account. You must have access to the Azure Subscription if you want to use Terraform.
@@ -309,11 +311,12 @@ azure:
       profile: customer-profile # To stay coherent, create an AzureRM profile with the same name as the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
 
 terraform:
+  legacy: false # Use legacy version of the tool instead of OpenTofu, defaults to false. Only used if version >= 1.6.0.
+  version: "1.0" # OpenTofu version that tfwrapper will use for this stack. Automatically downloaded if it's not available locally. Defaults to 1.0
   vars:
     subscription_id: *subscription_id
     directory_id: *directory_id
     client_name: client-name # Replace it with the name of your client
-    #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
 The wrapper uses the Service Principal's credentials to connect the Azure subscription. The given Service Principal must have access to the subscription.
@@ -349,12 +352,13 @@ gcp:
       region: europe-west1
 
 terraform:
+  legacy: false # Use legacy version of the tool instead of OpenTofu, defaults to false. Only used if version >= 1.6.0.
+  version: "1.0" # OpenTofu version that tfwrapper will use for this stack. Automatically downloaded if it's not available locally. Defaults to 1.0
   vars:
     gcp_region: europe-west1
     gcp_zone: europe-west1-c
     gcp_project: *gcp_project
     client_name: client-name
-    #version: "0.11"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
 You can declare multiple providers configurations, context is set up accordingly.
@@ -381,11 +385,12 @@ azure:
       profile: claranet-sandbox # To stay coherent, create an AzureRM profile with the same name as the account-alias. Please checkout `azurerm_config.yml.sample` file for configuration structure.
 
 terraform:
+  version: "1.0" # OpenTofu version that tfwrapper will use for this stack. Automatically downloaded if it's not available locally. Defaults to 1.0
+  legacy: false # Use legacy version of the tool instead of OpenTofu, defaults to false. Only used if version >= 1.6.0.
   vars:
     subscription_id: *subscription_id
     directory_id: *directory_id
     client_name: client-name # Replace it with the name of your client
-    #version: "0.10"  # Terraform version like "0.10" or "0.10.5" - optional
 ```
 
 This configuration is useful when having various service principals with a dedicated rights scope for each.
@@ -743,17 +748,19 @@ This [README's table of content](#table-of-contents) is formatted with [md_toc](
 
 Keep in mind to update it with `md_toc --in-place github README.md`.
 
-## Using terraform development builds
+## Using OpenTofu development builds
 
-To build and use development versions of terraform, manually put them in a `~/.terraform.d/versions/X.Y/X.Y.Z-dev/` folder:
+To build and use development versions of OpenTofu, put them in a `~/.terraform.d/versions/X.Y/X.Y.Z-dev/` folder:
 
 ```bash
-# cd ~/go/src/github.com/hashicorp/terraform
-# make XC_ARCH=amd64 XC_OS=linux bin
-# ./bin/terraform version
-Terraform v0.12.9-dev
-# mkdir -p ~/.terraform.d/versions/0.12/0.12.9-dev
-# mv ./bin/terraform ~/.terraform.d/versions/0.12/0.12.9-dev/
+# git clone https://github.com/opentofu/opentofu.git ~/go/src/github.com/opentofu/opentofu
+# cd ~/go/src/github.com/opentofu/opentofu
+# go build ./cmd/tofu/
+# ./tofu version
+OpenTofu v1.6.0-dev
+on linux_amd64
+# mkdir -p ~/.terraform.d/versions/1.6/1.6.0-dev
+# mv ./opentofu ~/.terraform.d/versions/1.6/1.6.0-dev/
 ```
 
 ## git pre-commit hooks
