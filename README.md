@@ -11,7 +11,6 @@
 - [claranet-tfwrapper](#claranet-tfwrapper)
   - [Table Of Contents](#table-of-contents)
   - [Features](#features)
-  - [Drawbacks](#drawbacks)
   - [Setup Dependencies](#setup-dependencies)
   - [Runtime Dependencies](#runtime-dependencies)
   - [Recommended setup](#recommended-setup)
@@ -62,19 +61,12 @@
 - Plugins caching
 - Tab completion
 
-## Drawbacks
-
-- AWS oriented (even if other cloud providers do work)
-- Setup overhead
-
 ## Setup Dependencies
 
-- `build-essential` (provides C/C++ compilers)
-- `libffi-dev`
-- `libssl-dev`
 - `python3` `>= 3.8.1 <4.0`
-- `python3-dev`
+- `python3-pip`
 - `python3-venv`
+- `pipx` (recommended)
 
 ## Runtime Dependencies
 
