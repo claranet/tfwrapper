@@ -1,3 +1,9 @@
+# 13.1.2a7 (2023/10/10)
+
+FIXES:
+
+- ci: downloading of coverage artifacts
+
 # 13.1.2a5 (2023/10/10)
 
 FIXES:
