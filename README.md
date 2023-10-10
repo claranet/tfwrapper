@@ -484,22 +484,33 @@ $ tfwrapper plan
 
 Terraform stacks are organized based on their:
 
-- account: an account alias which may reference one or multiple providers accounts. `aws-production`, `azure-dev`, etc…
-- environment: `production`, `preproduction`, `dev`, etc…
-- region: `eu-west-1`, `westeurope`, `global`, etc…
-- stack: defaults to `default`. `web`, `admin`, `tools`, etc…
+- `account`: an account alias which may refer to provider accounts or subscriptions, e.g. `project-a-prod`, `customer-b-dev`.
+- `environment`: `production`, `preproduction`, `dev`, etc. With `global` as a special case eliminating the `region` part.
+- `region`: `eu-west-1`, `westeurope`, etc.
+- `stack`: defaults to `default`. `web`, `admin`, `tools`, etc.
 
-The following file structure is enforced:
+
+The following file structure is then enforced:
 
 ```
-# enforced file structure
+# project root
 └── account
-    └── environment
-        └── region
-            └── stack
+│   └── environment
+│       └── region
+│           └── stack
+└── account
+    └── _global
+        └── stack
+```
 
-# real-life example
+A real-life example:
+
+```
+# project root
 ├── aws-account-1
+│   ├── _global
+│   │   └── default
+│   │       └── main.tf
 │   └── production
 │       ├── eu-central-1
 │       │   └── web
@@ -532,6 +543,8 @@ tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap aws
 # or from an existent stack, for example: customer/env/region/stack
 tfwrapper -a ${account} -e ${environment} -r ${region} -s ${stack} bootstrap mycustomer/dev/eu-west/run
 ```
+
+In the special case of a global stack, the configuration file should instead be named as `conf/${account}_global_${stack}.yml`.
 
 ### Working on stacks
 
