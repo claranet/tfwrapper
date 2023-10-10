@@ -12,6 +12,8 @@ jobs:
   Release:
     environment: release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -40,7 +42,7 @@ jobs:
           [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
             || echo "prerelease=true" >> "$GITHUB_OUTPUT"
 
-      - name: Create Release
+      - name: Create GitHub release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/*"
@@ -48,7 +50,5 @@ jobs:
           draft: false
           prerelease: ${{ steps.check-version.outputs.prerelease == 'true' }}
 
-      - name: Publish to PyPI
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: poetry publish
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
