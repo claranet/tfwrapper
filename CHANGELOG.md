@@ -1,3 +1,9 @@
+# 13.1.2a5 (2023/10/10)
+
+FIXES:
+
+- ci: fix posting of coverage messages to GitHub PRs
+
 # 13.1.2a3 (2023/10/10)
 
 FIXES:
