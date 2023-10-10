@@ -1,3 +1,18 @@
+# 13.1.2a1 (2023/10/10)
+
+UPDATES:
+
+- doc: clarify account term usage, document global case, and remove obsolete information
+- ci: authenticate to PyPI with OIDC for publishing artifacts
+- ci: enable GitHub's Merge Queue
+- ci: replace Dependabot by RenovateBot with automerge enabled
+
+- deps: bump black from 23.7.0 to 23.9.1
+- deps: bump coverage from 7.3.0 to 7.3.1
+- deps: bump pytest from 7.4.1 to 7.4.2
+- deps: bump tox from 4.11.1 to 4.11.3
+- deps: lock file maintenance
+
 # 13.1.1 (2023/09/11)
 
 FIXES:
