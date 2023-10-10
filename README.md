@@ -409,7 +409,7 @@ Also, an isolation context is set to the local `.run/aure_<config_name>` directo
 
 The `conf/state.yml` configuration file defines the configuration used to connect to state backends.
 
-These backends can be of [AWS S3](https://developer.hashicorp.com/terraform/language/settings/backends/s3) and/or AzureRM types.
+These backends can be of [AWS S3](https://developer.hashicorp.com/terraform/language/settings/backends/s3) and/or [AzureRM](https://developer.hashicorp.com/terraform/language/settings/backends/azurerm) types.
 
 The resources for these backends are not created by tfwrapper, and thus must exist beforehand:
 * AWS: an S3 bucket (and optionally but highly recommended a DynamoDB table for locking). It is also recommended to enable versioning on the S3 bucket.
