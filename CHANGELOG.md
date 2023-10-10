@@ -1,3 +1,9 @@
+# 13.1.2a3 (2023/10/10)
+
+FIXES:
+
+- ci: fix creation of GitHub pre-releases
+
 # 13.1.2a1 (2023/10/10)
 
 UPDATES:
