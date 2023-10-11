@@ -1,3 +1,10 @@
+# 13.1.2a13 (2023/10/11)
+
+UPDATES:
+
+- ci: Revert "ci: only run coverage action for pull requests"
+- ci: test py-cov-action/python-coverage-comment-action@fix-285-push-tag
+
 # 13.1.2a11 (2023/10/11)
 
 FIXES:
