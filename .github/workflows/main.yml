@@ -69,6 +69,7 @@ jobs:
           path: .coverage.${{ matrix.python_version }}
 
   coverage:
+    if: github.event_name == 'pull_request'
     name: Coverage
     runs-on: ubuntu-latest
     permissions:
