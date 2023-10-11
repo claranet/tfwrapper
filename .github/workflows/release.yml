@@ -13,11 +13,10 @@ jobs:
     environment: release
     runs-on: ubuntu-latest
     permissions:
-      actions: read
+      # Gives the action the necessary permissions for creating releases
       contents: write
+      # Gives the action the necessary permissions to request the OIDC JWT ID token needed to authenticate against PyPI
       id-token: write
-      pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
