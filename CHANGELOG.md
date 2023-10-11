@@ -1,3 +1,9 @@
+# 13.1.2a9 (2023/10/11)
+
+FIXES:
+
+- ci: fix permissions needed for workflows
+
 # 13.1.2a7 (2023/10/10)
 
 FIXES:
