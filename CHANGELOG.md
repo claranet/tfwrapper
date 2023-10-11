@@ -1,3 +1,14 @@
+# 13.1.2a11 (2023/10/11)
+
+FIXES:
+
+- ci: only run coverage action for pull requests
+
+
+UPDATES:
+
+- ci: ewjoachim/python-coverage-comment-action@v3 is now py-cov-action/python-coverage-comment-action@v3
+
 # 13.1.2a9 (2023/10/11)
 
 FIXES:
