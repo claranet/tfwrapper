@@ -5,30 +5,30 @@ description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.t
 authors = []
 license = "Mozilla Public License Version 2.0"
 readme = "README.md"
-homepage = "https://github.com/claranet/terraform-wrapper"
+homepage = "https://github.com/claranet/tfwrapper"
 keywords = ["terraform", "wrapper"]
 
 # For reference, see https://pypi.org/pypi?%3Aaction=list_classifiers
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Information Technology",
-    "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: System :: Systems Administration",
-    "Topic :: Utilities",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: System :: Systems Administration",
+  "Topic :: Utilities",
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
 argcomplete = "<4.0"
 boto3 = "^1.17.94"
-CacheControl = {extras = ["filecache"], version = "^0.13.1"}
+CacheControl = { extras = ["filecache"], version = "^0.13.1" }
 colorlog = ">=5.0.1,<7.0.0"
 Jinja2 = "^3.0.1"
 lockfile = "^0.12.2"
@@ -78,9 +78,7 @@ exclude = '''
 [tool.flake8]
 verbose = 3
 max-line-length = 130
-per-file-ignores = [
-  'tests/*.py:D103',
-]
+per-file-ignores = ['tests/*.py:D103']
 exclude = ['.git', '.tox', '.venv', '.virtualenv', '__pycache__']
 # See https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
 ignore = ['E203', 'W503']
