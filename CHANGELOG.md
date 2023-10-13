@@ -1,3 +1,7 @@
+# 13.1.2a15 (2023/10/13)
+
+- ci: use py-cov-action/python-coverage-comment-action@v3.15
+
 # 13.1.2a13 (2023/10/11)
 
 UPDATES:
