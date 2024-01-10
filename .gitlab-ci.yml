@@ -1,6 +1,7 @@
 ---
 variables:
-  POETRY_VERSION: "1.6.1"
+  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "1.7.1"
   KUBERNETES_MEMORY_REQUEST: "600Mi"
   KUBERNETES_MEMORY_LIMIT: "1Gi"
   KUBERNETES_CPU_REQUEST: "1"
@@ -11,7 +12,7 @@ stages:
 
 lint:
   stage: lint
-  image: python:3
+  image: python:${PYTHON_VERSION}
   script:
     - pip install poetry==${POETRY_VERSION}
     - poetry install
@@ -22,7 +23,7 @@ tox:
   image: python:${PYTHON_VERSION}
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11"]
+      - PYTHON_VERSION: ["3.8", "3.9", "3.10", "3.11", "3.12"]
   script:
     - pip install poetry==${POETRY_VERSION}
     - poetry install
