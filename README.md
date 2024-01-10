@@ -4,10 +4,10 @@
 
 | Name                                    |    Stmts |     Miss |  Cover |   Missing |
 |---------------------------------------- | -------: | -------: | -----: | --------: |
-| src/claranet\_tfwrapper/\_\_init\_\_.py |      842 |      842 |     0% |    2-1680 |
+| src/claranet\_tfwrapper/\_\_init\_\_.py |      860 |      860 |     0% |    2-1723 |
 | src/claranet\_tfwrapper/azure.py        |       84 |       84 |     0% |     3-174 |
 | src/claranet\_tfwrapper/utils.py        |       10 |       10 |     0% |      4-17 |
-|                               **TOTAL** |  **936** |  **936** | **0%** |           |
+|                               **TOTAL** |  **954** |  **954** | **0%** |           |
 
 
 ## Setup coverage badge
