@@ -1,7 +1,8 @@
 name: Release
 
 env:
-  POETRY_VERSION: 1.6.1
+  POETRY_VERSION: "1.7.1"
+  PYTHON_VERSION: "3.12"
 
 on:
   push:
@@ -25,10 +26,10 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5.0.0
         with:
-          python-version: "3.11"
+          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Install poetry
         shell: bash
