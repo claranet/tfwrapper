@@ -399,10 +399,15 @@ Also, an isolation context is set to the local `.run/aure_<config_name>` directo
 
 ### States centralization configuration
 
-The `conf/state.yml` configuration file defines the configurations used to connect to state backend account.
-It can be an AWS (S3) or Azure (Storage Account) backend type.
+The `conf/state.yml` configuration file defines the configuration used to connect to state backends.
 
-You can use other backends (e.g. Google GCS or Hashicorp Consul) not specifically supported by the wrapper if you them manage yourself and omit the `conf/state.yml` file or make it empty:
+These backends can be of [AWS S3](https://developer.hashicorp.com/terraform/language/settings/backends/s3) and/or [AzureRM](https://developer.hashicorp.com/terraform/language/settings/backends/azurerm) types.
+
+The resources for these backends are not created by tfwrapper, and thus must exist beforehand:
+* AWS: an S3 bucket (and optionally but highly recommended a DynamoDB table for locking). It is also recommended to enable versioning on the S3 bucket.
+* Azure: a Blob storage account
+
+You can use other backends (e.g. Google GCS or Hashicorp Consul) not specifically supported by the wrapper, if you manage authentication yourself and omit the `conf/state.yml` file or make it empty:
 
 ```yaml
 ---
