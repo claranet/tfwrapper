@@ -1,7 +1,7 @@
 name: Tests
 
 env:
-  POETRY_VERSION: "1.6.1"
+  POETRY_VERSION: "1.7.1"
   PYTHON_VERSION: "3.11"
 
 on:
@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${PYTHON_VERSION}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5.0.0
         with:
-          python_version: "${PYTHON_VERSION}"
+          python_version: "${{ env.PYTHON_VERSION }}"
 
       - name: Install poetry
         shell: bash
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/download-artifact@v4
         id: download
         with:
-          name: "coverage-${PYTHON_VERSION}"
+          name: "coverage-${{ env.PYTHON_VERSION }}"
 
       - name: Coverage comment
         id: coverage_comment
