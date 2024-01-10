@@ -940,13 +940,13 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pook"
-version = "1.1.1"
+version = "1.4.0"
 description = "HTTP traffic mocking and expectations made easy"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "pook-1.1.1-py3-none-any.whl", hash = "sha256:0bf4f8b53739e165722263c894a27140cf7f3ae6e7a378e4cbf48fdca4abe037"},
-    {file = "pook-1.1.1.tar.gz", hash = "sha256:53da04930616d94eeede77a39d6b5f0fac1f7bbd160d8f54bc468cd798b93956"},
+    {file = "pook-1.4.0-py3-none-any.whl", hash = "sha256:1b47fcc75a8a063fc977ee55c7360a0f70bcf3ac0de9be584c8ec09cb127da49"},
+    {file = "pook-1.4.0.tar.gz", hash = "sha256:9261e576e7fe9e9df22f77ffe630560dc6297945382cb4ab9d9c1bb33ddfc62b"},
 ]
 
 [package.dependencies]
