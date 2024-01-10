@@ -76,25 +76,28 @@ def test_parse_args_foreach_help(capsys):
 def test_parse_args_foreach_no_args():
     with pytest.raises(ValueError) as e:
         tfwrapper.parse_args(["foreach"])
-    assert str(e.value) == "foreach: error: a command is required"
+    assert str(e.value) == "foreach: error: a command is required\n\nUse -h to show the help message"
 
 
 def test_parse_args_foreach_shell_no_args():
     with pytest.raises(ValueError) as e:
         tfwrapper.parse_args(["foreach", "-S"])
-    assert str(e.value) == "foreach: error: a command is required"
+    assert str(e.value) == "foreach: error: a command is required\n\nUse -h to show the help message"
 
 
 def test_parse_args_foreach_shell_long_no_args():
     with pytest.raises(ValueError) as e:
         tfwrapper.parse_args(["foreach", "--shell"])
-    assert str(e.value) == "foreach: error: a command is required"
+    assert str(e.value) == "foreach: error: a command is required\n\nUse -h to show the help message"
 
 
 def test_parse_args_foreach_command_shell_too_many_args():
     with pytest.raises(ValueError) as e:
         tfwrapper.parse_args(["foreach", "-S", "ls", "-l"])
-    assert str(e.value) == "foreach: error: -S/--shell must be followed by a single argument (hint: use quotes)"
+    assert (
+        str(e.value) == "foreach: error: -S/--shell must be followed by a single argument (hint: use quotes)\n\n"
+        "Use -h to show the help message"
+    )
 
 
 def test_parse_args_foreach_command(monkeypatch):

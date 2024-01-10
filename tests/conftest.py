@@ -96,6 +96,35 @@ def tmp_working_dir_regional_valid(tmp_working_dir_regional):
             terraform:
               vars:
                 myvar: myvalue
+                version: "1.6.0"
+            """
+        )
+    )
+    paths["terraform_conf"] = paths["stack_dir"] / "test.tf"
+    paths["terraform_conf"].write_text(
+        textwrap.dedent(
+            """
+            # Empty terraform configuration
+            """
+        )
+    )
+
+    return paths
+
+
+@pytest.fixture
+def tmp_working_dir_regional_valid_legacy(tmp_working_dir_regional):
+    paths = tmp_working_dir_regional
+
+    paths["state_conf"].write_text("---")
+    paths["stack_conf"] = paths["conf_dir"] / "testaccount_testenvironment_testregion_teststack.yml"
+    paths["stack_conf"].write_text(
+        textwrap.dedent(
+            """
+            ---
+            terraform:
+              vars:
+                myvar: myvalue
                 version: "1.1.4"
             """
         )
