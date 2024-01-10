@@ -1,4 +1,33 @@
+# 13.2.0 (2024/01/10)
+
+ADDED:
+
+- feat(TER-520): support OpenTofu
+
+UPDATES:
+
+- build(deps): bump urllib3 from 1.26.17 to 1.26.18
+- chore(deps): lock file maintenance
+- chore(deps): update actions/setup-python action to v4.8.0
+- chore(deps): update actions/setup-python action to v5
+- chore(deps): update dependency black to v23.12.1
+- chore(deps): update dependency coverage to v7.4.0
+- chore(deps): update dependency flake8 to v7
+- chore(deps): update dependency md-toc to v8.2.2
+- chore(deps): update dependency pook to v1.4.0
+- chore(deps): update dependency pytest-mock to v3.12.0
+- chore(deps): update dependency pytest to v7.4.4
+- chore(deps): update dependency tox to v4.11.4
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.20
+- fix(deps): update dependency argcomplete to v3.2.1
+- fix(deps): update dependency boto3 to v1.28.63
+- fix(deps): update dependency boto3 to v1.34.15
+- fix(deps): update dependency colorlog to v6.8.0
+- fix(deps): update dependency termcolor to v2.4.0
+
 # 13.1.2a15 (2023/10/13)
+
+UPDATES:
 
 - ci: use py-cov-action/python-coverage-comment-action@v3.15
 
@@ -14,7 +43,6 @@ UPDATES:
 FIXES:
 
 - ci: only run coverage action for pull requests
-
 
 UPDATES:
 
