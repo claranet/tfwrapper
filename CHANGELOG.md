@@ -1,3 +1,18 @@
+# 13.2.1 (2024/02/01)
+
+UPDATES:
+
+- chore(deps): update actions/upload-artifact action to v4
+- chore(deps): update dependency coverage to v7.4.1
+- chore(deps): update dependency python to v3.12.1
+- chore(deps): update dependency tox to v4.12.1
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.21
+- deps: support Python 3.12
+- fix(deps): update dependency argcomplete to v3.2.2
+- fix(deps): update dependency boto3 to v1.34.32
+- fix(deps): update dependency colorlog to v6.8.2
+- fix(deps): update dependency jinja2 to v3.1.3
+
 # 13.2.0 (2024/01/10)
 
 ADDED:
