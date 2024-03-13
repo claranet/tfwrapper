@@ -1,6 +1,5 @@
 """Test command line completion."""
 
-
 import io
 import os
 import pytest

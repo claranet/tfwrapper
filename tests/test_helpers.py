@@ -1,6 +1,5 @@
 """Test some helper functions."""
 
-
 import claranet_tfwrapper as tfwrapper
 
 

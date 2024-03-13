@@ -1,6 +1,5 @@
 """Test state configuration."""
 
-
 import textwrap
 
 import claranet_tfwrapper as tfwrapper
