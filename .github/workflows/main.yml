@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5.0.0
         with:
-          python_version: "${{ env.PYTHON_VERSION }}"
+          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Install poetry
         shell: bash
