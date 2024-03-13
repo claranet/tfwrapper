@@ -9,6 +9,14 @@
   },
   "packageRules": [
     {
+      "groupName": "boto",
+      "matchPackagePrefixes": [
+        "boto3",
+        "botocore"
+      ],
+      "schedule": ["after 9pm on sunday"]
+    },
+    {
       "matchUpdateTypes": [
         "minor",
         "patch"
