@@ -1,6 +1,5 @@
 """Test wrapper configuration."""
 
-
 from copy import deepcopy
 
 import os

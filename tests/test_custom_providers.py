@@ -1,6 +1,5 @@
 """Test custom providers configuration parsing."""
 
-
 import pytest
 import textwrap
 

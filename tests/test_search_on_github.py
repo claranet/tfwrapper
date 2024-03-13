@@ -1,6 +1,5 @@
 """Test github releases searching."""
 
-
 import pytest
 import requests
 

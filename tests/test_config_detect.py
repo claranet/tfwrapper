@@ -1,6 +1,5 @@
 """Test stack configuration is detected based on working directory."""
 
-
 from copy import deepcopy
 
 import os

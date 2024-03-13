@@ -1,6 +1,5 @@
 """Test state configuration."""
 
-
 from copy import deepcopy
 
 import os

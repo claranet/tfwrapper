@@ -1,6 +1,5 @@
 """Test config is loaded depending on cmd line arguments."""
 
-
 import os
 
 import pytest

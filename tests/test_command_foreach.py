@@ -1,6 +1,5 @@
 """Test foreach command behavior."""
 
-
 from copy import deepcopy
 
 import os

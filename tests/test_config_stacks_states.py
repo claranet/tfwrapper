@@ -1,4 +1,5 @@
 """Test stacks and states configurations."""
+
 import os
 import textwrap
 import pytest

@@ -1,6 +1,5 @@
 """Test command line argument parsing."""
 
-
 import re
 
 import pytest

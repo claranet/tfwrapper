@@ -1,6 +1,5 @@
 """Test foreach command behavior."""
 
-
 import os
 import textwrap
 

@@ -138,10 +138,8 @@ def test_sp_multiple_context(monkeypatch, tmp_path):
 
     sp_profile_mock = MagicMock()
     monkeypatch.setattr(azure, "get_sp_profile", sp_profile_mock)
-    sp_profile_mock.side_effect = (
-        lambda p: (tenant_id, client_id, client_secret)
-        if p == "my-profile"
-        else (alt_tenant_id, alt_client_id, alt_client_secret)
+    sp_profile_mock.side_effect = lambda p: (
+        (tenant_id, client_id, client_secret) if p == "my-profile" else (alt_tenant_id, alt_client_id, alt_client_secret)
     )
 
     tf_vars = azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
