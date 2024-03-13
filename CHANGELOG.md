@@ -1,3 +1,23 @@
+# 13.2.2 (2024/03/13)
+
+UPDATES:
+
+- fix: log stack config path in debug mode
+- chore(deps): group boto3/botocore deps and only create PRs on Sunday evening
+- chore(deps): lock file maintenance
+- chore(deps): update dependency black to v24
+- chore(deps): update dependency coverage to v7.4.3
+- chore(deps): update dependency md-toc to v8.2.3
+- chore(deps): update dependency pook to v1.4.2
+- chore(deps): update dependency pook to v1.4.3
+- chore(deps): update dependency pytest to v8
+- chore(deps): update dependency tox to v4.14.1
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.23
+- fix(deps): update dependency argcomplete to v3.2.3
+- fix(deps): update dependency boto3 to v1.34.61
+- fix(deps): update dependency cachecontrol to ^0.14.0
+- fix(deps): update dependency packaging to v24
+
 # 13.2.1 (2024/02/01)
 
 UPDATES:
