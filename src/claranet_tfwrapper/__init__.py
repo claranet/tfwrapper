@@ -384,6 +384,7 @@ def load_stack_config_from_file(stack_config_file):
         logger.debug("Stack configuration file does not exist: {}".format(stack_config_file))
         return {}
 
+    logger.debug("Loading stack config from {}".format(stack_config_file))
     with open(stack_config_file, "r") as f:
         stack_config = yaml.safe_load(f)
 
