@@ -2,12 +2,12 @@
 
 [Full report](https://htmlpreview.github.io/?https://github.com/claranet/tfwrapper/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
-| Name                                    |    Stmts |     Miss |  Cover |   Missing |
-|---------------------------------------- | -------: | -------: | -----: | --------: |
-| src/claranet\_tfwrapper/\_\_init\_\_.py |      861 |      861 |     0% |    2-1724 |
-| src/claranet\_tfwrapper/azure.py        |       84 |       84 |     0% |     3-174 |
-| src/claranet\_tfwrapper/utils.py        |       10 |       10 |     0% |      4-17 |
-|                               **TOTAL** |  **955** |  **955** | **0%** |           |
+| Name                                    |    Stmts |     Miss |   Cover |   Missing |
+|---------------------------------------- | -------: | -------: | ------: | --------: |
+| src/claranet\_tfwrapper/\_\_init\_\_.py |      861 |      182 |     79% |46-47, 305, 337, 416-444, 449-464, 492, 512-515, 567, 593, 598, 632, 648, 652-653, 668, 700, 704, 708, 718, 721, 732-734, 739, 795, 819-820, 838-846, 866, 870, 881-897, 900-906, 915-916, 923-977, 997, 1017, 1035-1036, 1062, 1067, 1103-1108, 1112, 1138, 1442-1447, 1491, 1500-1502, 1527, 1557-1639, 1649, 1657-1660, 1664-1671, 1682-1687, 1691-1699, 1707-1712, 1724 |
+| src/claranet\_tfwrapper/azure.py        |       84 |       27 |     68% |20, 25-33, 112-124, 130, 152-153, 167-174 |
+| src/claranet\_tfwrapper/utils.py        |       10 |        0 |    100% |           |
+|                               **TOTAL** |  **955** |  **209** | **78%** |           |
 
 
 ## Setup coverage badge
