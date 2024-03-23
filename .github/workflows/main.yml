@@ -55,10 +55,6 @@ jobs:
       - name: Run tox
         shell: bash
         run: |
-          # Using relative is mandated by py-cov-action/python-coverage-comment-action@v3,
-          # see https://github.com/py-cov-action/python-coverage-comment-action?tab=readme-ov-file#why-do-we-need-relative_files--true-
-          printf "[run]\nrelative_files = true" > .coveragerc
-
           poetry install
           poetry run tox -e coverage
         env:
