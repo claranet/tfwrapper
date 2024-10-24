@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "claranet-tfwrapper"
-version = "13.2.3a0"
+version = "13.2.3"
 description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
 authors = []
 license = "Mozilla Public License Version 2.0"

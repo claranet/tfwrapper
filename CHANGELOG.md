@@ -1,3 +1,29 @@
+# 13.2.3 (2024/10/24)
+
+FIXES:
+
+- hotfix: GitHub release page no longer supports `after` parameter
+
+UPDATES:
+
+- chore(deps): lock file maintenance
+- chore(deps): update actions/setup-python action to v5.2.0
+- chore(deps): update dependency black to v24.8.0
+- chore(deps): update dependency coverage to v7.6.1
+- chore(deps): update dependency flake8 to v7.1.1
+- chore(deps): update dependency pytest to v8.3.3
+- chore(deps): update dependency pytest-mock to v3.14.0
+- chore(deps): update dependency python to v3.13.0
+- chore(deps): update dependency requests-mock to v1.12.1
+- chore(deps): update dependency tox to v4.23.2
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.27
+- fix(deps): update dependency argcomplete to v3.5.1
+- fix(deps): update dependency boto3 to v1.35.47
+- fix(deps): update dependency jinja2 to v3.1.4
+- fix(deps): update dependency packaging to v24.1
+- fix(deps): update dependency pyyaml to v6.0.2
+- fix(deps): update dependency requests to v2.32.3
+
 # 13.2.2 (2024/03/13)
 
 UPDATES:
