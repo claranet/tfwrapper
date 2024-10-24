@@ -65,7 +65,6 @@ RC_OK = 0
 RC_KO = 1
 RC_UNK = 2
 
-LIMIT_GITHUB_RELEASES = 42
 GITHUB_RELEASES = "https://github.com/{}/releases"
 
 TERRAFORM_RELEASES_URL = "https://releases.hashicorp.com/terraform/index.json"
@@ -570,32 +569,21 @@ def bootstrap(wrapper_config):
 # FIXME: use https://pygithub.readthedocs.io/en/stable/github_objects/Repository.html#github.Repository.Repository.get_releases
 def search_on_github(repo, minor_version, patch_regex, patch):
     """Search release on github."""
-    # Start search from the next incremented minor version
-    # Note: the github UI serves the first page if the requested version does not exist
-    release = "v{}{}.0".format(minor_version[:-1], int(minor_version[-1]) + 1)
-    releases_count = 0
-    while True:
-        result = CachedRequestsSession.get("{}?after={}".format(GITHUB_RELEASES.format(repo), release))
-        releases = re.findall(r"<a href=\"/{}/releases/tag/.*\">(.*)</a>".format(repo), result.text)
-        releases_count += len(releases)
-        for release in releases:
-            logger.debug(
-                'Release found: "{}", checking with "^v{}.{}$"'.format(release, minor_version, patch if patch else patch_regex)
-            )
-            if re.match(
-                r"^v{}\.{}$".format(minor_version, patch if patch else patch_regex),
-                release,
-            ):
-                patch = patch or release.split(".")[-1]
-                return patch
-            # hard limit or it will take too long
-            if releases_count > LIMIT_GITHUB_RELEASES:
-                return None
-        if len(releases) < 1:
-            # no more version available
-            break
+    # FIXME: the github UI seems to use a cache that does not return recent versions
+    result = CachedRequestsSession.get("{}?q={}".format(GITHUB_RELEASES.format(repo), minor_version))
+    releases = re.findall(r"<a href=\"/{}/releases/tag/.*\">(.*)</a>".format(repo), result.text)
 
-        release = releases[-1:][0]
+    for release in releases:
+        logger.debug(
+            'Release found: "{}", checking with "^v{}.{}$"'.format(release, minor_version, patch if patch else patch_regex)
+        )
+        if re.match(
+            r"^v{}\.{}$".format(minor_version, patch if patch else patch_regex),
+            release,
+        ):
+            patch = patch or release.split(".")[-1]
+            return patch
+
     return None
 
 
