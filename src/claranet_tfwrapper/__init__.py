@@ -40,6 +40,7 @@ from termcolor import colored
 
 from . import azure
 from .utils import format_env, get_dict_value
+from . import tunnels
 
 try:
     import importlib.metadata as importlib_metadata
@@ -118,6 +119,17 @@ stack_configuration_schema = Schema(
             "vars": {str: str},
             Optional("custom-providers"): {str: Or(str, {"version": str, "extension": str})},
         },
+        Optional("tunnels"): {
+            str: {
+                'gateway_host': str,
+                'gateway_port': int,
+                'gateway_login': str,
+                'gateway_private_key': str,
+                'remote_host': str,
+                'remote_port': int,
+                'local_port': int
+            }
+        }
     }
 )
 
@@ -1686,6 +1698,9 @@ def main(argv=None):
                     )
                     sys.exit(RC_KO)
 
+        if "tunnels" in stack_config:
+            sshtunnels = tunnels.Tunnels(stack_config["tunnels"], logger)
+
         set_terraform_vars(terraform_vars)
         os.environ["TF_PLUGIN_CACHE_DIR"] = wrapper_config["plugin_cache_dir"]
 
@@ -1701,6 +1716,9 @@ def main(argv=None):
 
     # call subcommand
     returncode = args.func(wrapper_config)
+
+    if "tunnels" in stack_config:
+        sshtunnels.stop_all()
 
     if returncode is not None:
         sys.exit(returncode)
