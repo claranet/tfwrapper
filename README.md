@@ -492,6 +492,23 @@ $ tfwrapper plan
 # should return the same changes diff as before
 ```
 
+### SSH Tunnels configuration
+
+`tfwrapper` can automatically open SSH tunnel to connect to a resource (Like database server) through a bastion.
+
+In the stack configuration file :
+```
+tunnels:
+  mysql:
+    gateway_host: "bastion-host"
+    gateway_port: 22
+    gateway_login: tunnel-user
+    gateway_private_key: ~/.ssh/keys/bastion-host.key
+    remote_host: "mysqlf-server.mysql.database.azure.com"
+    remote_port: 3306
+    local_port: 3306
+```
+
 ## Stacks file structure
 
 Terraform stacks are organized based on their:
