@@ -25,6 +25,7 @@ Note: the term _Terraform_ is used in this documentation when talking about gene
     - [Stacks configurations](#stacks-configurations)
     - [States centralization configuration](#states-centralization-configuration)
     - [How to migrate from one backend to another for state centralization](#how-to-migrate-from-one-backend-to-another-for-state-centralization)
+    - [SSH Tunnels configuration](#ssh-tunnels-configuration)
   - [Stacks file structure](#stacks-file-structure)
   - [Usage](#usage)
     - [Stack bootstrap](#stack-bootstrap)
