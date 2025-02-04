@@ -25,6 +25,7 @@ Note: the term _Terraform_ is used in this documentation when talking about gene
     - [Stacks configurations](#stacks-configurations)
     - [States centralization configuration](#states-centralization-configuration)
     - [How to migrate from one backend to another for state centralization](#how-to-migrate-from-one-backend-to-another-for-state-centralization)
+    - [SSH Tunnels configuration](#ssh-tunnels-configuration)
   - [Stacks file structure](#stacks-file-structure)
   - [Usage](#usage)
     - [Stack bootstrap](#stack-bootstrap)
@@ -490,6 +491,23 @@ $ tfwrapper bootstrap # regen a new state backend configuration based on the sta
 $ tfwrapper init # Terraform will detect the new backend and propose to migrate it
 $ tfwrapper plan
 # should return the same changes diff as before
+```
+
+### SSH Tunnels configuration
+
+`tfwrapper` can automatically open SSH tunnel to connect to a resource (Like database server) through a bastion.
+
+In the stack configuration file :
+```
+tunnels:
+  mysql:
+    gateway_host: "bastion-host"
+    gateway_port: 22
+    gateway_login: tunnel-user
+    gateway_private_key: ~/.ssh/keys/bastion-host.key
+    remote_host: "mysqlf-server.mysql.database.azure.com"
+    remote_port: 3306
+    local_port: 3306
 ```
 
 ## Stacks file structure
