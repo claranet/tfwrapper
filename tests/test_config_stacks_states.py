@@ -122,7 +122,7 @@ def test_basic_aws_backend(monkeypatch, tmp_working_dir_regional_valid):
 
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["-d", "-atestaccount", "-etestenvironment", "-rtestregion", "-steststack", "init"])
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
 
     get_session.assert_called()
@@ -219,7 +219,7 @@ def test_basic_azure_backend(monkeypatch, tmp_working_dir_regional_valid):
 
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["-d", "-atestaccount", "-etestenvironment", "-rtestregion", "-steststack", "init"])
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert os.environ["TF_VAR_my_var"] == "my_value"
     assert os.environ["TF_VAR_state_session"] == "yes"
@@ -341,7 +341,7 @@ def test_basic_azure_aws_backend(monkeypatch, tmp_working_dir_regional_valid):
 
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["-d", "-atestaccount", "-etestenvironment", "-rtestregion", "-steststack", "init"])
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert os.environ["TF_VAR_my_var"] == "my_value"
     assert os.environ["TF_VAR_state_session"] == "yes"
@@ -487,7 +487,7 @@ def test_basic_named_backend(monkeypatch, tmp_working_dir_regional_valid):
 
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["-d", "-atestaccount", "-etestenvironment", "-rtestregion", "-steststack", "init"])
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert os.environ["TF_VAR_my_var"] == "my_value"
     assert os.environ["TF_VAR_state_session"] == "yes"

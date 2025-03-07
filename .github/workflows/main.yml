@@ -1,8 +1,8 @@
 name: Tests
 
 env:
-  POETRY_VERSION: "1.7.1"
-  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "2.1.1"
+  PYTHON_VERSION: "3.13"
 
 on:
   merge_group:
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python_version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4

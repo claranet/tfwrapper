@@ -47,8 +47,7 @@ def terraform_releases_html_after_v0_13_0():
 
 
 class AutoclosingBytesIO(io.BytesIO):
-    """
-    AutoclosingBytesIO extends io.BytesIO to autoclose itself.
+    """AutoclosingBytesIO extends io.BytesIO to autoclose itself.
 
     CacheControl only flushes its buffer into its cache when the underlying IO
     is closed. pook uses io.BytesIO which does not automatically close itself when

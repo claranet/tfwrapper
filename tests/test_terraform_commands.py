@@ -37,7 +37,7 @@ def test_opentofu_1_6_0_commands(tmp_working_dir_regional_valid):
         with pytest.raises(SystemExit) as e:
             tfwrapper.main(command)
 
-        assert e.type == SystemExit
+        assert e.type is SystemExit
         assert e.value.code == 0
 
 
@@ -71,7 +71,7 @@ def test_terraform_1_0_0_commands(tmp_working_dir_regional_valid_legacy):
         with pytest.raises(SystemExit) as e:
             tfwrapper.main(command)
 
-        assert e.type == SystemExit
+        assert e.type is SystemExit
         assert e.value.code == 0
 
 
@@ -82,7 +82,7 @@ def test_opentofu_invalid_command(tmp_working_dir_regional_valid):
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["some_invalid_command"])
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2
 
 
@@ -93,5 +93,5 @@ def test_terraform_invalid_command_legacy(tmp_working_dir_regional_valid_legacy)
     with pytest.raises(SystemExit) as e:
         tfwrapper.main(["some_invalid_command"])
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 2

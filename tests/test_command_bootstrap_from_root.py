@@ -16,7 +16,7 @@ def test_bootstrap_from_root_unknown_stack(tmp_working_dir_empty_conf, default_a
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 1
     assert "Cannot determine which stack to target for bootstrap, aborting." in caplog.text
 
@@ -39,7 +39,7 @@ def test_bootstrap_from_root_without_stack_config_nor_stack_directory_nor_state_
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 1
     assert (
         "A valid stack configuration file conf/testaccount_testenvironment_testregion_teststack.yml"
@@ -78,7 +78,7 @@ def test_bootstrap_from_root_with_stack_config_but_no_stack_directory_nor_state_
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "No template specified and no cloud provider defined in configuration, skipping." in caplog.text
     assert "No state backend configuration found, skipping state configuration file state.tf generation." in caplog.text
@@ -168,7 +168,7 @@ def test_bootstrap_from_root_with_stack_config_and_template_but_no_state_config_
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "Bootstrapped stack using template aws/basic." in caplog.text
     assert "No state backend configuration found, skipping state configuration file state.tf generation." in caplog.text
@@ -274,7 +274,7 @@ def test_bootstrap_from_root_with_stack_config_and_state_config_and_template_but
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "Bootstrapped stack using template aws/basic." in caplog.text
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
@@ -393,7 +393,7 @@ def test_bootstrap_from_root_with_stack_config_and_state_config_and_empty_stack_
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "Bootstrapped stack using template aws/basic." in caplog.text
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
@@ -518,7 +518,7 @@ def test_bootstrap_from_root_with_stack_config_and_non_empty_stack_directory_and
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         f"Stack path {paths['stack_dir']} already exists and is not empty, skipping stack bootstrapping from template."
@@ -648,7 +648,7 @@ def test_bootstrap_from_root_with_external_valid_template(tmp_working_dir_region
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert f"Bootstrapped stack using template {str(custom_template_dir)}." in caplog.text
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
