@@ -514,11 +514,10 @@ def bootstrap(wrapper_config):
                 else:
                     template = "{}/basic".format(stack_type)
 
-            # shutil.copytree()'s dirs_exist_ok is new in python 3.8
-            if os.path.isdir(stack_path):
-                os.rmdir(stack_path)
             template_path = template if os.path.isdir(template) else f"{rootdir}/templates/{template}"
-            shutil.copytree(template_path, stack_path, ignore=shutil.ignore_patterns("state.tf", ".terraform"))
+            shutil.copytree(
+                template_path, stack_path, ignore=shutil.ignore_patterns("state.tf", ".terraform"), dirs_exist_ok=True
+            )
             logger.info("Bootstrapped stack using template {}.".format(template))
         else:
             logger.info("No template specified and no cloud provider defined in configuration, skipping.")
