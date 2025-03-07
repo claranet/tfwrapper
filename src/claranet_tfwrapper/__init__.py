@@ -1202,7 +1202,7 @@ def parse_args(args):
         "--pipe-plan",
         action="store_true",
         default=False,
-        help=("Pipe plan output to the command set in config" " or passed in --pipe-plan-command argument (cat by default)."),
+        help=("Pipe plan output to the command set in config or passed in --pipe-plan-command argument (cat by default)."),
     )
     parser_apply.add_argument(
         "--pipe-plan-command",
@@ -1261,7 +1261,7 @@ def parse_args(args):
         "--pipe-plan",
         action="store_true",
         default=False,
-        help=("Pipe plan output to the command set in config" " or passed in --pipe-plan-command argument (cat by default)."),
+        help=("Pipe plan output to the command set in config or passed in --pipe-plan-command argument (cat by default)."),
     )
     parser_plan.add_argument(
         "--pipe-plan-command",
