@@ -1376,6 +1376,9 @@ def main(argv=None):
     )
     stack_config = load_stack_config_from_file(stack_config_file)
 
+    # parse all args
+    args = parse_args(argv or sys.argv[1:])
+
     # select tool version for the stack if selected, with a fallback on v1.0
     tool_version = (tf_config := stack_config.get(TOOL_TERRAFORM, {})).get(
         "version", tf_config.get("vars", {}).get("version", "1.0")
@@ -1393,9 +1396,6 @@ def main(argv=None):
         )
     else:
         select_terraform_version(tool_version)
-
-    # parse all args
-    args = parse_args(argv or sys.argv[1:])
 
     # convert args to dict
     wrapper_config.update(vars(args))
