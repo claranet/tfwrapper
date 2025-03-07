@@ -69,7 +69,7 @@ Note: the term _Terraform_ is used in this documentation when talking about gene
 
 ## Setup Dependencies
 
-- `python3` `>= 3.8.1 <4.0`
+- `python3` `>= 3.9 <4.0`
 - `python3-pip`
 - `python3-venv`
 - `pipx` (recommended)

@@ -5,7 +5,7 @@ description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.t
 authors = []
 license = { text = "Mozilla Public License Version 2.0" }
 readme = "README.md"
-requires-python = ">=3.8.1,<4.0"
+requires-python = ">=3.9,<4.0"
 keywords = ["terraform", "wrapper"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -14,7 +14,6 @@ classifiers = [
   "Intended Audience :: System Administrators",
   "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -70,7 +69,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 # Make sure to match flake8's max-line-length.
 line-length = 130 # black's default
-target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+target-version = ['py39', 'py310', 'py311', 'py312']
 exclude = '''
 /(
   \.git

@@ -1,5 +1,9 @@
 # 14.0.0 (unreleased)
 
+BREAKING:
+
+- Drop support for Python 3.8
+
 UPDATES:
 
 - Update pyproject syntax from poetry v1 to v2 respecting PEP-621
