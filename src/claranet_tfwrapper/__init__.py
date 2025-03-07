@@ -124,8 +124,7 @@ stack_configuration_schema = Schema(
 
 
 class CachedRequestsSession:
-    """
-    The python-requests session to use in all HTTP/HTTPS requests.
+    """The python-requests session to use in all HTTP/HTTPS requests.
 
     It provides caching and retries.
     """
@@ -161,9 +160,9 @@ def error(message):
 
 
 def detect_config_dir(wrapper_config, dir="."):
-    """
-    Detect the path to the wrapper config directory relative to the provided directory, \
-    defaulting to the current working directory.
+    """Detect the path to the wrapper config directory relative to the provided directory.
+
+    By default, search from the current working directory.
 
     Updates the dict passed as a parameter.
     Returns the number of directories traversed.
@@ -191,8 +190,7 @@ def detect_config_dir(wrapper_config, dir="."):
 
 
 def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, dir="."):
-    """
-    Detect the stack from the provided directory, defaulting to the current working directory.
+    """Detect the stack from the provided directory, defaulting to the current working directory.
 
     By default, raises an error if any component required to identify a specific stack is missing.
     Updates the dict passed as a parameter.
@@ -231,8 +229,7 @@ def detect_stack(wrapper_config, parents_count, *, raise_on_missing=True, dir=".
 
 
 def load_wrapper_config(wrapper_config):
-    """
-    Load wrapper and state config from args.
+    """Load wrapper and state config from args.
 
     Validate args and autodetect current stack.
     Updates the dict passed as a parameter.
@@ -291,8 +288,7 @@ def load_wrapper_config(wrapper_config):
 
 
 def get_stack_dir(rootdir, account, environment, region, stack):
-    """
-    Get the path to a stack given its components.
+    """Get the path to a stack given its components.
 
     Returns the stack dir.
     """
@@ -306,8 +302,7 @@ def get_stack_dir(rootdir, account, environment, region, stack):
 
 
 def get_stack_config_filename(account, environment, region, stack):
-    """
-    Get the configuration filename of a stack given its components.
+    """Get the configuration filename of a stack given its components.
 
     Returns the stack config path.
     """
@@ -317,8 +312,7 @@ def get_stack_config_filename(account, environment, region, stack):
 
 
 def get_stack_config_path(confdir, account, environment, region, stack):
-    """
-    Get the path to a stack configuration file given its components.
+    """Get the path to a stack configuration file given its components.
 
     Returns the stack config path.
     """
@@ -326,8 +320,7 @@ def get_stack_config_path(confdir, account, environment, region, stack):
 
 
 def get_stack_from_config_path(config_path):
-    """
-    Get the components of a stack given its configuration file path.
+    """Get the components of a stack given its configuration file path.
 
     Returns the stack components.
     """
@@ -340,8 +333,7 @@ def get_stack_from_config_path(config_path):
 
 
 def foreach_select_stacks(wrapper_config):
-    """
-    Select the stacks to process with foreach. Treats unset stack components as wildcard.
+    """Select the stacks to process with foreach. Treats unset stack components as wildcard.
 
     :param wrapper_config: dict: the wrapper config
     :return dict: stack_path => stack_config
@@ -601,7 +593,7 @@ def search_on_github(repo, minor_version, patch_regex, patch):
 def get_terraform_last_patch(minor_version):
     """Get last terraform patch of a given minor version."""
     releases = CachedRequestsSession.get(TERRAFORM_RELEASES_URL).json()
-    if type(releases) is dict and type(releases["versions"]) is dict:
+    if isinstance(releases, dict) and isinstance(releases["versions"], dict):
         # Use recommended sorting method to place releases before all pre-versions from
         # https://natsort.readthedocs.io/en/master/examples.html#sorting-more-expressive-versioning-schemes
         for release in natsorted(releases["versions"].keys(), key=lambda x: x.replace(".", "~") + "z", reverse=True):
@@ -618,8 +610,7 @@ def get_terraform_last_patch(minor_version):
 
 
 def select_terraform_version(version):
-    """
-    Select the desired terraform version.
+    """Select the desired terraform version.
 
     :param version: string: desired terraform version
     """
@@ -682,8 +673,7 @@ def select_terraform_version(version):
 
 
 def download_tool_from_github(repo, tool_version, tool_type, extension="zip"):
-    """
-    Download tool from GitHub.
+    """Download tool from GitHub.
 
     :param repo: string: the GitHub repository hosting the tool
     :param tool_version: string: desired tool version
@@ -942,18 +932,14 @@ def terraform_apply(wrapper_config):
     Account : {}
 Environment : {}
       Stack : {}
-""".format(
-                colored_account, colored_environment, colored_stack
-            )
+""".format(colored_account, colored_environment, colored_stack)
         else:
             env_msg = """
     Account : {}
 Environment : {}
      Region : {}
       Stack : {}
-""".format(
-                colored_account, colored_environment, colored_region, colored_stack
-            )
+""".format(colored_account, colored_environment, colored_region, colored_stack)
 
         print(
             "\nDo you really want to apply this plan on the following stack ?\n",

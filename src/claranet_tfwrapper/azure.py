@@ -38,8 +38,7 @@ def get_sp_profile(profile_name):
 
 
 def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_profile=None, backend_context=False):
-    """
-    Configure context and check credentials.
+    """Configure context and check credentials.
 
     This function configures environment variables needed for the Azure context.
     It also checks the credentials from Azure CLI context or given Service Principal profile.
@@ -64,6 +63,7 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
     -------
     dict
         Terraform variables
+
     """
     logger.debug(f"Configuring azurerm {'backend' if backend_context else 'stack'} context.")
 
@@ -106,7 +106,7 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
     )
 
     if sp_profile is None and not backend_session:
-        logger.debug(f"Trying to fetch Azure access token to ensure " f"{'backend' if backend_context else 'stack'} access.")
+        logger.debug(f"Trying to fetch Azure access token to ensure {'backend' if backend_context else 'stack'} access.")
         try:
             _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
         except subprocess.CalledProcessError:

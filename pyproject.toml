@@ -48,11 +48,7 @@ tfwrapper = "claranet_tfwrapper:main"
 # Poetry-specific configurations that don't fit in the PEP-621 schema
 
 [tool.poetry.group.test.dependencies]
-black = "*"
 coverage = "*"
-flake8 = ">=6.0.0"
-flake8-docstrings = "*"
-flake8-pyproject = "*"
 md-toc = "*"
 mock = "*"
 pook = ">=1.0.2"
@@ -60,6 +56,7 @@ pre-commit = "*"
 pytest = "*"
 pytest-mock = "*"
 requests-mock = "*"
+ruff = "*"
 toml = "*"
 tox = ">=4"
 
@@ -67,24 +64,27 @@ tox = ">=4"
 requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-# Make sure to match flake8's max-line-length.
-line-length = 130 # black's default
-target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
-exclude = '''
-/(
-  \.git
-  | \.pytest_cache
-  | \.tox
-  | \.venv
-)/
-'''
-
-[tool.flake8]
-verbose = 3
-max-line-length = 130
-per-file-ignores = ['tests/*.py:D103']
-exclude = ['.git', '.tox', '.venv', '.virtualenv', '__pycache__']
-# See https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
-ignore = ['E203', 'W503']
-enable-extensions = ['W504']
+[tool.ruff]
+exclude = [
+  ".git",
+  ".tox",
+  ".venv",
+  ".virtualenv",
+  "__pycache__",
+  "venv",
+  "build",
+  ".eggs",
+  "setup.py",
+]
+line-length = 130
+lint.ignore = []
+lint.per-file-ignores."tests/*.py" = [
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "E501",
+]
+lint.select = ["D", "E", "F", "W"]
+target-version = "py39"

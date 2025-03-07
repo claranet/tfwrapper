@@ -21,7 +21,7 @@ def test_bootstrap_from_global_stack_dir_without_stack_config_nor_stack_director
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 1
     assert (
         "A valid stack configuration file ../../../conf/testaccount_global_teststack.yml"
@@ -53,7 +53,7 @@ def test_bootstrap_from_global_stack_dir_with_stack_config_but_no_state_config_n
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "No template specified and no cloud provider defined in configuration, skipping." in caplog.text
     assert "No state backend configuration found, skipping state configuration file state.tf generation." in caplog.text
@@ -137,7 +137,7 @@ def test_bootstrap_from_global_stack_dir_with_stack_config_and_template_but_no_s
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "Bootstrapped stack using template aws/basic." in caplog.text
     assert "No state backend configuration found, skipping state configuration file state.tf generation." in caplog.text
@@ -237,7 +237,7 @@ def test_bootstrap_from_global_stack_dir_with_stack_config_and_state_config_and_
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "Bootstrapped stack using template aws/basic." in caplog.text
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
@@ -350,7 +350,7 @@ def test_bootstrap_from_global_stack_dir_with_stack_config_and_state_config_and_
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert "Bootstrapped stack using template aws/basic." in caplog.text
     assert 'Generated state.tf file with "aws" backend type configured.' in caplog.text
@@ -469,7 +469,7 @@ def test_bootstrap_from_global_stack_dir_with_stack_config_and_non_empty_stack_d
             ]
         )
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         f"Stack path {paths['stack_dir']} already exists and is not empty, skipping stack bootstrapping from template."

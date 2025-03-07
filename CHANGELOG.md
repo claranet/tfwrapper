@@ -11,6 +11,7 @@ ADDED:
 UPDATES:
 
 - Update pyproject syntax from poetry v1 to v2 respecting PEP-621
+- Replace black and flake8 with ruff for linting and formatting
 
 # 13.2.4 (2025/03/07)
 

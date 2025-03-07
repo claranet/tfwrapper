@@ -42,8 +42,7 @@ def multiple_stacks():
 
 @pytest.fixture
 def tmp_working_dir_multiple_stacks(tmp_working_dir_empty_conf, multiple_stacks):
-    """
-    Provide a somewhat representative directory tree with multiple stacks, regional and global.
+    """Provide a somewhat representative directory tree with multiple stacks, regional and global.
 
     .
     ├── account0
@@ -359,7 +358,7 @@ def test_foreach_from_root_dir(tmp_working_dir_multiple_stacks, capfd):
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
@@ -387,11 +386,7 @@ def test_foreach_from_root_dir(tmp_working_dir_multiple_stacks, capfd):
             {cwd}/account1/prod/eu-west-1/infra
             {cwd}/account1/prod/eu-west-4/default
             {cwd}/account1/prod/eu-west-4/infra
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
@@ -412,7 +407,7 @@ def test_foreach_from_account0_dir(tmp_working_dir_multiple_stacks, capfd):
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
@@ -431,11 +426,7 @@ def test_foreach_from_account0_dir(tmp_working_dir_multiple_stacks, capfd):
             {cwd}/account0/test/eu-west-2/default
             {cwd}/account0/test/eu-west-2/infra
             {cwd}/account0/test/eu-west-3/default
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
@@ -456,17 +447,13 @@ def test_foreach_from_account0_global_dir(tmp_working_dir_multiple_stacks, capfd
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
             """
             {cwd}/account0/_global/default
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
@@ -487,17 +474,13 @@ def test_foreach_from_account0_global_default_dir(tmp_working_dir_multiple_stack
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
             """
             {cwd}/account0/_global/default
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
@@ -518,7 +501,7 @@ def test_foreach_from_account0_preprod_dir(tmp_working_dir_multiple_stacks, capf
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
@@ -527,11 +510,7 @@ def test_foreach_from_account0_preprod_dir(tmp_working_dir_multiple_stacks, capf
             {cwd}/account0/preprod/eu-west-1/infra
             {cwd}/account0/preprod/eu-west-2/default
             {cwd}/account0/preprod/eu-west-2/infra
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
@@ -552,18 +531,14 @@ def test_foreach_from_account0_preprod_euw1_dir(tmp_working_dir_multiple_stacks,
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
             """
             {cwd}/account0/preprod/eu-west-1/default
             {cwd}/account0/preprod/eu-west-1/infra
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
@@ -584,17 +559,13 @@ def test_foreach_from_account0_preprod_euw1_default_dir(tmp_working_dir_multiple
         )
     captured = capfd.readouterr()
 
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 0
     assert (
         textwrap.dedent(
             """
             {cwd}/account0/preprod/eu-west-1/default
-            """.format(
-                cwd=paths["working_dir"]
-            ).lstrip(
-                "\n"
-            )
+            """.format(cwd=paths["working_dir"]).lstrip("\n")
         )
         == captured.out
     )
