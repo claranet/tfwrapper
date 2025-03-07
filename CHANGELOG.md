@@ -1,3 +1,38 @@
+# 13.2.4 (2025/03/07)
+
+FIXES:
+
+- fix: GitHub releases page no longer support `after` parameter, use tags page
+
+UPDATES:
+
+- chore(deps): lock file maintenance
+- chore(deps): update actions/setup-python action to v5.4.0
+- chore(deps): update dependency argcomplete to v3.6.0
+- chore(deps): update dependency black to v24.10.0
+- chore(deps): update dependency boto3 to v1.37.4
+- chore(deps): update dependency cachecontrol to v0.14.2
+- chore(deps): update dependency certifi to 2024.7.4
+- chore(deps): update dependency colorlog to v6.9.0
+- chore(deps): update dependency coverage to v7.6.12
+- chore(deps): update dependency flake8 to v7.1.2
+- chore(deps): update dependency jinja2 to v3.1.5
+- chore(deps): update dependency jinja2 to v3.1.6
+- chore(deps): update dependency md-toc to v9.0.0
+- chore(deps): update dependency mock to v5.2.0
+- chore(deps): update dependency packaging to v24.2
+- chore(deps): update dependency pook to v2.1.3
+- chore(deps): update dependency pre-commit to v3.8.0
+- chore(deps): update dependency pytest to v8.3.5
+- chore(deps): update dependency python to v3.13.2
+- chore(deps): update dependency schema to v0.7.7
+- chore(deps): update dependency semver to v3.0.4
+- chore(deps): update dependency setuptools to 70.0.0
+- chore(deps): update dependency tox to v4.24.1
+- chore(deps): update dependency urllib3 to 1.26.19
+- chore(deps): update dependency zipp to 3.19.1
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.30
+
 # 13.2.3 (2024/10/24)
 
 FIXES:
