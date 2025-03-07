@@ -23,7 +23,7 @@ repos:
       - id: black
 
   - repo: https://codeberg.org/frnmst/md-toc
-    rev: 8.2.3
+    rev: 9.0.0
     hooks:
       - id: md-toc
 

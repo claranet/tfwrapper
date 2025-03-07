@@ -902,14 +902,14 @@ files = [
 
 [[package]]
 name = "md-toc"
-version = "8.2.3"
+version = "9.0.0"
 description = "Automatically generate and add an accurate table of contents to markdown files"
 optional = false
 python-versions = ">=3.8"
 groups = ["test"]
 files = [
-    {file = "md_toc-8.2.3-py3-none-any.whl", hash = "sha256:e47128fae6bd09d58c620ab8f15d5664edab729232405dac3d594f22a1fc52f6"},
-    {file = "md_toc-8.2.3.tar.gz", hash = "sha256:27b24745a461fa84cba69d644a5fcebf1b02984a4760aefd5779709cdd80301a"},
+    {file = "md_toc-9.0.0-py3-none-any.whl", hash = "sha256:dfd57de2faf252be1d6faf9bed7eab506e1caa7c4486ab6d6d04556426d5a7a5"},
+    {file = "md_toc-9.0.0.tar.gz", hash = "sha256:a4e73b59f71c20b94c8c16bc6ef3bc2e80d1d40c398050101f80c3567fda7271"},
 ]
 
 [package.dependencies]
