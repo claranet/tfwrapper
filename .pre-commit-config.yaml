@@ -4,27 +4,36 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        stages: [pre-commit]
       - id: end-of-file-fixer
+        stages: [pre-commit]
       - id: check-added-large-files
+        stages: [pre-commit]
       - id: check-toml
+        stages: [pre-commit]
       - id: check-yaml
+        stages: [pre-commit]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.9
     hooks:
       - id: ruff
         args: [--fix]
+        stages: [pre-commit]
       - id: ruff-format
+        stages: [pre-commit]
 
   - repo: https://codeberg.org/frnmst/md-toc
     rev: 9.0.0
     hooks:
       - id: md-toc
+        stages: [pre-commit]
 
   - repo: https://github.com/tox-dev/tox-ini-fmt
     rev: "1.5.0"
     hooks:
       - id: tox-ini-fmt
+        stages: [pre-commit]
 
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.0.0
