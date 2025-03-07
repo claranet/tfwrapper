@@ -1,3 +1,9 @@
+# 14.0.0 (unreleased)
+
+UPDATES:
+
+- Update pyproject syntax from poetry v1 to v2 respecting PEP-621
+
 # 13.2.4 (2025/03/07)
 
 FIXES:
