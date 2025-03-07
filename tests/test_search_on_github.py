@@ -7,7 +7,7 @@ import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
-def provider_releases_html_q_2_5():
+def provider_releases_html_after_v2_6_0():
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -34,7 +34,7 @@ def provider_releases_html_q_2_5():
 
 
 @pytest.fixture
-def provider_releases_html_q_1_2():
+def provider_releases_html_after_v1_3_0():
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -62,28 +62,28 @@ def provider_releases_html_q_1_2():
 
 def test_search_on_github_provider_releases(
     requests_mock,
-    provider_releases_html_q_2_5,
-    provider_releases_html_q_1_2,
+    provider_releases_html_after_v2_6_0,
+    provider_releases_html_after_v1_3_0,
 ):
     from claranet_tfwrapper import GITHUB_RELEASES
 
     repo = "claranet/terraform-provider-gitlab"
     releases_url = GITHUB_RELEASES.format(repo)
-    releases_url_q_2_5 = releases_url + "?q=2.5"
-    releases_url_q_1_2 = releases_url + "?q=1.2"
+    releases_url_after_v2_6_0 = releases_url + "?after=v2.6.0"
+    releases_url_after_v1_3_0 = releases_url + "?after=v1.3.0"
 
     requests_mock.get(
-        releases_url_q_2_5,
+        releases_url_after_v2_6_0,
         complete_qs=True,
-        text=provider_releases_html_q_2_5,
+        text=provider_releases_html_after_v2_6_0,
     )
     requests_mock.get(
-        releases_url_q_1_2,
+        releases_url_after_v1_3_0,
         complete_qs=True,
-        text=provider_releases_html_q_1_2,
+        text=provider_releases_html_after_v1_3_0,
     )
 
-    assert provider_releases_html_q_2_5 == requests.get(releases_url_q_2_5).text
+    assert provider_releases_html_after_v2_6_0 == requests.get(releases_url_after_v2_6_0).text
 
     patch_regex = r"[0-9]+(((-alpha|-beta|-rc)[0-9]+)|(?P<dev>-dev))?"
     patch = tfwrapper.search_on_github(repo, "2.5", patch_regex, "")

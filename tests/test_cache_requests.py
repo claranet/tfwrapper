@@ -12,7 +12,7 @@ import claranet_tfwrapper as tfwrapper
 
 
 @pytest.fixture
-def terraform_releases_html_q_0_12():
+def terraform_releases_html_after_v0_13_0():
     return """
 <!DOCTYPE html>
 <html lang="en">
@@ -43,7 +43,7 @@ def terraform_releases_html_q_0_12():
 #   CacheControl at the same time as it also works at the Adapter level.
 # - pook intercepts requests at a lower level by replacing urllib3.urlopen() by its
 #   own handler. This allows to actually verify what network requests would happen.
-# See See https://github.com/h2non/pook/blob/v1.0.2/pook/interceptors/urllib3.py#L24-L27
+# See https://github.com/h2non/pook/blob/v1.0.2/pook/interceptors/urllib3.py#L24-L27
 
 
 class AutoclosingBytesIO(io.BytesIO):
@@ -74,19 +74,19 @@ class AutoclosingBytesIO(io.BytesIO):
 
 def test_search_on_github_cache_terraform_releases_200(
     tmp_working_dir,
-    terraform_releases_html_q_0_12,
+    terraform_releases_html_after_v0_13_0,
 ):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
-            releases_url = "https://github.com/{}/releases?q=0.12".format(repo)
+            releases_url = "https://github.com/{}/tags?after=v0.13.0".format(repo)
 
             # A volatile mock that can only be invoked once
             pook.get(
                 releases_url,
                 reply=200,
                 response_type="text/plain",
-                response_body=terraform_releases_html_q_0_12,
+                response_body=terraform_releases_html_after_v0_13_0,
                 response_headers={
                     "Status": "200 OK",
                     "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
@@ -110,11 +110,13 @@ def test_search_on_github_cache_terraform_releases_200(
     assert not pook.isactive()
 
 
-def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(tmp_working_dir, terraform_releases_html_q_0_12):
+def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(
+    tmp_working_dir, terraform_releases_html_after_v0_13_0
+):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
-            releases_url = "https://github.com/{}/releases?q=0.12".format(repo)
+            releases_url = "https://github.com/{}/tags?after=v0.13.0".format(repo)
 
             # volatile mocks that can only be invoked once each
             pook.get(
@@ -127,7 +129,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(tmp_
                 releases_url,
                 reply=200,
                 response_type="text/plain",
-                response_body=terraform_releases_html_q_0_12,
+                response_body=terraform_releases_html_after_v0_13_0,
                 response_headers={
                     "Status": "200 OK",
                     "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
@@ -157,12 +159,12 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_429(tmp_
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
     tmp_working_dir,
-    terraform_releases_html_q_0_12,
+    terraform_releases_html_after_v0_13_0,
 ):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
-            releases_url = "https://github.com/{}/releases?q=0.12".format(repo)
+            releases_url = "https://github.com/{}/tags?after=v0.13.0".format(repo)
 
             # volatile mocks that can only be invoked once each
             pook.get(
@@ -175,7 +177,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
                 releases_url,
                 reply=200,
                 response_type="text/plain",
-                response_body=terraform_releases_html_q_0_12,
+                response_body=terraform_releases_html_after_v0_13_0,
                 response_headers={
                     "Status": "200 OK",
                     "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
@@ -205,12 +207,12 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_403(
 
 def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
     tmp_working_dir,
-    terraform_releases_html_q_0_12,
+    terraform_releases_html_after_v0_13_0,
 ):
     with mock.patch("io.BytesIO", AutoclosingBytesIO):
         with pook.use():
             repo = "hashicorp/terraform"
-            releases_url = "https://github.com/{}/releases?q=0.12".format(repo)
+            releases_url = "https://github.com/{}/tags?after=v0.13.0".format(repo)
 
             # volatile mocks that can only be invoked once each
             pook.get(
@@ -223,7 +225,7 @@ def test_search_on_github_cache_terraform_releases_does_not_cache_error_404(
                 releases_url,
                 reply=200,
                 response_type="text/plain",
-                response_body=terraform_releases_html_q_0_12,
+                response_body=terraform_releases_html_after_v0_13_0,
                 response_headers={
                     "Status": "200 OK",
                     "ETag": 'W/"df0474ebd25f223a95926ba58e11e77b"',
