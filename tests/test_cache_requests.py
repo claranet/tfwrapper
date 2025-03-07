@@ -43,7 +43,7 @@ def terraform_releases_html_after_v0_13_0():
 #   CacheControl at the same time as it also works at the Adapter level.
 # - pook intercepts requests at a lower level by replacing urllib3.urlopen() by its
 #   own handler. This allows to actually verify what network requests would happen.
-# See See https://github.com/h2non/pook/blob/v1.0.2/pook/interceptors/urllib3.py#L24-L27
+# See https://github.com/h2non/pook/blob/v1.0.2/pook/interceptors/urllib3.py#L24-L27
 
 
 class AutoclosingBytesIO(io.BytesIO):

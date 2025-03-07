@@ -66,7 +66,7 @@ RC_KO = 1
 RC_UNK = 2
 
 LIMIT_GITHUB_RELEASES = 42
-GITHUB_RELEASES = "https://github.com/{}/releases"
+GITHUB_RELEASES = "https://github.com/{}/tags"
 
 TERRAFORM_RELEASES_URL = "https://releases.hashicorp.com/terraform/index.json"
 TERRAFORM_MINOR_VERSION_REGEX = r"[0-9]+\.[0-9]+"
