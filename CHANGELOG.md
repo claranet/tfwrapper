@@ -4,6 +4,10 @@ BREAKING:
 
 - Drop support for Python 3.8
 
+ADDED:
+
+- Add support for Python 3.13
+
 UPDATES:
 
 - Update pyproject syntax from poetry v1 to v2 respecting PEP-621

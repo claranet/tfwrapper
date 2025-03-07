@@ -18,6 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: System :: Systems Administration",
   "Topic :: Utilities",
 ]
@@ -69,7 +70,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 # Make sure to match flake8's max-line-length.
 line-length = 130 # black's default
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
 exclude = '''
 /(
   \.git
