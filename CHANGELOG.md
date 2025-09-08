@@ -1,3 +1,24 @@
+# 14.0.1 (2025/09/08)
+
+FIXES:
+
+- TER-498: do not only rely on file modification time for cached credentials
+
+UPDATES:
+
+- chore(deps): lock file maintenance
+- chore(deps): update actions/setup-python action to v5.6.0
+- chore(deps): update dependency boto3 to v1.40.25
+- chore(deps): update dependency coverage to v7.9.2
+- chore(deps): update dependency pook to v2.1.4
+- chore(deps): update dependency pre-commit to v4.3.0
+- chore(deps): update dependency pytest to v8.4.2
+- chore(deps): update dependency pytest-mock to v3.15.0
+- chore(deps): update dependency python to v3.13.7
+- chore(deps): update dependency requests to v2.32.5
+- chore(deps): update dependency tox to v4.27.0
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.37
+
 # 14.0.0 (2025/03/07)
 
 BREAKING:
