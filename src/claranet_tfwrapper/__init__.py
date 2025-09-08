@@ -21,6 +21,7 @@ import shlex
 import sys
 import zipfile
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from urllib3.util.retry import Retry
 
@@ -405,34 +406,52 @@ def get_stack_envvars(stack_config, wrapper_stack_config):
 
 def _get_aws_session(session_cache_file, region, profile):
     """Get or create boto cached session."""
-    if os.path.isfile(session_cache_file) and time.time() - os.stat(session_cache_file).st_mtime < 2700:
+    session = None
+    if os.path.isfile(session_cache_file) and time.time() - os.stat(session_cache_file).st_mtime < 900:
+        logger.debug(f"Reading session cache file: {session_cache_file}")
         with open(session_cache_file, "rb") as f:
             session_cache = pickle.load(f)
-        session = boto3.Session(
-            aws_access_key_id=session_cache["credentials"].access_key,
-            aws_secret_access_key=session_cache["credentials"].secret_key,
-            aws_session_token=session_cache["credentials"].token,
-            region_name=session_cache["region"],
-        )
-    else:
+        # Check session duration from cache
+        expiration_time = session_cache.get("expiration_time")
+        if expiration_time and datetime.now(expiration_time.tzinfo) < expiration_time:
+            logger.debug(f"Session from cache still valid until {expiration_time}")
+            session = boto3.Session(
+                aws_access_key_id=session_cache["credentials"].access_key,
+                aws_secret_access_key=session_cache["credentials"].secret_key,
+                aws_session_token=session_cache["credentials"].token,
+                region_name=session_cache["region"],
+            )
+        else:
+            logger.debug(f"Session from cache expired on {expiration_time}")
+
+    if not session:
         try:
             session = boto3.Session(profile_name=profile, region_name=region)
         except botocore.exceptions.ProfileNotFound:
             logger.error("Profile {} not found. Exiting...".format(profile))
             sys.exit(RC_KO)
         try:
+            credentials = session.get_credentials()
+            expiration_time = None
+            if hasattr(credentials, "_expiry_time"):
+                expiration_time = credentials._expiry_time
+                logger.debug(f"Credentials will expire at {expiration_time}")
             session_cache = {
-                "credentials": session.get_credentials().get_frozen_credentials(),
+                "credentials": credentials.get_frozen_credentials(),
                 "region": session.region_name,
+                "expiration_time": expiration_time,
             }
         except botocore.exceptions.ParamValidationError:
-            logger.error("Error validating authentication. Maybe the wrong MFA code ?")
+            logger.error("Error validating authentication. Maybe the wrong MFA code?")
             sys.exit(RC_KO)
         except Exception:
             logger.exception("Unknown error")
             sys.exit(RC_UNK)
+
         with os.fdopen(os.open(session_cache_file, os.O_WRONLY | os.O_CREAT, mode=0o600), "wb") as f:
             pickle.dump(session_cache, f, pickle.HIGHEST_PROTOCOL)
+            logger.debug(f"Wrote session cache file: {session_cache_file}")
+
     return session
 
 
