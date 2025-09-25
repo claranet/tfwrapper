@@ -325,7 +325,7 @@ def get_stack_from_config_path(config_path):
 
     Returns the stack components.
     """
-    config_path_regex = r"(?P<confdir>.+)/(?P<account>[^/_]+)_(?P<environment>[^/_]+)(_(?P<region>[^/_]+))?_(?P<stack>[^/_]+).yml"
+    config_path_regex = r"(?P<confdir>.+)/(?P<account>[^/_]+)_(?P<environment>[^/_]+)(_(?P<region>[^/_]+))?_(?P<stack>[^/]+).yml"
     m = re.match(config_path_regex, config_path)
     if not m:
         error("Failed to parse configuration filename {}. Exiting...".format(config_path))

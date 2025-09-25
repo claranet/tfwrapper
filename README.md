@@ -258,6 +258,8 @@ Stacks configuration files use the following naming convention:
 conf/${account}_${environment}_${region}_${stack}.yml
 ```
 
+Note: as the underscore `_` character is used as a separator, only the stack name may contain such a character.
+
 Here is an example for an AWS stack configuration:
 
 ```yaml
@@ -504,6 +506,8 @@ Terraform stacks are organized based on their:
 - `environment`: `production`, `preproduction`, `dev`, etc. With `global` as a special case eliminating the `region` part.
 - `region`: `eu-west-1`, `westeurope`, etc.
 - `stack`: defaults to `default`. `web`, `admin`, `tools`, etc.
+
+Note: as the underscore `_` character is used as a separator for [stack configuration files](#stacks-configurations), only the stack name may contain such a character.
 
 
 The following file structure is then enforced:
