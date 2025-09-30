@@ -187,6 +187,11 @@ def detect_config_dir(wrapper_config, dir="."):
     wrapper_config["rootdir"] = os.path.dirname(os.path.abspath("{}/".format(dir) + wrapper_config["confdir"]))
     logger.debug("Detected rootdir at '{}' with {} parents from {}".format(wrapper_config["rootdir"], parents_count, dir))
 
+    rundir = pathlib.Path(wrapper_config["rootdir"]) / ".run"
+    if not rundir.exists():
+        rundir.mkdir()
+        logger.debug("Created .run at '{}'".format(wrapper_config["rootdir"]))
+
     return parents_count
 
 
