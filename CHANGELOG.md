@@ -1,3 +1,22 @@
+# 14.0.2 (2025/09/30)
+
+FIXES:
+
+- fix: tolerate underscore character in stack names
+- fix: create .run directory if missing
+
+UPDATES:
+
+- chore(deps): lock file maintenance (#563)
+- chore(deps): lock file maintenance (#567)
+- chore(deps): lock file maintenance (#569)
+- chore(deps): update dependency boto3 to v1.40.30 (#562)
+- chore(deps): update dependency coverage to v7.10.7 (#566)
+- chore(deps): update dependency pytest-mock to v3.15.1 (#565)
+- chore(deps): update dependency pyyaml to v6.0.3 (#568)
+- chore(deps): update dependency tox to v4.30.2 (#570)
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.38 (#564)
+
 # 14.0.1 (2025/09/08)
 
 FIXES:
