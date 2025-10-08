@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v3
 
       - name: Build project for distribution
         run: uv build

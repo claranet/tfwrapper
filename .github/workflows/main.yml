@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v3
 
       - name: Run tox
         shell: bash
@@ -42,7 +42,7 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v3
 
       - name: Run tox
         shell: bash
