@@ -184,7 +184,7 @@ wheels = [
 
 [[package]]
 name = "claranet-tfwrapper"
-version = "14.0.3a0"
+version = "14.0.4.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "argcomplete" },
