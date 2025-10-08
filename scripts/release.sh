@@ -53,7 +53,7 @@ sed -i "1 i\# ${VERSION} ($(date +'%Y/%m/%d'))\n\n" CHANGELOG.md
 vi CHANGELOG.md
 CHANGELOG=$(sed '2,${/^#/Q}' CHANGELOG.md)
 
-git add pyproject.toml CHANGELOG.md
+git add pyproject.toml uv.lock CHANGELOG.md
 show_git_diff_staged
 
 request_approval_to_continue "Ready to commit"
@@ -73,7 +73,7 @@ echo
 uv version --bump patch --bump dev
 VERSION=$(uv version --short)
 
-git add pyproject.toml
+git add pyproject.toml uv.lock
 show_git_diff_staged
 
 request_approval_to_continue "Ready to commit"
