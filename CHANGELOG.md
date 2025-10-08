@@ -1,3 +1,28 @@
+# 14.0.3 (2025/10/08)
+
+FIXES:
+
+- fix: do not download tool for foreach command
+
+BUILD:
+
+- build: migrate from poetry to uv
+
+UPDATES:
+
+- chore(deps): lock file maintenance (#573)
+- chore(deps): update actions/checkout action to v5
+- chore(deps): update actions/download-artifact action to v5
+- chore(deps): update actions/setup-python action to v6
+- chore(deps): update dependency boto3 to v1.40.45 (#572)
+- chore(deps): update dependency packaging to v25
+- chore(deps): update dependency poetry to v2.2.1 (#571)
+- chore(deps): update dependency python to v3.14.0 (#574)
+- chore(deps): update dependency ruff to v0.14.0
+- chore(deps): update dependency termcolor to v3
+- chore(deps): update dependency tox to v4.30.3 (#575)
+- chore(deps): update jdx/mise-action action to v3
+
 # 14.0.2 (2025/09/30)
 
 FIXES:
