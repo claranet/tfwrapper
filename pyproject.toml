@@ -3,9 +3,9 @@ name = "claranet-tfwrapper"
 version = "14.0.3a0"
 description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
 authors = []
-license = { text = "Mozilla Public License Version 2.0" }
-readme = "README.md"
 requires-python = ">=3.9,<4.0"
+readme = "README.md"
+license = { text = "Mozilla Public License Version 2.0" }
 keywords = ["terraform", "wrapper"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -19,6 +19,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: System :: Systems Administration",
   "Topic :: Utilities",
 ]
@@ -44,25 +45,27 @@ homepage = "https://github.com/claranet/tfwrapper"
 [project.scripts]
 tfwrapper = "claranet_tfwrapper:main"
 
-[tool.poetry]
-# Poetry-specific configurations that don't fit in the PEP-621 schema
+[dependency-groups]
+test = [
+  "coverage",
+  "md-toc",
+  "mock",
+  "pook>=1.0.2",
+  "pre-commit",
+  "pytest",
+  "pytest-mock",
+  "requests-mock",
+  "ruff",
+  "toml",
+  "tox>=4",
+]
 
-[tool.poetry.group.test.dependencies]
-coverage = "*"
-md-toc = "*"
-mock = "*"
-pook = ">=1.0.2"
-pre-commit = "*"
-pytest = "*"
-pytest-mock = "*"
-requests-mock = "*"
-ruff = "*"
-toml = "*"
-tox = ">=4"
+[tool.uv]
+default-groups = ["test"]
 
 [build-system]
-requires = ["poetry-core>=1.1.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 exclude = [

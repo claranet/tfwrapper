@@ -1,8 +1,8 @@
 name: Tests
 
 env:
-  POETRY_VERSION: "2.1.1"
-  PYTHON_VERSION: "3.13"
+  PYTHON_VERSION: "3.14"
+  UV_VERSION: "0.9.0"
 
 on:
   merge_group:
@@ -21,23 +21,22 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Install poetry
+      - name: Install uv
         shell: bash
         run: |
-          pip install poetry==${POETRY_VERSION}
+          pip install uv==${UV_VERSION}
 
       - name: Run tox
         shell: bash
         run: |
-          poetry install
-          poetry run tox -e lint
+          uv run tox -e lint
 
   tests:
     name: Test with Python ${{ matrix.python_version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python_version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v5
@@ -47,16 +46,15 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - name: Install poetry
+      - name: Install uv
         shell: bash
         run: |
-          pip install poetry==${POETRY_VERSION}
+          pip install uv==${UV_VERSION}
 
       - name: Run tox
         shell: bash
         run: |
-          poetry install
-          poetry run tox -e coverage
+          uv run tox -e coverage
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
 

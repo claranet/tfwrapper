@@ -42,9 +42,9 @@ sed --version |& head -n 1 | grep "(GNU sed)" || (echo ERROR: this script requir
 git diff --exit-code CHANGELOG.md &> /dev/null || (echo ERROR: CHANGELOG.md file has unstaged changes, aborting. ; exit 1)
 git diff --exit-code pyproject.toml &> /dev/null || (echo ERROR: pyproject.toml file has unstaged changes, aborting. ; exit 1)
 
-# Bump the version with poetry and re-read it
-poetry version $VERSION
-VERSION=$(poetry version --short)
+# Bump the version with uv and re-read it
+uv version $VERSION
+VERSION=$(uv version --short)
 
 request_approval_to_continue "New version will be: $VERSION"
 
@@ -66,12 +66,12 @@ request_approval_to_continue "Ready to create annotated tag"
 # Tag with last CHANGELOG.md item content as annotation
 sed '2,${/^#/Q}' CHANGELOG.md | git tag -a -F- v$VERSION
 
-# Bump the version with poetry again to mark it for development
+# Bump the version with uv again to mark it for development
 echo
-echo Bump the version with poetry again to mark it for development
+echo Bump the version with uv again to mark it for development
 echo
-poetry version prerelease
-VERSION=$(poetry version --short)
+uv version prerelease
+VERSION=$(uv version --short)
 
 git add pyproject.toml
 show_git_diff_staged

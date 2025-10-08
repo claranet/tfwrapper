@@ -1,8 +1,8 @@
 name: Release
 
 env:
-  POETRY_VERSION: "2.1.1"
-  PYTHON_VERSION: "3.13"
+  PYTHON_VERSION: "3.14"
+  UV_VERSION: "0.9.0"
 
 on:
   push:
@@ -31,18 +31,18 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Install poetry
+      - name: Install uv
         shell: bash
         run: |
-          pip install poetry==${POETRY_VERSION}
+          pip install uv==${UV_VERSION}
 
       - name: Build project for distribution
-        run: poetry build
+        run: uv build
 
       - name: Check Version
         id: check-version
         run: |
-          [[ "$(poetry version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+          [[ "$(uv version --short)" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
             || echo "prerelease=true" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub release
