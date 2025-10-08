@@ -714,7 +714,7 @@ All new code contributions should come with unit and/or integrations tests.
 To run those tests locally, use [tox](https://github.com/tox-dev/tox):
 
 ```bash
-poetry run tox -e py
+uv run tox -e py
 ```
 
 Linters are also used to ensure code respects our standards.
@@ -722,7 +722,7 @@ Linters are also used to ensure code respects our standards.
 To run those linters locally:
 
 ```bash
-poetry run tox -e lint
+uv run tox -e lint
 ```
 
 ## Debug command-line completion
@@ -815,11 +815,11 @@ Check the help:
 
 Use the `scripts/release.sh` script from `master` branch to:
 
-- bump the version with poetry,
+- bump the version with uv,
 - update `CHANGELOG.md`,
 - commit these changes,
 - tag with last CHANGELOG.md item content as annotation,
-- bump the version with poetry again to mark it for development,
+- bump the version with uv again to mark it for development,
 - commit this change,
 - push all commits and tags to all remote repositories.
 
