@@ -1388,23 +1388,24 @@ def main(argv=None):
     # parse all args
     args = parse_args(argv or sys.argv[1:])
 
-    # select tool version for the stack if selected, with a fallback on v1.0
-    tool_version = (tf_config := stack_config.get(TOOL_TERRAFORM, {})).get(
-        "version", tf_config.get("vars", {}).get("version", "1.0")
-    )
-    if (v := Version.parse(tool_version, optional_minor_and_patch=True)).major < 1 or (v.major == 1 and v.minor < 6):
-        legacy_tool = True
-    else:
-        legacy_tool = stack_config.get("terraform", {}).get("legacy", False)
-
-    if not legacy_tool:
-        download_tool_from_github(
-            "opentofu/opentofu",
-            tool_version,
-            TOOL_OPENTOFU,
+    if args.func != foreach:
+        # select tool version for the stack if selected, with a fallback on v1.0
+        tool_version = (tf_config := stack_config.get(TOOL_TERRAFORM, {})).get(
+            "version", tf_config.get("vars", {}).get("version", "1.0")
         )
-    else:
-        select_terraform_version(tool_version)
+        if (v := Version.parse(tool_version, optional_minor_and_patch=True)).major < 1 or (v.major == 1 and v.minor < 6):
+            legacy_tool = True
+        else:
+            legacy_tool = stack_config.get("terraform", {}).get("legacy", False)
+
+        if not legacy_tool:
+            download_tool_from_github(
+                "opentofu/opentofu",
+                tool_version,
+                TOOL_OPENTOFU,
+            )
+        else:
+            select_terraform_version(tool_version)
 
     # convert args to dict
     wrapper_config.update(vars(args))
