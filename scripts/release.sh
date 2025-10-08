@@ -18,7 +18,7 @@ request_approval_to_continue() {
 show_help () {
     echo Usage: $0 VERSION
     echo
-    echo VERSION should ideally be a valid semver string or a valid bump rule: patch, minor, major, prepatch, preminor, premajor, prerelease.
+    echo VERSION must be a valid semver string or a valid bump rule: major, minor, patch, stable, alpha, beta, rc, post, dev.
     exit 0
 }
 
@@ -43,7 +43,7 @@ git diff --exit-code CHANGELOG.md &> /dev/null || (echo ERROR: CHANGELOG.md file
 git diff --exit-code pyproject.toml &> /dev/null || (echo ERROR: pyproject.toml file has unstaged changes, aborting. ; exit 1)
 
 # Bump the version with uv and re-read it
-uv version $VERSION
+uv version --bump $VERSION
 VERSION=$(uv version --short)
 
 request_approval_to_continue "New version will be: $VERSION"
@@ -70,7 +70,7 @@ sed '2,${/^#/Q}' CHANGELOG.md | git tag -a -F- v$VERSION
 echo
 echo Bump the version with uv again to mark it for development
 echo
-uv version prerelease
+uv version --bump patch --bump dev
 VERSION=$(uv version --short)
 
 git add pyproject.toml
