@@ -2,7 +2,6 @@ name: Release
 
 env:
   PYTHON_VERSION: "3.14"
-  UV_VERSION: "0.9.0"
 
 on:
   push:
@@ -31,10 +30,7 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Install uv
-        shell: bash
-        run: |
-          pip install uv==${UV_VERSION}
+      - uses: jdx/mise-action@v2
 
       - name: Build project for distribution
         run: uv build
