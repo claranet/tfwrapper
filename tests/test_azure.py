@@ -59,7 +59,7 @@ def test_sp_context(monkeypatch, tmp_path):
     tf_vars = azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
 
     launch_cli.assert_called_once_with(
-        ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],
+        ["az", "login", "--service-principal", "--username", client_id, f"--password={client_secret}", "--tenant", tenant_id],
         os.path.join(tmp_path, ".run", "azure"),
     )
     sp_profile_mock.assert_called_once_with("my-profile")
@@ -145,7 +145,7 @@ def test_sp_multiple_context(monkeypatch, tmp_path):
     tf_vars = azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
     sp_profile_mock.assert_called_with("my-profile")
     launch_cli.assert_called_with(
-        ["az", "login", "--service-principal", "--username", client_id, "--password", client_secret, "--tenant", tenant_id],
+        ["az", "login", "--service-principal", "--username", client_id, f"--password={client_secret}", "--tenant", tenant_id],
         os.path.join(tmp_path, ".run", "azure"),
     )
 
@@ -161,8 +161,7 @@ def test_sp_multiple_context(monkeypatch, tmp_path):
             "--service-principal",
             "--username",
             alt_client_id,
-            "--password",
-            alt_client_secret,
+            f"--password={alt_client_secret}",
             "--tenant",
             alt_tenant_id,
         ],
