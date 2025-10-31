@@ -1,3 +1,25 @@
+# 14.0.4 (2025/10/31)
+
+FIX:
+
+- fix(Azure): support passwords beginning with dash
+
+BUILD:
+
+- build: commit uv.lock
+- build: fix release script to commit uv.lock
+
+UPDATES:
+
+- chore(deps): lock file maintenance (#581)
+- chore(deps): lock file maintenance (#582)
+- chore(deps): lock file maintenance (#586)
+- chore(deps): update dependency uv to v0.9.1
+- chore(deps): update dependency uv to v0.9.7
+- chore(deps): update github artifact actions
+- chore(deps): update github artifact actions (major)
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.39 (#585)
+
 # 14.0.3 (2025/10/08)
 
 FIXES:

@@ -1,6 +1,6 @@
 [project]
 name = "claranet-tfwrapper"
-version = "14.0.4.dev1"
+version = "14.0.4"
 description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
 authors = []
 requires-python = ">=3.9,<4.0"
