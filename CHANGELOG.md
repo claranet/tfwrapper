@@ -1,8 +1,12 @@
+# 14.0.8 (2026/03/25)
+
+- chore(deps): lock file maintenance
+- chore(deps): pin dependencies
+
 # 14.0.7 (2026/03/25)
 
 - chore(deps): pin dependencies
 - chore(deps): update dependency requests to v2.33.0 [security] (#619)
-
 
 # 14.0.6 (2026/03/25)
 
@@ -10,7 +14,6 @@
 - chore(deps): update github artifact actions
 - chore(deps): update github artifact actions (major)
 - chore(deps): update jdx/mise-action action to v4
-
 
 # 14.0.5 (2026/03/25)
 
