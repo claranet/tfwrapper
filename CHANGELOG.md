@@ -1,3 +1,11 @@
+# 14.0.6 (2026/03/25)
+
+- chore(deps): update actions/checkout action to v6
+- chore(deps): update github artifact actions
+- chore(deps): update github artifact actions (major)
+- chore(deps): update jdx/mise-action action to v4
+
+
 # 14.0.5 (2026/03/25)
 
 - build(deps): delay renovate PR creation for updated dependencies
