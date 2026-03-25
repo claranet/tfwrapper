@@ -11,11 +11,13 @@
   "packageRules": [
     {
       "groupName": "boto",
-      "matchPackagePrefixes": [
-        "boto3",
-        "botocore"
+      "schedule": [
+        "after 9pm on sunday"
       ],
-      "schedule": ["after 9pm on sunday"]
+      "matchPackageNames": [
+        "boto3{/,}**",
+        "botocore{/,}**"
+      ]
     },
     {
       "matchUpdateTypes": [
