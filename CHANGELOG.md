@@ -1,3 +1,14 @@
+# 14.0.5 (2026/03/25)
+
+- build(deps): delay renovate PR creation for updated dependencies
+- build(deps): let renovate use full-length commit hashes for Github Actions
+- build(deps): replace .tool-versions by mise.toml with mise.lock
+- build(deps): update uv
+- chore(deps): lock file maintenance
+- chore(deps): update actions/setup-python action to v6.2.0 (#607)
+- chore(deps): update dependency python to v3.14.3 (#610)
+- chore(deps): update py-cov-action/python-coverage-comment-action action to v3.40 (#603)
+
 # 14.0.4 (2025/10/31)
 
 FIX:
