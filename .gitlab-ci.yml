@@ -4,7 +4,7 @@ variables:
   KUBERNETES_MEMORY_LIMIT: "1Gi"
   KUBERNETES_CPU_REQUEST: "1"
   PYTHON_VERSION: "3.14"
-  UV_VERSION: "0.9.0"
+  UV_VERSION: "0.11.1"
 
 stages:
   - lint
