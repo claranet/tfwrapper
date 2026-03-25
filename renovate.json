@@ -24,5 +24,8 @@
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     }
-  ]
+  ],
+  "internalChecksFilter": "strict",
+  "minimumReleaseAge": "7 days",
+  "prCreation": "not-pending"
 }
