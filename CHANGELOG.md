@@ -1,3 +1,9 @@
+# 14.0.7 (2026/03/25)
+
+- chore(deps): pin dependencies
+- chore(deps): update dependency requests to v2.33.0 [security] (#619)
+
+
 # 14.0.6 (2026/03/25)
 
 - chore(deps): update actions/checkout action to v6
