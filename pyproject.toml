@@ -3,7 +3,7 @@ name = "claranet-tfwrapper"
 version = "14.0.9.dev1"
 description = "Claranet's `tfwrapper` is a wrapper for [Terraform](https://www.terraform.io/) implemented in python which aims to simplify Terraform usage and enforce best practices"
 authors = []
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.10,<4.0"
 readme = "README.md"
 license = { text = "Mozilla Public License Version 2.0" }
 keywords = ["terraform", "wrapper"]
@@ -14,7 +14,6 @@ classifiers = [
   "Intended Audience :: System Administrators",
   "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -90,4 +89,4 @@ lint.per-file-ignores."tests/*.py" = [
   "E501",
 ]
 lint.select = ["D", "E", "F", "W"]
-target-version = "py39"
+target-version = "py310"
