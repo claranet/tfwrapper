@@ -813,26 +813,20 @@ Check the help:
 
 ## Tagging and publishing new releases to PyPI
 
-Use the `scripts/release.sh` script from `master` branch to:
+Releases are automated with [release-please](https://github.com/googleapis/release-please).
 
-- bump the version with uv,
-- update `CHANGELOG.md`,
-- commit these changes,
-- tag with last CHANGELOG.md item content as annotation,
-- bump the version with uv again to mark it for development,
-- commit this change,
-- push all commits and tags to all remote repositories.
+On every push to the `master` branch, release-please maintains a release pull
+request that:
 
-This will trigger a Github Actions job to publish packages to PyPI.
+- bumps the version in `pyproject.toml`,
+- updates `CHANGELOG.md` from the [Conventional Commits](https://www.conventionalcommits.org/)
+  merged since the last release (`fix:` → patch, `feat:` → minor,
+  `feat!:` / `BREAKING CHANGE:` → major).
 
-To invoke the script, pass it the desired bump rule, e.g.:
+To cut a release, review and merge that release pull request. Merging it:
 
-```bash
-# ./scripts/release.sh minor
-```
+- creates the GitHub release and the `vX.Y.Z` tag,
+- builds the distributions and publishes them to PyPI.
 
-For more options, check the help:
-
-```bash
-# ./scripts/release.sh --help
-```
+Everything runs from the default `GITHUB_TOKEN`; publishing to PyPI uses OIDC
+trusted publishing, so no token needs to be configured.
