@@ -1,21 +1,61 @@
-# 14.0.8 (2026/03/25)
+# Changelog
+
+## [15.0.0](https://github.com/claranet/tfwrapper/compare/v14.0.8...v15.0.0) (2026-07-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* python 3.9 is no longer supported; the minimum is 3.10.
+
+### Bug Fixes
+
+* **ci:** regenerate mise.lock ([8a8bf86](https://github.com/claranet/tfwrapper/commit/8a8bf86eeee18bb86cab99124213b61e6895fd0d))
+* **deps:** update dependency termcolor to &gt;=3.3,&lt;3.4 ([#584](https://github.com/claranet/tfwrapper/issues/584)) ([93fca8f](https://github.com/claranet/tfwrapper/commit/93fca8f85e25935da82803200ab6fd246bd1f919))
+* **deps:** upgrade locked dependencies to resolve security advisories ([25055bc](https://github.com/claranet/tfwrapper/commit/25055bc6b053c71fb9d68a23222f9fc7837bd169))
+* drop python 3.9 support ([bd8a186](https://github.com/claranet/tfwrapper/commit/bd8a186eed54a07e0d0e8a9d89e9b7d8d0dc6268))
+
+
+### Miscellaneous Chores
+
+* **deps:** update actions/checkout action to v7 ([cfcaeca](https://github.com/claranet/tfwrapper/commit/cfcaecac2a0c0389cf34a48cac37128e5fdb9106))
+* **deps:** update actions/checkout action to v7 ([e29ff52](https://github.com/claranet/tfwrapper/commit/e29ff520f2418f9db02f3129cf5702852eb4d409))
+* **deps:** update actions/setup-python action to v6.3.0 ([#629](https://github.com/claranet/tfwrapper/issues/629)) ([6e42e88](https://github.com/claranet/tfwrapper/commit/6e42e889f309c17b557e7c9f8e74ea4233bceccf))
+* **deps:** update dependency python to v3.14.6 ([#624](https://github.com/claranet/tfwrapper/issues/624)) ([382f279](https://github.com/claranet/tfwrapper/commit/382f27991c5529e49e1a794a14de67de35a372d4))
+* **deps:** update dependency uv to v0.11.28 ([c488567](https://github.com/claranet/tfwrapper/commit/c48856792c83d290939623728b52e926ca093588))
+* **deps:** update dependency uv to v0.11.28 ([e5486f8](https://github.com/claranet/tfwrapper/commit/e5486f85a3190d5ad5501227ccb3ef78b517917d))
+* **deps:** update googleapis/release-please-action action to v5 ([a9f7a64](https://github.com/claranet/tfwrapper/commit/a9f7a64753b784e71382ee45b7db902fb66437bc))
+* **deps:** update googleapis/release-please-action action to v5 ([e552532](https://github.com/claranet/tfwrapper/commit/e552532d2872ab73e67a4b1ccfdbdc033a21aa69))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v3.41 ([#626](https://github.com/claranet/tfwrapper/issues/626)) ([c1198c6](https://github.com/claranet/tfwrapper/commit/c1198c6af744b401e80d528455223b4ac6f820c6))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4 ([5a33a05](https://github.com/claranet/tfwrapper/commit/5a33a0565f06372e6625d72cdfc4e9eba7899134))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4 ([1036903](https://github.com/claranet/tfwrapper/commit/103690376c14b92b0558b68eed08d89a8a64cd81))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.0 ([#625](https://github.com/claranet/tfwrapper/issues/625)) ([ea7055b](https://github.com/claranet/tfwrapper/commit/ea7055b52652c02e92470a6b27f5912f7c4be7d7))
+
+
+### Continuous Integration
+
+* adopt release-please for automated PR-based releases ([252c881](https://github.com/claranet/tfwrapper/commit/252c88123e67f319fee37b8a6de7b4af75765f20))
+* adopt release-please for automated PR-based releases ([7c49fe9](https://github.com/claranet/tfwrapper/commit/7c49fe9265f4d320413c3d4eaaf556c2a9c822dd))
+* show all commit types in release-please changelog ([d4d7d01](https://github.com/claranet/tfwrapper/commit/d4d7d01d2a8630dca778c5b973f0d8f4dc6c79c0))
+* show all commit types in release-please changelog ([d885457](https://github.com/claranet/tfwrapper/commit/d8854579491ccf1f5fdd798a091522634c456eed))
+
+## 14.0.8 (2026/03/25)
 
 - chore(deps): lock file maintenance
 - chore(deps): pin dependencies
 
-# 14.0.7 (2026/03/25)
+## 14.0.7 (2026/03/25)
 
 - chore(deps): pin dependencies
 - chore(deps): update dependency requests to v2.33.0 [security] (#619)
 
-# 14.0.6 (2026/03/25)
+## 14.0.6 (2026/03/25)
 
 - chore(deps): update actions/checkout action to v6
 - chore(deps): update github artifact actions
 - chore(deps): update github artifact actions (major)
 - chore(deps): update jdx/mise-action action to v4
 
-# 14.0.5 (2026/03/25)
+## 14.0.5 (2026/03/25)
 
 - build(deps): delay renovate PR creation for updated dependencies
 - build(deps): let renovate use full-length commit hashes for Github Actions
@@ -26,7 +66,7 @@
 - chore(deps): update dependency python to v3.14.3 (#610)
 - chore(deps): update py-cov-action/python-coverage-comment-action action to v3.40 (#603)
 
-# 14.0.4 (2025/10/31)
+## 14.0.4 (2025/10/31)
 
 FIX:
 
@@ -48,7 +88,7 @@ UPDATES:
 - chore(deps): update github artifact actions (major)
 - chore(deps): update py-cov-action/python-coverage-comment-action action to v3.39 (#585)
 
-# 14.0.3 (2025/10/08)
+## 14.0.3 (2025/10/08)
 
 FIXES:
 
@@ -73,7 +113,7 @@ UPDATES:
 - chore(deps): update dependency tox to v4.30.3 (#575)
 - chore(deps): update jdx/mise-action action to v3
 
-# 14.0.2 (2025/09/30)
+## 14.0.2 (2025/09/30)
 
 FIXES:
 
@@ -92,7 +132,7 @@ UPDATES:
 - chore(deps): update dependency tox to v4.30.2 (#570)
 - chore(deps): update py-cov-action/python-coverage-comment-action action to v3.38 (#564)
 
-# 14.0.1 (2025/09/08)
+## 14.0.1 (2025/09/08)
 
 FIXES:
 
@@ -113,7 +153,7 @@ UPDATES:
 - chore(deps): update dependency tox to v4.27.0
 - chore(deps): update py-cov-action/python-coverage-comment-action action to v3.37
 
-# 14.0.0 (2025/03/07)
+## 14.0.0 (2025/03/07)
 
 BREAKING:
 
@@ -128,7 +168,7 @@ UPDATES:
 - Update pyproject syntax from poetry v1 to v2 respecting PEP-621
 - Replace black and flake8 with ruff for linting and formatting
 
-# 13.2.4 (2025/03/07)
+## 13.2.4 (2025/03/07)
 
 FIXES:
 
@@ -163,7 +203,7 @@ UPDATES:
 - chore(deps): update dependency zipp to 3.19.1
 - chore(deps): update py-cov-action/python-coverage-comment-action action to v3.30
 
-# 13.2.3 (2024/10/24)
+## 13.2.3 (2024/10/24)
 
 FIXES:
 
@@ -189,7 +229,7 @@ UPDATES:
 - fix(deps): update dependency pyyaml to v6.0.2
 - fix(deps): update dependency requests to v2.32.3
 
-# 13.2.2 (2024/03/13)
+## 13.2.2 (2024/03/13)
 
 UPDATES:
 
@@ -209,7 +249,7 @@ UPDATES:
 - fix(deps): update dependency cachecontrol to ^0.14.0
 - fix(deps): update dependency packaging to v24
 
-# 13.2.1 (2024/02/01)
+## 13.2.1 (2024/02/01)
 
 UPDATES:
 
@@ -224,7 +264,7 @@ UPDATES:
 - fix(deps): update dependency colorlog to v6.8.2
 - fix(deps): update dependency jinja2 to v3.1.3
 
-# 13.2.0 (2024/01/10)
+## 13.2.0 (2024/01/10)
 
 ADDED:
 
@@ -251,20 +291,20 @@ UPDATES:
 - fix(deps): update dependency colorlog to v6.8.0
 - fix(deps): update dependency termcolor to v2.4.0
 
-# 13.1.2a15 (2023/10/13)
+## 13.1.2a15 (2023/10/13)
 
 UPDATES:
 
 - ci: use py-cov-action/python-coverage-comment-action@v3.15
 
-# 13.1.2a13 (2023/10/11)
+## 13.1.2a13 (2023/10/11)
 
 UPDATES:
 
 - ci: Revert "ci: only run coverage action for pull requests"
 - ci: test py-cov-action/python-coverage-comment-action@fix-285-push-tag
 
-# 13.1.2a11 (2023/10/11)
+## 13.1.2a11 (2023/10/11)
 
 FIXES:
 
@@ -274,31 +314,31 @@ UPDATES:
 
 - ci: ewjoachim/python-coverage-comment-action@v3 is now py-cov-action/python-coverage-comment-action@v3
 
-# 13.1.2a9 (2023/10/11)
+## 13.1.2a9 (2023/10/11)
 
 FIXES:
 
 - ci: fix permissions needed for workflows
 
-# 13.1.2a7 (2023/10/10)
+## 13.1.2a7 (2023/10/10)
 
 FIXES:
 
 - ci: downloading of coverage artifacts
 
-# 13.1.2a5 (2023/10/10)
+## 13.1.2a5 (2023/10/10)
 
 FIXES:
 
 - ci: fix posting of coverage messages to GitHub PRs
 
-# 13.1.2a3 (2023/10/10)
+## 13.1.2a3 (2023/10/10)
 
 FIXES:
 
 - ci: fix creation of GitHub pre-releases
 
-# 13.1.2a1 (2023/10/10)
+## 13.1.2a1 (2023/10/10)
 
 UPDATES:
 
@@ -313,7 +353,7 @@ UPDATES:
 - deps: bump tox from 4.11.1 to 4.11.3
 - deps: lock file maintenance
 
-# 13.1.1 (2023/09/11)
+## 13.1.1 (2023/09/11)
 
 FIXES:
 
@@ -324,20 +364,20 @@ UPDATES:
 
 - Update all dependencies
 
-# 13.1.1a0 (2023/09/05)
+## 13.1.1a0 (2023/09/05)
 
 FIXES:
 
 - replace deprecated usage of set-output in Github Actions
 
-# 13.1.0 (2023/09/05)
+## 13.1.0 (2023/09/05)
 
 UPDATES:
 
 - Use poetry 1.6.1 in CI
 - Update all dependencies
 
-# 13.0.0 (2023/06/13)
+## 13.0.0 (2023/06/13)
 
 BREAKING:
 
@@ -357,7 +397,7 @@ UPDATES:
 - Update all dependencies
 
 
-# 12.2.0 (2023/02/16)
+## 12.2.0 (2023/02/16)
 
 FIXES:
 
@@ -380,13 +420,13 @@ UPDATES:
 - Bump requests from 2.28.1 to 2.28.2
 - Bump termcolor from 2.1.0 to 2.2.0
 
-# 12.1.0 (2022/11/21)
+## 12.1.0 (2022/11/21)
 
 ADDED:
 
 - TER-515: no need to load backend configuration for terraform providers command
 
-# 12.0.0 (2022/11/07)
+## 12.0.0 (2022/11/07)
 
 BREAKING:
 
@@ -417,7 +457,7 @@ UPDATES
 - Bump requests-mock from 1.9.3 to 1.10.0
 - Bump termcolor from 1.1.0 to 2.1.0
 
-# 11.0.0 (2022/04/08)
+## 11.0.0 (2022/04/08)
 
 BREAKING:
 
@@ -440,7 +480,7 @@ UPDATES
 - Bump actions/checkout from 2 to 3
 - Bump requests from 2.25.1 to 2.27.1
 
-# 10.0.0 (2022/03/10)
+## 10.0.0 (2022/03/10)
 
 BREAKING:
 
@@ -472,7 +512,7 @@ FIXES:
 - poetry add --dev toml
 - Properly check prerelease status in Create Release step
 
-# 9.2.0 (2022/02/08)
+## 9.2.0 (2022/02/08)
 
 ADDED:
 
@@ -482,7 +522,7 @@ UPDATES:
 
 - Update pre-commit hooks and add flake8-docstrings dependency to flake8 pre-commit hook to match CI checks
 
-# 9.1.0 (2022/01/24)
+## 9.1.0 (2022/01/24)
 
 ADDED:
 
@@ -492,25 +532,25 @@ UPDATES:
 
 - Add poetry.toml to set `in-project = true` by default
 
-# 9.0.0 (2021/11/15)
+## 9.0.0 (2021/11/15)
 
 BREAKING:
 
 - TER-489/[GITHUB-19](https://github.com/claranet/terraform-wrapper/issues/19): Upgrade `azure-cli-core` deps to `v2.30.0` and uses MSAL auth. `azure-cli` must be in `v2.30.0` or a newer version
 
-# 8.1.2 (2021/10/27)
+## 8.1.2 (2021/10/27)
 
 FIXED:
 
 - TER-486: script release process (it was a pain to do it right each time)
 
-# 8.1.1 (2021/10/25)
+## 8.1.1 (2021/10/25)
 
 FIXED:
 
 - TER-485: fix `use_local_azure_session_directory` parameter which was no longer taken into account since v8.0.0
 
-# 8.1.0 (2021/10/12)
+## 8.1.0 (2021/10/12)
 
 UPDATES:
 
@@ -523,20 +563,20 @@ FIXED:
 - TER-477: remove warning about using `amd64` binaries on non-`arm64` architecture for `darwin` platform
 - TER-483: fix azure extras
 
-# 8.0.2 (2021/08/31)
+## 8.0.2 (2021/08/31)
 
 FIXED:
 
 - TER-476: re-add `packaging` dependency needed for Azure authentication that was lost on removal of `azure-cli` dependency
 
-# 8.0.1 (2021/08/31)
+## 8.0.1 (2021/08/31)
 
 FIXED:
 
 - TER-475: terraform only supports `darwin` (MacOS) on `arm64` (Apple Silicon M1) since v1.0.2, so force usage of `amd64` binaries with Rosetta for older terraform versions
 - TER-476: re-add `azure-cli-core` and `msrestazure` dependencies needed for Azure authentication that were lost on removal of `azure-cli` dependency
 
-# 8.0.0 (2021/08/30)
+## 8.0.0 (2021/08/30)
 
 BREAKING:
 
@@ -553,20 +593,20 @@ FIXED:
 
 - TER-474: Support downloading terraform binaries for MacOS on Apple Silicon M1 (`darwin_arm64`)
 
-# 7.13.2 (2021/06/24)
+## 7.13.2 (2021/06/24)
 
 UPDATES:
 
 - TER-347: Update dependencies (azure-cli `v2.25.0`)
 
-# 7.13.1 (2021/06/14)
+## 7.13.1 (2021/06/14)
 
 FIXED:
 
 - TER-430: Hotfix bootstrapped stacks created in conf directory
 - [GITHUB-12](https://github.com/claranet/terraform-wrapper/pull/12): Bump urllib3 from 1.26.4 to 1.26.5
 
-# 7.13.0 (2021/05/11)
+## 7.13.0 (2021/05/11)
 
 ADDED:
 
@@ -576,7 +616,7 @@ FIXED:
 
 - TER-472: Fix switchver check when terraform version from global PATH is already matching
 
-# 7.12.1 (2021/04/19)
+## 7.12.1 (2021/04/19)
 
 FIXED:
 
@@ -586,7 +626,7 @@ UPDATES:
 
 - TER-471: Add python 3.9 in tests
 
-# 7.12.0 (2021/03/29)
+## 7.12.0 (2021/03/29)
 
 UPDATES:
 
@@ -594,19 +634,19 @@ UPDATES:
 - [GITHUB-10](https://github.com/claranet/terraform-wrapper/pull/10): Bump jinja2 from 2.11.2 to 2.11.3
 - [GITHUB-11](https://github.com/claranet/terraform-wrapper/pull/11): Bump pyyaml from 5.3.1 to 5.4.1
 
-# 7.11.1 (2021/03/12)
+## 7.11.1 (2021/03/12)
 
 FIXED:
 
 - TER-467: Fix Azure HTTP logging policy
 
-# 7.11.0 (2021/02/03)
+## 7.11.0 (2021/02/03)
 
 UPDATES:
 
 - TER-466: Don't try to generate/load Azure storage backend credentials if they're already set
 
-# 7.10.0 (2021/01/15)
+## 7.10.0 (2021/01/15)
 
 UPDATES:
 
@@ -617,37 +657,37 @@ FIXED:
 
 - TER-465: Wrapper cannot find terraform 0.12.30 & 0.13.6
 
-# 7.9.5 (2021/01/08)
+## 7.9.5 (2021/01/08)
 
 UPDATES:
 
 - TER-464: Pass state.yml configuration object to state.j2.tf template
 
-# 7.9.4 (2020/10/19)
+## 7.9.4 (2020/10/19)
 
 FIXED:
 
 - TER-463: Fix yaml unsafe load warning when using Azure profile
 
-# 7.9.3 (2020/09/29)
+## 7.9.3 (2020/09/29)
 
 FIXED:
 
 - TER-458: Fix `terraform version` ouput matching and parse
 
-# 7.9.2 (2020/09/17)
+## 7.9.2 (2020/09/17)
 
 UPDATES:
 
 - TER-439: Bump `azure-cli` to latest `2.11.1` and upgrade AWS/boto dependencies
 
-# 7.9.1 (2020/07/28)
+## 7.9.1 (2020/07/28)
 
 FIXED:
 
 - TER-456: Fix env for "each" process when using `foreach` (we must extend current `os.environ`)
 
-# 7.9.0 (2020/06/30)
+## 7.9.0 (2020/06/30)
 
 UPDATES:
 
@@ -658,14 +698,14 @@ FIXED:
 
 - TER-458: terraform 0.13 no longer supports -v, use version subcommand
 
-# 7.8.0 (2020/05/25)
+## 7.8.0 (2020/05/25)
 
 UPDATES:
 
 - TER-454: support missing or empty state yml
 - TER-439: Bump `azure-cli` to latest `2.6.0` and upgrade AWS/boto dependencies
 
-# 7.7.0 (2020/04/29)
+## 7.7.0 (2020/04/29)
 
 UPDATES:
 
@@ -676,13 +716,13 @@ FIXED:
 
 - TER-453: Don't load stack config for wrapper local commands (like `switchver`)
 
-# 7.6.1 (2020/02/20)
+## 7.6.1 (2020/02/20)
 
 FIXED:
 
 - TER-331: Allow `<patch>[0-9]` suffixes to custom provider release version
 
-# 7.6.0 (2020/02/20)
+## 7.6.0 (2020/02/20)
 
 ADDED:
 
@@ -695,13 +735,13 @@ UPDATES:
 - TER-442: Format code with black
 - TER-439: Bump `azure-cli` to `2.1.0`
 
-# 7.5.1 (2020/01/08)
+## 7.5.1 (2020/01/08)
 
 UPDATES:
 
 - TER-347: Bump Python/boto dependencies
 
-# 7.5.0 (2020/01/06)
+## 7.5.0 (2020/01/06)
 
 ADDED:
 
@@ -712,13 +752,13 @@ UPDATES:
 - Improve README with TOC
 - TER-439: Bump `azure-cli` to `2.0.77`
 
-# 7.4.1 (2019/12/09)
+## 7.4.1 (2019/12/09)
 
 FIXED:
 
 - TER-423: Fix directories path detection in Makefile for exported variables
 
-# 7.4.0 (2019/12/06)
+## 7.4.0 (2019/12/06)
 
 ADDED:
 
@@ -728,7 +768,7 @@ UPDATES:
 
 - TER-343: Improve README documentation for kubeconfig management
 
-# 7.3.0 (2019/12/06)
+## 7.3.0 (2019/12/06)
 
 ADDED:
 
@@ -738,7 +778,7 @@ FIXED:
 
 - TER-35: fix foreach when -c is not specified
 
-# 7.2.0 (2019/10/29)
+## 7.2.0 (2019/10/29)
 
 ADDED:
 
@@ -752,13 +792,13 @@ FIXED:
 
 - TER-417: Start search from the next incremented minor version
 
-# 7.1.1 (2019/09/25)
+## 7.1.1 (2019/09/25)
 
 FIXED:
 
 - TER-418: Fix switchver regression with short version (TER-415)
 
-# 7.1.0 (2019/09/18)
+## 7.1.0 (2019/09/18)
 
 ADDED:
 
@@ -769,7 +809,7 @@ UPDATES:
 - TER-347: Bump Python/boto dependencies
 - TER-364: Bump `azure-cli` to `2.0.73`
 
-# 7.0.0 (2019/07/10)
+## 7.0.0 (2019/07/10)
 
 ADDED:
 
@@ -789,7 +829,7 @@ BREAKING:
 
 - TER-388: Improve `bootstrap` behavior, no longer trigger `terraform init` automatically (old behavior is available via TER-404, can be set in config)
 
-# 6.5.0 (2019/03/18)
+## 6.5.0 (2019/03/18)
 
 ADDED:
 
@@ -809,13 +849,13 @@ UPDATES:
 - TER-381: Update `pyyaml` to 5.1 and use `yaml.safe_load`
 - TER-383: Improve `version` and `providers` subcommands
 
-# 6.4.1 (2019/01/25)
+## 6.4.1 (2019/01/25)
 
 UPDATES:
 
 - [GITHUB-4](https://github.com/claranet/terraform-wrapper/pull/4): More robust shell detection in makefile.
 
-# 6.4.0 (2018/10/04)
+## 6.4.0 (2018/10/04)
 
 UPDATES:
 
@@ -824,7 +864,7 @@ UPDATES:
 - TER-343: Add support for GCP/GKE.
 - TER-347: Update `pip` dependencies.
 
-# 6.3.0 (2018/09/10)
+## 6.3.0 (2018/09/10)
 
 UPDATES:
 
@@ -833,13 +873,13 @@ UPDATES:
 - TER-319: Make subscription id check case insensitive.
 - [GITHUB-2](https://github.com/claranet/terraform-wrapper/pull/2): Add lstrip_blocks=True and trim_blocks=True for jinja2 env.
 
-# 6.2.1 (2018/07/09)
+## 6.2.1 (2018/07/09)
 
 UPDATES:
 
 - TER-301: Fix bootstrap.
 
-# 6.2.0 (2018/07/06)
+## 6.2.0 (2018/07/06)
 
 UPDATES:
 
@@ -848,13 +888,13 @@ UPDATES:
 - TER-284: Fix Ctrl+C.
 - TER-274: Always make sure that we use correct Terraform version.
 
-# 6.1.1 (2018/03/15)
+## 6.1.1 (2018/03/15)
 
 UPDATES:
 
 - [GITHUB-1](https://github.com/claranet/terraform-wrapper/pull/1): Remove unused attribute in AWS configuration schema.
 
-# 6.1.0 (2018/03/14)
+## 6.1.0 (2018/03/14)
 
 UPDATES:
 
@@ -864,20 +904,20 @@ UPDATES:
 - TER-228: Add basic schema validation to stack configuration.
 - TER-231: Switch from `azurerm_region` to `azure_region`.
 
-# 6.0.0 (2018/02/27)
+## 6.0.0 (2018/02/27)
 
 UPDATES:
 
 - TER-159: Terraform version siwtching support.
 - TER-28: azurerm token support update.
 
-# 5.0.0 (2017/01/08)
+## 5.0.0 (2017/01/08)
 
 UPDATES:
 
 - TER-28: Add support for Azure stacks.
 
-# 4.1.0 (2017/11/22)
+## 4.1.0 (2017/11/22)
 
 UPDATES:
 
@@ -885,13 +925,13 @@ UPDATES:
 - TER-190: Initialize returncode.
 - TER-192: Update `README.md`.
 
-# 4.0.1 (2017/10/13)
+## 4.0.1 (2017/10/13)
 
 UPDATES:
 
 - TER-176: Add license file.
 
-# 4.0.0 (2017/10/11)
+## 4.0.0 (2017/10/11)
 
 NOTES:
 
@@ -906,7 +946,7 @@ UPDATES:
 - TER-139: Return Terraform's return code.
 - TER-174: Make sure that we pass pycodestyle check.
 
-# 3.1.0 (2017/07/13)
+## 3.1.0 (2017/07/13)
 
 NOTES:
 
@@ -917,13 +957,13 @@ UPDATES:
 - TER-104: Output wrapper messages on `stderr`
 - TER-105: Catch some usual exceptions
 
-# 3.0.2 (2017/05/22)
+## 3.0.2 (2017/05/22)
 
 UPDATES:
 
 - TER-99: Update terraform subcommands.
 
-# 3.0.1 (2017/05/10)
+## 3.0.1 (2017/05/10)
 
 NOTES:
 
@@ -934,7 +974,7 @@ UPDATES:
 
 - TER-96: Add 15 minutes margin to AssumeRole renewal.
 
-# 3.0.0 (2017/04/27)
+## 3.0.0 (2017/04/27)
 
 NOTES:
 
@@ -945,7 +985,7 @@ UPDATES:
 - TER-85: Support Terraform 0.9.
 - TER-87: Windows 10 compatibility.
 
-# 2.0.0 (2017/02/10)
+## 2.0.0 (2017/02/10)
 
 UPDATES:
 
@@ -956,36 +996,36 @@ UPDATES:
 - TER-57: do not fail to bootstrap when bootstrap is implicit.
 - TER-59: Support ACLs for statefiles.
 
-# 1.1.1 (2016/12/19)
+## 1.1.1 (2016/12/19)
 
 UPDATES:
 
 - Add default value to template.
 
-# 1.1.0 (2016/12/14)
+## 1.1.0 (2016/12/14)
 
 UPDATES:
 
 - TER-30: Add support for template parameter during bootstrap.
 
-# 1.0.0 (2016/11/25)
+## 1.0.0 (2016/11/25)
 
 UPDATES:
 
 - TER-9: Support wrapper execution from anywhere.
 
-# 0.0.3 (2016/08/22)
+## 0.0.3 (2016/08/22)
 
 UPDATES:
 
 - Fix untaint parser.
 
-# 0.0.2 (2016/08/05)
+## 0.0.2 (2016/08/05)
 
 UPDATES:
 
 - Bootstrap remote state before plan or apply if needed.
 
-# 0.0.1 (2016/08/05)
+## 0.0.1 (2016/08/05)
 
 - First Release
