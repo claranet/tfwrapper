@@ -5,7 +5,21 @@
       "release-type": "python",
       "package-name": "claranet-tfwrapper",
       "include-component-in-tag": false,
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance Improvements" },
+        { "type": "deps", "section": "Dependencies" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "style", "section": "Styles" },
+        { "type": "chore", "section": "Miscellaneous Chores" },
+        { "type": "refactor", "section": "Code Refactoring" },
+        { "type": "test", "section": "Tests" },
+        { "type": "build", "section": "Build System" },
+        { "type": "ci", "section": "Continuous Integration" }
+      ]
     }
   }
 }
