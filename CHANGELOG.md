@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.0.1](https://github.com/claranet/tfwrapper/compare/v15.0.0...v15.0.1) (2026-07-16)
+
+
+### Continuous Integration
+
+* keep uv.lock project version in sync on release ([9b3049b](https://github.com/claranet/tfwrapper/commit/9b3049b7ce0edda8a5171653c5610e45eb0f58db))
+* keep uv.lock project version in sync on release ([12ca076](https://github.com/claranet/tfwrapper/commit/12ca076716abb21076fffdea27fd4b7cb9b82ef4))
+
 ## [15.0.0](https://github.com/claranet/tfwrapper/compare/v14.0.8...v15.0.0) (2026-07-16)
 
 
