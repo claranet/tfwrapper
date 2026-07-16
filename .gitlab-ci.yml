@@ -1,10 +1,13 @@
 ---
+include:
+  - project: claranet/guildes/pipeline/helpers
+    ref: v4.13.5
+    file: tool_versions.yml
+
 variables:
   KUBERNETES_MEMORY_REQUEST: "600Mi"
   KUBERNETES_MEMORY_LIMIT: "1Gi"
   KUBERNETES_CPU_REQUEST: "1"
-  PYTHON_VERSION: "3.14"
-  UV_VERSION: "0.11.1"
 
 stages:
   - lint
@@ -13,16 +16,20 @@ stages:
 lint:
   stage: lint
   image: python:${PYTHON_VERSION}
+  needs:
+    - "tool versions"
   script:
     - pip install uv==${UV_VERSION}
     - uv run tox -e lint
 
 tox:
   stage: unit-test
-  image: python:${PYTHON_VERSION}
+  image: python:${PYTHON_TEST_VERSION}
+  needs:
+    - "tool versions"
   parallel:
     matrix:
-      - PYTHON_VERSION: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+      - PYTHON_TEST_VERSION: ["3.10", "3.11", "3.12", "3.13", "3.14"]
   script:
     - pip install uv==${UV_VERSION}
     - uv run tox -e coverage
