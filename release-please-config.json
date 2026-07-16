@@ -19,6 +19,13 @@
         { "type": "test", "section": "Tests" },
         { "type": "build", "section": "Build System" },
         { "type": "ci", "section": "Continuous Integration" }
+      ],
+      "extra-files": [
+        {
+          "path": "uv.lock",
+          "type": "toml",
+          "jsonpath": "$.package[?(@.name.value=='claranet-tfwrapper')].version"
+        }
       ]
     }
   }
