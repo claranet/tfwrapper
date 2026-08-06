@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.0.2](https://github.com/claranet/tfwrapper/compare/v15.0.1...v15.0.2) (2026-08-06)
+
+
+### Miscellaneous Chores
+
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.1 ([#640](https://github.com/claranet/tfwrapper/issues/640)) ([f6755b1](https://github.com/claranet/tfwrapper/commit/f6755b17c5d3741709d7819230ec5246344ad3bf))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.2 ([#642](https://github.com/claranet/tfwrapper/issues/642)) ([ec27b17](https://github.com/claranet/tfwrapper/commit/ec27b177d95c1b7d5d9ade658bced3f5f614c5cd))
+
+
+### Build System
+
+* adopt uv exclude-newer and source CI tool versions from mise ([68f5b8c](https://github.com/claranet/tfwrapper/commit/68f5b8c64845bcb54a896b8debc689a0b3ec2423))
+* adopt uv exclude-newer and source CI tool versions from mise ([5bbded4](https://github.com/claranet/tfwrapper/commit/5bbded401ec77703032d33a53695e284dcf3068d))
+
 ## [15.0.1](https://github.com/claranet/tfwrapper/compare/v15.0.0...v15.0.1) (2026-07-16)
 
 
