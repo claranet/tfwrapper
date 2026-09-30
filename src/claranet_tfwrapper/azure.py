@@ -170,10 +170,11 @@ def _cli_error_output(error):
 
 def _launch_cli_command(command, az_config_dir=None):
     """Launch an Azure CLI command with a given AZURE_CONFIG_DIR context."""
+    printable_command = " ".join("--password=****" if arg.startswith("--password=") else arg for arg in command)
     if az_config_dir:
-        logger.debug(f'Launching command "{" ".join(command)}" with AZURE_CONFIG_DIR="{az_config_dir}" context')
+        logger.debug(f'Launching command "{printable_command}" with AZURE_CONFIG_DIR="{az_config_dir}" context')
     else:
-        logger.debug(f'Launching command "{" ".join(command)}"')
+        logger.debug(f'Launching command "{printable_command}"')
     env = os.environ.copy()
     if az_config_dir:
         env["AZURE_CONFIG_DIR"] = az_config_dir

@@ -247,3 +247,13 @@ def test_sp_context_login_error_shows_cli_stderr(monkeypatch, tmp_path):
         azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
 
     assert excinfo.value.message == f"Cannot log in with service principal my-profile: ERROR: {az_error}"
+
+
+def test_launch_cli_command_masks_password_in_logs(monkeypatch, caplog):
+    monkeypatch.setattr(azure.subprocess, "run", MagicMock())
+
+    with caplog.at_level("DEBUG", logger=azure.logger.name):
+        azure._launch_cli_command(["az", "login", "--service-principal", "--password=mysecret"], "/tmp/az")
+
+    assert "mysecret" not in caplog.text
+    assert "--password=****" in caplog.text
