@@ -1,6 +1,7 @@
 """Test azure related functions."""
 
 import os
+import subprocess
 from unittest.mock import MagicMock
 
 import pytest
@@ -228,3 +229,21 @@ def test_sas_context_backend_user_stack(monkeypatch, tmp_path):
 
     launch_cli.assert_not_called()
     assert tf_vars.get("azure_state_access_key") == "azurerm-sas-token"
+
+
+def test_sp_context_login_error_shows_cli_stderr(monkeypatch, tmp_path):
+    wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
+    subscription_id = "00000000-0000-0000-0000-000000000000"
+    tenant_id = "11111111-1111-1111-1111-111111111111"
+    az_error = "AADSTS7000222: The provided client secret keys for app '22222222' are expired."
+
+    launch_cli = MagicMock(
+        side_effect=subprocess.CalledProcessError(1, ["az", "login"], output=b"", stderr=f"ERROR: {az_error}\n".encode())
+    )
+    monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
+    monkeypatch.setattr(azure, "get_sp_profile", MagicMock(return_value=(tenant_id, "client", "secret")))
+
+    with pytest.raises(azure.AzureError) as excinfo:
+        azure.set_context(wrapper_config, subscription_id, tenant_id, "", sp_profile="my-profile")
+
+    assert excinfo.value.message == f"Cannot log in with service principal my-profile: ERROR: {az_error}"

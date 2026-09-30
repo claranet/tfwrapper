@@ -109,9 +109,10 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         logger.debug(f"Trying to fetch Azure access token to ensure {'backend' if backend_context else 'stack'} access.")
         try:
             _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
             msg = (
-                f"Error accessing subscription {subscription_id}, check that you have Azure CLI installed and "
+                f"Error accessing subscription {subscription_id}: {_cli_error_output(e)}\n"
+                f"Check that you have Azure CLI installed and "
                 f"are authorized on this subscription then log yourself in with:\n\n"
             )
 
@@ -149,7 +150,7 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
                 os.path.join(wrapper_config["rootdir"], ".run", "azure_backend") if backend_context else az_config_dir,
             )
         except subprocess.CalledProcessError as e:
-            raise AzureError(f"Cannot log in with service principal {sp_profile}: {e.output}")
+            raise AzureError(f"Cannot log in with service principal {sp_profile}: {_cli_error_output(e)}")
 
         if not backend_context and not context_name:
             os.environ["ARM_CLIENT_ID"] = client_id
@@ -159,6 +160,12 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         tf_vars.update({f"{vars_prefix}azure_client_id": client_id, f"{vars_prefix}azure_client_secret": client_secret})
 
     return tf_vars
+
+
+def _cli_error_output(error):
+    """Return the decoded error output of a failed Azure CLI command."""
+    output = error.stderr or error.stdout or b""
+    return output.decode(errors="replace").strip() if isinstance(output, bytes) else str(output).strip()
 
 
 def _launch_cli_command(command, az_config_dir=None):
