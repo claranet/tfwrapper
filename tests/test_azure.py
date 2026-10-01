@@ -27,6 +27,26 @@ def test_user_context(monkeypatch, tmp_path):
     assert tf_vars["azure_tenant_id"] == tenant_id
 
 
+@pytest.mark.parametrize(
+    "context_name, env_var_name", [("", "AZURE_CONFIG_DIR"), ("alternative", "AZURE_CONFIG_DIR_ALTERNATIVE")]
+)
+def test_user_context_exported_config_dir_wins(monkeypatch, tmp_path, context_name, env_var_name):
+    wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": True}}
+    subscription_id = "00000000-0000-0000-0000-000000000000"
+    exported_dir = str(tmp_path / "custom-azure")
+    monkeypatch.setenv(env_var_name, exported_dir)
+
+    launch_cli = MagicMock(side_effect=subprocess.CalledProcessError(1, ["az"], output=b"", stderr=b"ERROR: boom\n"))
+    monkeypatch.setattr(azure, "_launch_cli_command", launch_cli)
+
+    with pytest.raises(azure.AzureError) as excinfo:
+        azure.set_context(wrapper_config, subscription_id, None, context_name)
+
+    launch_cli.assert_called_once_with(["az", "account", "get-access-token", "-s", subscription_id], exported_dir)
+    assert os.environ[env_var_name] == exported_dir
+    assert excinfo.value.message.endswith(f"AZURE_CONFIG_DIR={exported_dir} az login")
+
+
 def test_user_context_no_isolation(monkeypatch, tmp_path):
     wrapper_config = {"rootdir": tmp_path, "config": {"use_local_azure_session_directory": False}}
     subscription_id = "00000000-0000-0000-0000-000000000000"

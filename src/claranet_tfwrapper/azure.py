@@ -96,8 +96,12 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
     if azure_local_session:
         suffix = f"_{context_name}" if context_name else ""
         env_var_name = f"AZURE_CONFIG_DIR{suffix.upper()}"
-        az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", f"azure{suffix}")
-        if env_var_name not in os.environ:
+        if env_var_name in os.environ:
+            # A manually exported directory wins, so tfwrapper checks the same session Terraform uses
+            az_config_dir = os.environ[env_var_name]
+            logger.debug(f"Using `{env_var_name}` already set to `{az_config_dir}` directory")
+        else:
+            az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", f"azure{suffix}")
             logger.debug(f"Exporting `{env_var_name}` to `{az_config_dir}` directory")
             os.environ[env_var_name] = az_config_dir
 
