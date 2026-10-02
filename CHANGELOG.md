@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.0.3](https://github.com/claranet/tfwrapper/compare/v15.0.2...v15.0.3) (2026-10-02)
+
+
+### Miscellaneous Chores
+
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4.5 ([#647](https://github.com/claranet/tfwrapper/issues/647)) ([b82e8ec](https://github.com/claranet/tfwrapper/commit/b82e8ec92457fd2be9dd0a49c20d491f5970c0bb))
+
 ## [15.0.2](https://github.com/claranet/tfwrapper/compare/v15.0.1...v15.0.2) (2026-10-02)
 
 
