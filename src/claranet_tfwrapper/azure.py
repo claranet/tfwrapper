@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shlex
 import subprocess
 
 import yaml
@@ -30,10 +31,15 @@ def get_sp_profile(profile_name):
             raise AzureError(f"Please configure your {SP_CREDENTIALS_FILE} configuration file")
         if profile_name not in load_azure_config.keys():
             raise AzureError(f'Cannot find "{profile_name}" profile in your {SP_CREDENTIALS_FILE} configuration file')
+        profile = load_azure_config[profile_name]
+        if not profile.get("client_secret"):
+            raise AzureError(
+                f'"client_secret" is not set for "{profile_name}" profile in your {SP_CREDENTIALS_FILE} configuration file'
+            )
         return (
-            load_azure_config[profile_name]["tenant_id"],
-            load_azure_config[profile_name]["client_id"],
-            load_azure_config[profile_name]["client_secret"],
+            profile["tenant_id"],
+            profile["client_id"],
+            profile["client_secret"],
         )
 
 
@@ -73,7 +79,6 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         backend_session = os.environ.get("ARM_ACCESS_KEY", None) or os.environ.get("ARM_SAS_TOKEN", None)
         if backend_session:
             logger.info("'ARM_SAS_TOKEN' or 'ARM_ACCESS_KEY' already set, don't try to get a new session.")
-            logger.debug("Session token found for backend: {}".format(backend_session))
             tf_vars["azure_state_access_key"] = backend_session
 
     az_config_dir = None
@@ -91,8 +96,12 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
     if azure_local_session:
         suffix = f"_{context_name}" if context_name else ""
         env_var_name = f"AZURE_CONFIG_DIR{suffix.upper()}"
-        az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", f"azure{suffix}")
-        if env_var_name not in os.environ:
+        if env_var_name in os.environ:
+            # A manually exported directory wins, so tfwrapper checks the same session Terraform uses
+            az_config_dir = os.environ[env_var_name]
+            logger.debug(f"Using `{env_var_name}` already set to `{az_config_dir}` directory")
+        else:
+            az_config_dir = os.path.join(wrapper_config["rootdir"], ".run", f"azure{suffix}")
             logger.debug(f"Exporting `{env_var_name}` to `{az_config_dir}` directory")
             os.environ[env_var_name] = az_config_dir
 
@@ -109,14 +118,15 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
         logger.debug(f"Trying to fetch Azure access token to ensure {'backend' if backend_context else 'stack'} access.")
         try:
             _launch_cli_command(["az", "account", "get-access-token", "-s", subscription_id], az_config_dir)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
             msg = (
-                f"Error accessing subscription {subscription_id}, check that you have Azure CLI installed and "
-                f"are authorized on this subscription then log yourself in with:\n\n"
+                f"Error accessing subscription {subscription_id}: {_cli_error_output(e)}\n"
+                "Check that you have Azure CLI installed and "
+                "are authorized on this subscription then log yourself in with:\n\n"
             )
 
             if az_config_dir:
-                msg += f"{env_var_name}={az_config_dir} "
+                msg += f"AZURE_CONFIG_DIR={shlex.quote(az_config_dir)} "
             if tenant_id:
                 msg += f"az login --tenant {tenant_id}"
             else:
@@ -142,14 +152,16 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
                     "--service-principal",
                     "--username",
                     client_id,
-                    f"--password={client_secret}",
+                    # Read from stdin by Azure CLI to keep the secret out of the process arguments
+                    "--password=@-",
                     "--tenant",
                     sp_tenant_id,
                 ],
                 os.path.join(wrapper_config["rootdir"], ".run", "azure_backend") if backend_context else az_config_dir,
+                stdin=client_secret,
             )
         except subprocess.CalledProcessError as e:
-            raise AzureError(f"Cannot log in with service principal {sp_profile}: {e.output}")
+            raise AzureError(f"Cannot log in with service principal {sp_profile}: {_cli_error_output(e)}") from None
 
         if not backend_context and not context_name:
             os.environ["ARM_CLIENT_ID"] = client_id
@@ -161,13 +173,34 @@ def set_context(wrapper_config, subscription_id, tenant_id, context_name, sp_pro
     return tf_vars
 
 
-def _launch_cli_command(command, az_config_dir=None):
+def _cli_error_output(error):
+    """Return the error lines of a failed Azure CLI command.
+
+    Only stderr is used, stdout may contain an access token. Azure CLI login advices are dropped
+    as they do not target the isolated AZURE_CONFIG_DIR.
+    """
+    stderr = (error.stderr or b"").decode(errors="replace").strip()
+    lines = [line for line in stderr.splitlines() if line.startswith("ERROR: ")]
+    if not lines and stderr:
+        lines = stderr.splitlines()[-1:]
+    return "\n".join(lines) or f"Azure CLI exited with status {error.returncode}"
+
+
+def _launch_cli_command(command, az_config_dir=None, stdin=None):
     """Launch an Azure CLI command with a given AZURE_CONFIG_DIR context."""
-    if az_config_dir:
-        logger.debug(f'Launching command "{" ".join(command)}" with AZURE_CONFIG_DIR="{az_config_dir}" context')
-    else:
-        logger.debug(f'Launching command "{" ".join(command)}"')
+    context = f' with AZURE_CONFIG_DIR="{az_config_dir}" context' if az_config_dir else ""
+    logger.debug(f'Launching command "{" ".join(command)}"{context}')
     env = os.environ.copy()
     if az_config_dir:
         env["AZURE_CONFIG_DIR"] = az_config_dir
-    subprocess.run(command, check=True, env=env, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    try:
+        subprocess.run(
+            command,
+            check=True,
+            env=env,
+            input=stdin.encode() if stdin is not None else None,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+        )
+    except OSError as e:
+        raise AzureError(f"Cannot run Azure CLI, check that it is installed and available in your PATH: {e}") from None

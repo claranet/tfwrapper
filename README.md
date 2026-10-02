@@ -643,9 +643,11 @@ Those AzureRM credentials are loaded only if you are using the Service Principal
 
 ### Azure authentication isolation
 
-`AZURE_CONFIG_DIR` environment variable is set to the local `.run/azure` directory if global configuration value `use_local_azure_session_directory` is set to `true`, which is the default, which is the default.
+`AZURE_CONFIG_DIR` environment variable is set to the local `.run/azure` directory if global configuration value `use_local_azure_session_directory` is set to `true`, which is the default.
 
-If you have multiple configurations in your stacks, you also have `<CONFIG_NAME>_AZURE_CONFIG_DIR` which is set to the local `.run/azure_<config_name>` directory.
+If you have multiple configurations in your stacks, you also have `AZURE_CONFIG_DIR_<CONFIG_NAME>` which is set to the local `.run/azure_<config_name>` directory.
+
+If `AZURE_CONFIG_DIR` (or `AZURE_CONFIG_DIR_<CONFIG_NAME>`) is already exported, tfwrapper uses that directory instead of the local `.run` one. Service Principal logins then land in it: if it points to your own Azure CLI configuration (e.g. `~/.azure`), the Service Principal becomes the active account of your `az` session after a run.
 
 ### GCP configuration
 
