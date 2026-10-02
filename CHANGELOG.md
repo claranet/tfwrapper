@@ -1,5 +1,32 @@
 # Changelog
 
+## [15.0.2](https://github.com/claranet/tfwrapper/compare/v15.0.1...v15.0.2) (2026-10-02)
+
+
+### Bug Fixes
+
+* **azure:** show Azure CLI errors and mask SP secret in debug logs ([#645](https://github.com/claranet/tfwrapper/issues/645)) ([66a08da](https://github.com/claranet/tfwrapper/commit/66a08daa4b83277f8c329f563f1d0c91a95d418d))
+* **deps:** update dependency packaging to v26 ([08a453f](https://github.com/claranet/tfwrapper/commit/08a453fec35bc3d06096b0e411ce58d5fd785ee3))
+* **deps:** update dependency packaging to v26 ([fb27eb7](https://github.com/claranet/tfwrapper/commit/fb27eb79401db60fa3a0834b260ff253e995b13a))
+
+
+### Miscellaneous Chores
+
+* **deps:** update actions/setup-python action to v7 ([c1cdd87](https://github.com/claranet/tfwrapper/commit/c1cdd8727d2c777faf08dba6ce531215a8fa671a))
+* **deps:** update actions/setup-python action to v7 ([0154551](https://github.com/claranet/tfwrapper/commit/01545519cffb93a05239711c02b01761cbd02dd8))
+* **deps:** update dependency python to v3.14.7 ([#643](https://github.com/claranet/tfwrapper/issues/643)) ([8a530c1](https://github.com/claranet/tfwrapper/commit/8a530c1bc3940c48e989690f547e51924ed32cda))
+* **deps:** update dependency uv to v0.12.19 ([#639](https://github.com/claranet/tfwrapper/issues/639)) ([ab7c408](https://github.com/claranet/tfwrapper/commit/ab7c408e5952bb0fe83161288f536f9c2418016d))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4.3 ([#644](https://github.com/claranet/tfwrapper/issues/644)) ([231ce51](https://github.com/claranet/tfwrapper/commit/231ce513867f4d3fa3bb752073e6be67eff99847))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4.4 ([#646](https://github.com/claranet/tfwrapper/issues/646)) ([8360743](https://github.com/claranet/tfwrapper/commit/83607437ee5af022216c02254a4c639e24a6b873))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.1 ([#640](https://github.com/claranet/tfwrapper/issues/640)) ([f6755b1](https://github.com/claranet/tfwrapper/commit/f6755b17c5d3741709d7819230ec5246344ad3bf))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.2 ([#642](https://github.com/claranet/tfwrapper/issues/642)) ([ec27b17](https://github.com/claranet/tfwrapper/commit/ec27b177d95c1b7d5d9ade658bced3f5f614c5cd))
+
+
+### Build System
+
+* adopt uv exclude-newer and source CI tool versions from mise ([68f5b8c](https://github.com/claranet/tfwrapper/commit/68f5b8c64845bcb54a896b8debc689a0b3ec2423))
+* adopt uv exclude-newer and source CI tool versions from mise ([5bbded4](https://github.com/claranet/tfwrapper/commit/5bbded401ec77703032d33a53695e284dcf3068d))
+
 ## [15.0.1](https://github.com/claranet/tfwrapper/compare/v15.0.0...v15.0.1) (2026-07-16)
 
 
