@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.0.3](https://github.com/claranet/tfwrapper/compare/v15.0.2...v15.0.3) (2026-10-29)
+
+
+### Miscellaneous Chores
+
+* **deps:** update actions/setup-python action to v7.1.0 ([#655](https://github.com/claranet/tfwrapper/issues/655)) ([1d7202e](https://github.com/claranet/tfwrapper/commit/1d7202ed3cb24fff93dfeafd4715a1a39be07b9b))
+* **deps:** update dependency python to v3.14.8 ([#651](https://github.com/claranet/tfwrapper/issues/651)) ([66f8b46](https://github.com/claranet/tfwrapper/commit/66f8b467c58adcabe45566ea686ff1321d88f7ce))
+* **deps:** update dependency python to v3.15.0 ([#652](https://github.com/claranet/tfwrapper/issues/652)) ([b89bae8](https://github.com/claranet/tfwrapper/commit/b89bae808940fe989c993fb0c0f9b29c98549d7b))
+* **deps:** update dependency python to v3.15.1 ([#654](https://github.com/claranet/tfwrapper/issues/654)) ([54716c3](https://github.com/claranet/tfwrapper/commit/54716c3104f66ec3402b2000e627980a1e1cddcb))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4.5 ([#647](https://github.com/claranet/tfwrapper/issues/647)) ([b82e8ec](https://github.com/claranet/tfwrapper/commit/b82e8ec92457fd2be9dd0a49c20d491f5970c0bb))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.3 ([#653](https://github.com/claranet/tfwrapper/issues/653)) ([5c61543](https://github.com/claranet/tfwrapper/commit/5c61543df372dba0cb2fdc6c0f5bb842fbb537d1))
+
 ## [15.0.2](https://github.com/claranet/tfwrapper/compare/v15.0.1...v15.0.2) (2026-10-02)
 
 
