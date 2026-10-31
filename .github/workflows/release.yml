@@ -61,7 +61,7 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4
+      - uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5
 
       - name: Build project for distribution
         run: uv build
