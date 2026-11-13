@@ -50,6 +50,9 @@ jobs:
           uv run tox -e coverage
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
+          # mise-action puts the mise.toml Python first on PATH, so uv would
+          # otherwise run every matrix job on that single version.
+          UV_PYTHON: ${{ matrix.python_version }}
 
       - name: Store coverage file
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
