@@ -1,5 +1,38 @@
 # Changelog
 
+## [15.1.0](https://github.com/claranet/tfwrapper/compare/v15.0.2...v15.1.0) (2026-11-13)
+
+
+### Features
+
+* add Python 3.15 support ([e2f0802](https://github.com/claranet/tfwrapper/commit/e2f08029a9ac44980c613f05a8d5b14e71673db4))
+* add Python 3.15 support ([8ed425c](https://github.com/claranet/tfwrapper/commit/8ed425c93a87e5f9bee37ef188a0c4ccf36b78d5))
+
+
+### Miscellaneous Chores
+
+* **deps:** update actions/setup-python action to v7.1.0 ([#655](https://github.com/claranet/tfwrapper/issues/655)) ([1d7202e](https://github.com/claranet/tfwrapper/commit/1d7202ed3cb24fff93dfeafd4715a1a39be07b9b))
+* **deps:** update dependency certifi to v2026.10.18 [security] ([#658](https://github.com/claranet/tfwrapper/issues/658)) ([79759fc](https://github.com/claranet/tfwrapper/commit/79759fc3c946cc1340ec397b13b3d6d94b675a15))
+* **deps:** update dependency msgpack to v1.2.3 [security] ([#657](https://github.com/claranet/tfwrapper/issues/657)) ([40944c2](https://github.com/claranet/tfwrapper/commit/40944c2652fc489a7b90d6a7f335939697883334))
+* **deps:** update dependency python to v3.14.8 ([#651](https://github.com/claranet/tfwrapper/issues/651)) ([66f8b46](https://github.com/claranet/tfwrapper/commit/66f8b467c58adcabe45566ea686ff1321d88f7ce))
+* **deps:** update dependency python to v3.15.0 ([#652](https://github.com/claranet/tfwrapper/issues/652)) ([b89bae8](https://github.com/claranet/tfwrapper/commit/b89bae808940fe989c993fb0c0f9b29c98549d7b))
+* **deps:** update dependency python to v3.15.1 ([#654](https://github.com/claranet/tfwrapper/issues/654)) ([54716c3](https://github.com/claranet/tfwrapper/commit/54716c3104f66ec3402b2000e627980a1e1cddcb))
+* **deps:** update dependency python to v3.15.2 ([#656](https://github.com/claranet/tfwrapper/issues/656)) ([d26e852](https://github.com/claranet/tfwrapper/commit/d26e852e5fc830d47f17e215d62bab9f4e28ca0a))
+* **deps:** update dependency urllib3 to v2.8.0 [security] ([#659](https://github.com/claranet/tfwrapper/issues/659)) ([7af5841](https://github.com/claranet/tfwrapper/commit/7af5841417b0af8c661d860632868d3066d55950))
+* **deps:** update dependency uv to v0.13.7 ([eb08d4f](https://github.com/claranet/tfwrapper/commit/eb08d4ffe53dc665d04b8b3ccb3d1142fbedc036))
+* **deps:** update dependency uv to v0.13.7 ([b5e6689](https://github.com/claranet/tfwrapper/commit/b5e668985b500a474d3175e67fa50f7a0a3c242b))
+* **deps:** update dependency virtualenv to v21.14.13 [security] ([#661](https://github.com/claranet/tfwrapper/issues/661)) ([4e39b69](https://github.com/claranet/tfwrapper/commit/4e39b69643d24655db07d8741e710f7f6d8183a6))
+* **deps:** update dependency virtualenv to v21.14.9 [security] ([#660](https://github.com/claranet/tfwrapper/issues/660)) ([56e20dc](https://github.com/claranet/tfwrapper/commit/56e20dc4b2114aae7694b4db41a49d567215b4a7))
+* **deps:** update jdx/mise-action action to v5 ([941a8bb](https://github.com/claranet/tfwrapper/commit/941a8bbed2f2dc4d7b0564892fb15645173034cc))
+* **deps:** update jdx/mise-action action to v5 ([3bcacd9](https://github.com/claranet/tfwrapper/commit/3bcacd90a1b11961873e09f42266715fd24c09e3))
+* **deps:** update py-cov-action/python-coverage-comment-action action to v4.5 ([#647](https://github.com/claranet/tfwrapper/issues/647)) ([b82e8ec](https://github.com/claranet/tfwrapper/commit/b82e8ec92457fd2be9dd0a49c20d491f5970c0bb))
+* **deps:** update pypa/gh-action-pypi-publish action to v1.14.3 ([#653](https://github.com/claranet/tfwrapper/issues/653)) ([5c61543](https://github.com/claranet/tfwrapper/commit/5c61543df372dba0cb2fdc6c0f5bb842fbb537d1))
+
+
+### Continuous Integration
+
+* run each test matrix job on its own Python version ([637c1e2](https://github.com/claranet/tfwrapper/commit/637c1e2da36e8c2313f5d03219521255a8ee918a))
+
 ## [15.0.2](https://github.com/claranet/tfwrapper/compare/v15.0.1...v15.0.2) (2026-10-02)
 
 
