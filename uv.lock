@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.10, <4.0"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -58,15 +58,15 @@ wheels = [
 
 [[package]]
 name = "cachecontrol"
-version = "0.14.4"
+version = "0.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "msgpack" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/f6/c972b32d80760fb79d6b9eeb0b3010a46b89c0b23cf6329417ff7886cd22/cachecontrol-0.14.4.tar.gz", hash = "sha256:e6220afafa4c22a47dd0badb319f84475d79108100d04e26e8542ef7d3ab05a1", size = 16150, upload-time = "2025-11-14T04:32:13.138Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/03/825d9b1cb14c5ca1ce4dec89fbb87ef87bdd5d45eb5bd96a463aa1ead457/cachecontrol-0.15.0.tar.gz", hash = "sha256:52157b539eb64d85c8c793660e86cf05cf95fad7b98c8ef6846e4a0ddffdb193", size = 31535, upload-time = "2026-11-16T20:48:41.99Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/79/c45f2d53efe6ada1110cf6f9fca095e4ff47a0454444aefdde6ac4789179/cachecontrol-0.14.4-py3-none-any.whl", hash = "sha256:b7ac014ff72ee199b5f8af1de29d60239954f223e948196fa3d84adaffc71d2b", size = 22247, upload-time = "2025-11-14T04:32:11.733Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/4b/fb590767eef526df867d79f1ebfaf737ce85365a752fa1f4cc428497da7d/cachecontrol-0.15.0-py3-none-any.whl", hash = "sha256:10b7ab4387355ad9361d5b89bc0f6758e48099017be173241c4e0f20d9e1dad2", size = 22333, upload-time = "2026-11-16T20:48:40.674Z" },
 ]
 
 [package.optional-dependencies]
@@ -235,6 +235,7 @@ wheels = [
 name = "claranet-tfwrapper"
 version = "15.1.0"
 source = { editable = "." }
+default-groups = "all"
 dependencies = [
     { name = "argcomplete" },
     { name = "boto3" },
@@ -270,7 +271,7 @@ test = [
 requires-dist = [
     { name = "argcomplete", specifier = "<4.0" },
     { name = "boto3", specifier = ">=1.17.94,<2.0.0" },
-    { name = "cachecontrol", extras = ["filecache"], specifier = ">=0.14.0,<0.15.0" },
+    { name = "cachecontrol", extras = ["filecache"], specifier = ">=0.15.0,<0.16.0" },
     { name = "colorlog", specifier = ">=5.0.1,<7.0.0" },
     { name = "jinja2", specifier = ">=3.0.1,<4.0.0" },
     { name = "lockfile", specifier = ">=0.12.2,<0.13.0" },
