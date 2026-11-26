@@ -26,7 +26,7 @@ classifiers = [
 dependencies = [
   "argcomplete<4.0",
   "boto3>=1.17.94,<2.0.0",
-  "cachecontrol[filecache]>=0.14.0,<0.15.0",
+  "cachecontrol[filecache]>=0.15.0,<0.16.0",
   "colorlog>=5.0.1,<7.0.0",
   "jinja2>=3.0.1,<4.0.0",
   "lockfile>=0.12.2,<0.13.0",
